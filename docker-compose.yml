@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  web:
+    container_name: movies_admin
+    image: movies_admin:v1.2
+    build: .
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    env_file:
+      - ./envs/.env
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    container_name: postgres
+    image: postgres:13.0-alpine
+    env_file:
+      - ./envs/.db.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+volumes:
+  postgres_data:

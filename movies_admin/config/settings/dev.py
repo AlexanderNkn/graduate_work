@@ -6,23 +6,23 @@ from .base import *  # noqa
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_APPLICATION_SECRET_KEY')
+SECRET_KEY = os.getenv('DJANGO_APPLICATION_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG')  # type: ignore
+DEBUG = bool(int(os.getenv('DJANGO_DEBUG')))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(' ')
 
-ENABLE_DEBUG_TOOLBAR = os.environ.get('ENABLE_DEBUG_TOOLBAR')
+ENABLE_DEBUG_TOOLBAR = bool(int(os.getenv('ENABLE_DEBUG_TOOLBAR')))
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
         'OPTIONS': {
            'options': '-c search_path=public,content'
         }
@@ -32,7 +32,9 @@ DATABASES = {
 if ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += ['debug_toolbar']  # noqa
     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']  # noqa
-    INTERNAL_IPS = ['localhost', '127.0.0.1']
+    import socket
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + ['127.0.0.1', 'localhost']
 
 LOGGING = {
     'version': 1,
