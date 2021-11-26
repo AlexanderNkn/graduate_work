@@ -50,3 +50,9 @@ ENV/
 
 # auto generated docs
 doc.html
+
+# vscode
+.vscode
+
+# mypy
+.mypy_cache
