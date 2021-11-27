@@ -29,12 +29,11 @@ DATABASES = {
     }
 }
 
-if ENABLE_DEBUG_TOOLBAR:
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += ['debug_toolbar']  # noqa
     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']  # noqa
-    import socket
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + ['127.0.0.1', 'localhost']
+    # to enable debug_toolbar in nginx. 
+    INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
 
 LOGGING = {
     'version': 1,
