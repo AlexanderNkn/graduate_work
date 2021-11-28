@@ -89,11 +89,17 @@ class Person(TimeStampedModel):
         return self.full_name
 
 
+class RoleType(models.TextChoices):
+    ACTOR = 'actor', _('actor')
+    DIRECTOR = 'director', _('director')
+    WRITER = 'writer', _('writer')
+
+
 class FilmworkPerson(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.CharField(_('role'), max_length=255)
+    role = models.CharField(_('role'), max_length=20, choices=RoleType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

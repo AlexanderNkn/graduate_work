@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.list import BaseListView
 
-from movies.models import Filmwork
+from movies.models import Filmwork, RoleType
 
 
 class MoviesApiMixin:
@@ -21,9 +21,9 @@ class MoviesApiMixin:
             'type',
         ).annotate(
             genres=ArrayAgg('genres__name', distinct=True),
-            actors=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role='actor')),
-            directors=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role='director')),
-            writers=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role='writer')),
+            actors=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role=RoleType.ACTOR)),
+            directors=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role=RoleType.DIRECTOR)),
+            writers=ArrayAgg('persons__full_name', distinct=True, filter=Q(filmworkperson__role=RoleType.WRITER)),
         )
 
     def render_to_response(self, context, **response_kwargs):

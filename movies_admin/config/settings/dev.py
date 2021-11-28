@@ -32,7 +32,7 @@ DATABASES = {
 if DEBUG and ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += ['debug_toolbar']  # noqa
     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']  # noqa
-    # to enable debug_toolbar in nginx. 
+    # to enable debug_toolbar in nginx.
     INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
 
 LOGGING = {
