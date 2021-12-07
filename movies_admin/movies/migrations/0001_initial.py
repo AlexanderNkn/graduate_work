@@ -102,12 +102,4 @@ class Migration(migrations.Migration):
             name='persons',
             field=models.ManyToManyField(through='movies.FilmworkPerson', to='movies.Person'),
         ),
-        migrations.AddConstraint(
-            model_name='filmworkgenre',
-            constraint=models.UniqueConstraint(fields=('film_work', 'genre'), name='genre_film_work_film_work_id_genre_id_uniq'),
-        ),
-        migrations.AddConstraint(
-            model_name='filmworkperson',
-            constraint=models.UniqueConstraint(fields=('film_work', 'person'), name='person_film_work_film_work_id_person_id_uniq'),
-        ),
     ]

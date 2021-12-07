@@ -23,6 +23,9 @@ class Genre(TimeStampedModel):
         verbose_name_plural = _('genres')
         db_table = "content\".\"genre"
         ordering = ('name',)
+        indexes = [
+            models.Index(fields=('updated_at',), name='genre_updated_at_idx'),
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -69,6 +72,10 @@ class Filmwork(TimeStampedModel):
         verbose_name_plural = _('filmworks')
         db_table = "content\".\"film_work"
         ordering = ('title',)
+        indexes = [
+            models.Index(fields=('updated_at',), name='film_work_updated_at_idx'),
+            models.Index(fields=('creation_date',), name='film_work_creation_date_idx'),
+        ]
 
     def __str__(self) -> str:
         return self.title
@@ -84,6 +91,10 @@ class Person(TimeStampedModel):
         verbose_name_plural = _('persons')
         db_table = "content\".\"person"
         ordering = ('full_name',)
+        indexes = [
+            models.Index(fields=('updated_at',), name='person_updated_at_idx'),
+            models.Index(fields=('birth_date',), name='person_birth_date_idx'),
+        ]
 
     def __str__(self) -> str:
         return self.full_name

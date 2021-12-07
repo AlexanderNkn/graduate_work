@@ -3,7 +3,7 @@ version: '3.9'
 services:
   web:
     container_name: movies_admin
-    image: movies_admin:v1.3
+    image: movies_admin:v1.5
     build: .
     env_file:
       - ./envs/.env
