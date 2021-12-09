@@ -14,12 +14,15 @@ from elasticsearch.helpers import bulk
 
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
+from utils.logger import Logger
 
 TRANSFER_BATCH_SIZE = 100
 # path for ElasticSearch index schema
 SCHEMA_PATH = join(dirname(__file__), 'es_schema.json')
 # path for ETL latest state
 STATE_PATH = join(dirname(__file__), 'etl_state.json')
+
+logger = Logger(__name__)
 
 
 class ETL:
@@ -34,8 +37,11 @@ class ETL:
             storage = JsonFileStorage(STATE_PATH)
             state = State(storage)
             latest_update: str = state.get_state(key='latest_update')
+
+            logger.info('Getting connection with Postgres db ...')
             pg_connection = PostgresConnection()
             conn = pg_connection.get_connection()
+            logger.info('Connection with Postgres was successfully established')
             with conn.cursor() as cur:
                 sql = """
                     SELECT
@@ -55,10 +61,13 @@ class ETL:
                 try:
                     cur.execute(sql, (latest_update, latest_update, latest_update))
                 except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
+                    logger.error('Lost connection with Postgres. Try to reconnect.')
                     continue
                 except Exception:
+                    logger.exception('Postgres db crashed')
                     break
                 else:
+                    logger.info('Uploading data from Postgres to Elastic started')
                     while True:
                         batch: list[tuple] = cur.fetchmany(TRANSFER_BATCH_SIZE)
                         if not batch:
@@ -66,6 +75,7 @@ class ETL:
                         yield batch
                         latest_update = batch[-1][-1].strftime('%Y-%m-%d %H:%M:%S.%f')
                         state.set_state(key='latest_update', value=latest_update)
+                        logger.info('Batch successfully uploaded, ETL state was updated')
                     break
 
     def transform(self, data: Generator[list[tuple], None, None]) -> Generator[dict[str, Any], None, None]:
@@ -109,8 +119,10 @@ class ETL:
         the save point.
         """
         while True:
+            logger.info('Getting connection with Elastic db ...')
             es_connection = ElasticConnection()
             client = es_connection.get_client()
+            logger.info('Connection with Elastic was successfully established')
             try:
                 self.create_index(client)
                 bulk(
@@ -123,10 +135,13 @@ class ETL:
                     max_backoff=300,
                 )
             except elasticsearch.ConnectionError:
+                logger.error('Lost connection with Elastic. Try to reconnect.')
                 continue
             except Exception:
+                logger.exception('Elastic db crashed')
                 break
             else:
+                logger.info('Uploading data from Postgres to Elastic completed')
                 break
 
     def create_index(self, client):

@@ -1,6 +1,10 @@
 from functools import wraps
 from time import sleep
 
+from .logger import Logger
+
+logger = Logger(__name__)
+
 
 def backoff(initial_backoff=0.1, factor=2, max_backoff=10):
     """
@@ -18,7 +22,7 @@ def backoff(initial_backoff=0.1, factor=2, max_backoff=10):
             while not result:
                 delay = initial_backoff * factor ** attempt
                 max_delay = delay if delay < max_backoff else max_backoff
-                print(f'time to sleep {max_delay}')
+                logger.info(f'Try to reconnect after {max_delay} seconds')
                 sleep(max_delay)
                 result = func(*args, **kwargs)
                 attempt += 1

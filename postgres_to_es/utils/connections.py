@@ -19,7 +19,7 @@ class ElasticConnection:
         self.socket = {'host': os.getenv('ES_HOST'), 'port': os.getenv('ES_PORT')}
         self._client = Elasticsearch([self.socket])
 
-    @backoff(initial_backoff=1, max_backoff=10)
+    @backoff(initial_backoff=1, max_backoff=60)
     def get_client(self) -> Optional[Elasticsearch]:
         return self._client if self._client.ping() else None
 
@@ -36,7 +36,7 @@ class PostgresConnection:
             'options': os.getenv('PG_OPTIONS'),
         }
 
-    @backoff(initial_backoff=1, max_backoff=10)
+    @backoff(initial_backoff=1, max_backoff=60)
     def get_connection(self) -> Optional[PGconnection]:
         try:
             return psycopg2.connect(**self.dsn)
