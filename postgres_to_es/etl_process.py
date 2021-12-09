@@ -125,7 +125,7 @@ class ETL:
             logger.info('Connection with Elastic was successfully established')
             try:
                 self.create_index(client)
-                bulk(
+                success, _ = bulk(
                     client=client,
                     index='movies',
                     actions=data,
@@ -141,7 +141,8 @@ class ETL:
                 logger.exception('Elastic db crashed')
                 break
             else:
-                logger.info('Uploading data from Postgres to Elastic completed')
+                logger.info('Uploading data from Postgres to Elastic completed - '
+                            f'{success} rows were synchronized')
                 break
 
     def create_index(self, client):
