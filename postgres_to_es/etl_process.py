@@ -6,14 +6,17 @@ Then the process will be repeated untill all data from Postgres would be transfe
 """
 import json
 import logging
+import os
 from logging import config
 from os.path import dirname, join
+from time import sleep
 from typing import Any, Generator
 
 import elasticsearch
 import psycopg2
 from elasticsearch.helpers import bulk
 
+from sql import SQL
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
 from utils.logging_config import LOGGING_CONFIG
@@ -46,28 +49,15 @@ class ETL:
             conn = pg_connection.get_connection()
             logger.info('Connection with Postgres was successfully established')
             with conn.cursor() as cur:
-                sql = """
-                    SELECT
-                        fw.id, fw.rating, fw.title, fw.description,
-                        jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'role', pfw.role)) AS persons,
-                        jsonb_agg(jsonb_build_object('id', g.id, 'genre', g.name)) AS genres,
-                        GREATEST(fw.updated_at, MAX(p.updated_at), MAX(g.updated_at)) AS latest_update
-                    FROM content.film_work fw
-                    LEFT OUTER JOIN content.person_film_work pfw ON fw.id = pfw.film_work_id
-                    LEFT OUTER JOIN content.person p ON p.id = pfw.person_id
-                    LEFT OUTER JOIN content.genre_film_work gfw ON fw.id = gfw.film_work_id
-                    LEFT OUTER JOIN content.genre g ON gfw.genre_id = g.id
-                    WHERE fw.updated_at > %s or p.updated_at > %s or g.updated_at > %s
-                    GROUP BY fw.id
-                    ORDER BY latest_update;
-                """
                 try:
-                    cur.execute(sql, (latest_update, latest_update, latest_update))
+                    # With provided sql script all updated data for film_works,
+                    # persons and genres are selected in one query
+                    cur.execute(SQL, (latest_update, latest_update, latest_update))
                 except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
                     logger.error('Lost connection with Postgres. Try to reconnect.')
                     continue
                 except Exception:
-                    logger.exception('Postgres db crashed')
+                    logger.exception('Postgres db crashed ')
                     break
                 else:
                     logger.info('Uploading data from Postgres to Elastic started')
@@ -84,10 +74,10 @@ class ETL:
     def transform(self, data: Generator[list[tuple], None, None]) -> Generator[dict[str, Any], None, None]:
         """Transforms raw data to required by ElasticSearch format."""
         for row in data:
-            for id, rating, title, description, persons, genres, _ in [*row]:
+            for id, rating, title, description, persons, genres, _ in row:
                 genre = ' '.join({item['genre'] for item in genres if item.get('genre')})
                 actors_names, actors, writers_names, writers, directors_names = [], [], [], [], []
-                unique_persons = list({person['id']: person for person in persons}.values())
+                unique_persons = ({person['id']: person for person in persons}.values())
                 for person in unique_persons:
                     if not person.get('role'):
                         continue
@@ -141,7 +131,7 @@ class ETL:
                 logger.error('Lost connection with Elastic. Try to reconnect.')
                 continue
             except Exception:
-                logger.exception('Elastic db crashed')
+                logger.exception('Elastic db crashed ')
                 break
             else:
                 logger.info('Uploading data from Postgres to Elastic completed - '
@@ -166,4 +156,9 @@ class ETL:
 
 if __name__ == '__main__':
     etl_process = ETL()
-    etl_process.run()
+    while True:
+        try:
+            etl_process.run()
+            sleep(float(os.getenv('UPLOAD_INTERVAL')))
+        except Exception:
+            logger.exception('Main process failed: ')

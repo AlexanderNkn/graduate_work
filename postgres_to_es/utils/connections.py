@@ -1,16 +1,11 @@
 import os
-from os.path import dirname, join
 from typing import Optional
 
 import psycopg2
 from elasticsearch import Elasticsearch, ConnectionError as ES_ConnectionError
-from dotenv import load_dotenv
 from psycopg2.extensions import connection as PGconnection
 
 from .backoff import backoff
-
-dotenv_path = join(dirname(dirname(__file__)), '.env')
-load_dotenv(dotenv_path)
 
 
 class ElasticConnection:
