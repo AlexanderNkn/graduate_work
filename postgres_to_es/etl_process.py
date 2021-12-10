@@ -5,6 +5,8 @@ according batch size, will be fetched from Postgres and immediately upload to El
 Then the process will be repeated untill all data from Postgres would be transfered to Elasticsearch.
 """
 import json
+import logging
+from logging import config
 from os.path import dirname, join
 from typing import Any, Generator
 
@@ -14,15 +16,16 @@ from elasticsearch.helpers import bulk
 
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
-from utils.logger import Logger
+from utils.logging_config import LOGGING_CONFIG
+
+config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger('main')
 
 TRANSFER_BATCH_SIZE = 100
 # path for ElasticSearch index schema
 SCHEMA_PATH = join(dirname(__file__), 'es_schema.json')
 # path for ETL latest state
 STATE_PATH = join(dirname(__file__), 'etl_state.json')
-
-logger = Logger(__name__)
 
 
 class ETL:

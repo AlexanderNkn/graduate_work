@@ -1,9 +1,12 @@
+import logging
 from functools import wraps
+from logging import config
 from time import sleep
 
-from .logger import Logger
+from .logging_config import LOGGING_CONFIG
 
-logger = Logger(__name__)
+config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger('backoff')
 
 
 def backoff(exception, initial_backoff=0.1, factor=2, max_backoff=10):
