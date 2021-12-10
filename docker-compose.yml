@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: postgres
+    image: postgres:13.0-alpine
+    env_file:
+      - ./envs/db.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  es:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+  etl:
+    container_name: etl
+    image: etl:v1.0
+    build: .
+    env_file:
+      - ./envs/etl.env
+volumes:
+  postgres_data:
+  elastic_data:
