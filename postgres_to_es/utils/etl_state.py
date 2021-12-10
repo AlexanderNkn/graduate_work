@@ -1,17 +1,17 @@
-import abc
 import json
 import os
 
+from abc import ABC, abstractmethod
 from typing import Any
 
 
-class BaseStorage:
-    @abc.abstractmethod
+class BaseStorage(ABC):
+    @abstractmethod
     def save_state(self, state: dict) -> None:
         """Save state to storage."""
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def retrieve_state(self) -> dict:
         """Get state from storage."""
         pass

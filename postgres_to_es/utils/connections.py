@@ -3,8 +3,8 @@ from os.path import dirname, join
 from typing import Optional
 
 import psycopg2
+from elasticsearch import Elasticsearch, ConnectionError as ES_ConnectionError
 from dotenv import load_dotenv
-from elasticsearch import Elasticsearch
 from psycopg2.extensions import connection as PGconnection
 
 from .backoff import backoff
@@ -19,9 +19,11 @@ class ElasticConnection:
         self.socket = {'host': os.getenv('ES_HOST'), 'port': os.getenv('ES_PORT')}
         self._client = Elasticsearch([self.socket])
 
-    @backoff(initial_backoff=1, max_backoff=60)
+    @backoff(exception=ES_ConnectionError, initial_backoff=1, max_backoff=60)
     def get_client(self) -> Optional[Elasticsearch]:
-        return self._client if self._client.ping() else None
+        if not self._client.ping():
+            raise ES_ConnectionError
+        return self._client
 
 
 class PostgresConnection:
@@ -36,9 +38,6 @@ class PostgresConnection:
             'options': os.getenv('PG_OPTIONS'),
         }
 
-    @backoff(initial_backoff=1, max_backoff=60)
+    @backoff(exception=psycopg2.OperationalError, initial_backoff=1, max_backoff=60)
     def get_connection(self) -> Optional[PGconnection]:
-        try:
-            return psycopg2.connect(**self.dsn)
-        except psycopg2.OperationalError:
-            return None
+        return psycopg2.connect(**self.dsn)
