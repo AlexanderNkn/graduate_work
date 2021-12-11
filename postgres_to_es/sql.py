@@ -1,4 +1,4 @@
-SQL = """
+SQL_FOR_UPDATE_FILMWORK_INDEX = """
     SELECT
         fw.id, fw.rating, fw.title, fw.description,
         jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'role', pfw.role)) AS persons,

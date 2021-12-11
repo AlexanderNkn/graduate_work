@@ -7,6 +7,8 @@ Then the process will be repeated untill all data from Postgres would be transfe
 import json
 import logging
 import os
+import signal
+import sys
 from logging import config
 from os.path import dirname, join
 from time import sleep
@@ -16,7 +18,7 @@ import elasticsearch
 import psycopg2
 from elasticsearch.helpers import bulk
 
-from sql import SQL
+from sql import SQL_FOR_UPDATE_FILMWORK_INDEX
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
 from utils.logging_config import LOGGING_CONFIG
@@ -28,7 +30,7 @@ TRANSFER_BATCH_SIZE = 100
 # path for ElasticSearch index schema
 SCHEMA_PATH = join(dirname(__file__), 'es_schema.json')
 # path for ETL latest state
-STATE_PATH = join(dirname(__file__), 'etl_state.json')
+STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
 
 
 class ETL:
@@ -52,7 +54,7 @@ class ETL:
                 try:
                     # With provided sql script all updated data for film_works,
                     # persons and genres are selected in one query
-                    cur.execute(SQL, (latest_update, latest_update, latest_update))
+                    cur.execute(SQL_FOR_UPDATE_FILMWORK_INDEX, (latest_update, latest_update, latest_update))
                 except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
                     logger.error('Lost connection with Postgres. Try to reconnect.')
                     continue
@@ -75,7 +77,7 @@ class ETL:
         """Transforms raw data to required by ElasticSearch format."""
         for row in data:
             for id, rating, title, description, persons, genres, _ in row:
-                genre = ' '.join({item['genre'] for item in genres if item.get('genre')})
+                genre = [*{item['genre'] for item in genres if item.get('genre')}]
                 actors_names, actors, writers_names, writers, directors_names = [], [], [], [], []
                 unique_persons = ({person['id']: person for person in persons}.values())
                 for person in unique_persons:
@@ -98,9 +100,9 @@ class ETL:
                     'genre': genre,
                     'title': title,
                     'description': description,
-                    'director': directors_names and directors_names[0] or None,
-                    'actors_names': actors_names and [' '.join(actors_names)] or None,
-                    'writers_names': writers_names and [' '.join(writers_names)] or None,
+                    'director': directors_names or None,
+                    'actors_names': actors_names or None,
+                    'writers_names': writers_names or None,
                     'actors': actors,
                     'writers': writers,
                 }
@@ -156,9 +158,16 @@ class ETL:
 
 if __name__ == '__main__':
     etl_process = ETL()
+
+    def handler_stop_signals(signum, frame):
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, handler_stop_signals)
+    signal.signal(signal.SIGTERM, handler_stop_signals)
+
     while True:
         try:
             etl_process.run()
-            sleep(float(os.getenv('UPLOAD_INTERVAL')))
         except Exception:
             logger.exception('Main process failed: ')
+        sleep(float(os.getenv('UPLOAD_INTERVAL')))  # type: ignore

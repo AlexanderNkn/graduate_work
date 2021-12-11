@@ -9,7 +9,7 @@ config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('backoff')
 
 
-def backoff(exception, initial_backoff=0.1, factor=2, max_backoff=10):
+def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries=1):
     """
     This decorator is used to retry function with exponential time if specific
     exception was met.
@@ -17,23 +17,33 @@ def backoff(exception, initial_backoff=0.1, factor=2, max_backoff=10):
     To do this it will wait by calling time.sleep for ``initial_backoff`` seconds
     and then, every subsequent rejection, for double the time every time
     up to ``max_backoff`` seconds.
+
+    :arg exception exception if raised retries decorated function
+    :arg initial_backoff: number of seconds we should wait before the first
+        retry. Any subsequent retries will be powers of ``initial_backoff *
+        factor**retry_number``
+    :arg max_backoff: maximum number of seconds a retry will wait
+    :arg max_retries: maximum number of times a document will be retried
     """
     def func_wrapper(func):
         @wraps(func)
         def retry(*args, **kwargs):
-            attempt = 0
-            while True:
+            result = None
+            retry_number = 0
+            while retry_number < max_retries:
                 try:
                     result = func(*args, **kwargs)
                 except exception:
-                    delay = initial_backoff * factor ** attempt
+                    delay = initial_backoff * factor ** retry_number
                     max_delay = delay if delay < max_backoff else max_backoff
                     logger.info(f'Try to reconnect after {max_delay} seconds')
                     sleep(max_delay)
-                    attempt += 1
+                    retry_number += 1
                     continue
                 else:
                     break
-            return result
+            if result is not None:
+                return result
+            raise exception
         return retry
     return func_wrapper

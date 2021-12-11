@@ -18,9 +18,13 @@ services:
   etl:
     container_name: etl
     image: etl:v1.0
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     env_file:
       - ./envs/etl.env
+    volumes:
+      - etl_state:/usr/src/code/postgres_to_es/data/
 volumes:
   postgres_data:
   elastic_data:
