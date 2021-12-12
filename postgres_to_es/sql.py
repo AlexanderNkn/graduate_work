@@ -11,5 +11,6 @@ SQL_FOR_UPDATE_FILMWORK_INDEX = """
     LEFT OUTER JOIN content.genre g ON gfw.genre_id = g.id
     WHERE fw.updated_at > %s or p.updated_at > %s or g.updated_at > %s
     GROUP BY fw.id
-    ORDER BY latest_update;
+    ORDER BY latest_update
+    LIMIT %s;
 """
