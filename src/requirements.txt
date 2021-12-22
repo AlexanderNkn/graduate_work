@@ -1,0 +1,6 @@
+aioredis==2.0.0
+elasticsearch[async]==7.15.2
+fastapi==0.70.1
+orjson==3.6.5
+uvicorn==0.16.0
+uvloop==0.16.0
