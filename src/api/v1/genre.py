@@ -2,7 +2,7 @@ import uuid
 from http import HTTPStatus
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from services.genre import GenreService, get_genre_service
@@ -26,3 +26,14 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
         name=genre.name,
         description=genre.description,
     )
+
+
+@router.get('', response_model=List[Genre])
+async def genre_list(genre_service: GenreService = Depends(get_genre_service)) -> List[Genre]:
+    genres = await genre_service.get_genre_list()
+    return [
+        Genre(uuid=genre.id,
+              name=genre.name,
+              description=genre.description,
+              )
+        for genre in genres]
