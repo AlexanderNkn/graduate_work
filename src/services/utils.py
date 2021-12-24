@@ -7,8 +7,8 @@ from models.base import BaseModel
 
 
 class Page(BaseModel):
-    size: PositiveInt
-    number: PositiveInt
+    size: PositiveInt = 50
+    number: PositiveInt = 1
 
 
 class Filter(BaseModel):
@@ -86,8 +86,11 @@ def get_body(**raw_params) -> dict[str, Any]:
 
 
 def _get_search_query(query: str) -> dict:
-    # TODO
-    pass
+    return {
+        "simple_query_string": {
+            "query": query
+        }
+    }
 
 
 def _get_filter_query(filter: Filter) -> dict:
