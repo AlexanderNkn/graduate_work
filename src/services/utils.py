@@ -87,7 +87,8 @@ def get_body(**raw_params) -> dict[str, Any]:
 
 def _get_search_query(query: str) -> dict:
     return {
-        "simple_query_string": {
+        # "simple_query_string": {
+        "query_string": {
             "query": query
         }
     }

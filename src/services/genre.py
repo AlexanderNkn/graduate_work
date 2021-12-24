@@ -19,7 +19,7 @@ class GenreService:
         return genre or None
 
     async def _get_genre_from_elastic(self, genre_id: str) -> Optional[Genre]:
-        doc = await self.elastic.get('genres', genre_id)
+        doc = await self.elastic.get(index='genres', id=genre_id)
         return Genre(**doc['_source'])
 
     async def get_genres_by_params(self, **params) -> Optional[list[Genre]]:
