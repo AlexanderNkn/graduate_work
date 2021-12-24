@@ -1,17 +1,47 @@
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import Request
+from pydantic.types import PositiveInt
+
+from models.base import BaseModel
 
 
-def get_body(query: str = None, sort: str = None, page: dict = None, filter: dict = None) -> dict[str, Any]:
-    """Returns body for search query based on args given.
+class Page(BaseModel):
+    size: PositiveInt
+    number: PositiveInt
 
+
+class Filter(BaseModel):
+    field: str
+    value: str
+
+
+class Body(BaseModel):
+    query: Optional[str]
+    sort: Optional[str]
+    filter: Optional[Filter]
+    page: Optional[Page]
+
+
+def _validate_query_params(query: str = None, sort: str = None, page: dict = None, filter: dict = None) -> Body:
+    """
     Args:
         sort: sorting field from url. If starts with '-' then desc order will be applied
         page[size]: number of hits on page
         page[number]: page number
         query: searching query, default 'match_all'
-        filter: filtered field
+        filter: dict of filtered field and it's value
+    """
+    page = page and Page(**page)
+    if filter is not None:
+        field, value = tuple(filter.items())[0]
+        filter = Filter(field=field, value=value)
+    body = Body(query=query, sort=sort, filter=filter, page=page)
+    return body
+
+
+def get_body(**raw_params) -> dict[str, Any]:
+    """Returns body for search query based on params given.
 
     Returns:
         Example
@@ -28,31 +58,31 @@ def get_body(query: str = None, sort: str = None, page: dict = None, filter: dic
         }
 
     """
-    # TODO add validation for query params
-    body: dict[str, Any] = {}
-    
+    query_body: dict[str, Any] = {}
+    params = _validate_query_params(**raw_params)
+
     # pagination
-    if page is not None:
-        body['from'] = (int(page['number']) - 1) * int(page['size'])
-        body['size'] = int(page['size'])
-    
+    if params.page is not None:
+        query_body['from'] = (params.page.number - 1) * params.page.size
+        query_body['size'] = params.page.size
+
     # searching
-    if query is not None:
-        body.setdefault('query', {}).update(_get_search_query(query))
-    elif filter is not None:
-        body.setdefault('query', {}).update(_get_filter_query(filter))
+    if params.query is not None:
+        query_body.setdefault('query', {}).update(_get_search_query(params.query))
+    elif params.filter is not None:
+        query_body.setdefault('query', {}).update(_get_filter_query(params.filter))
     else:
-        body['query'] = {'match_all': {}}
-    
+        query_body['query'] = {'match_all': {}}
+
     # sorting
-    if sort is not None:
-        field = sort.removeprefix('-')
-        direction = 'desc' if sort.startswith('-') else 'asc'
-        body['sort'] = {
+    if params.sort is not None:
+        field = params.sort.removeprefix('-')
+        direction = 'desc' if params.sort.startswith('-') else 'asc'
+        query_body['sort'] = {
             field: {'order': direction}
         }
 
-    return body
+    return query_body
 
 
 def _get_search_query(query: str) -> dict:
@@ -60,17 +90,16 @@ def _get_search_query(query: str) -> dict:
     pass
 
 
-def _get_filter_query(filter: dict) -> dict:
-    path, value = tuple(filter.items())[0]
+def _get_filter_query(filter: Filter) -> dict:
     # selected category is filtered based on id:UUID only
-    field = f'{path}.id'
+    nested_field = f'{filter.field}.id'
     return {
         "nested": {
-            "path": path,
+            "path": filter.field,
             "query": {
                 "bool": {
                     "must": [
-                        {"match": {field: value}}
+                        {"match": {nested_field: filter.value}}
                     ]
                 }
             }
@@ -98,7 +127,7 @@ def get_params(request: Request) -> dict[str, str | dict]:
     for key, value in request.query_params.items():
         nested_key = key.removesuffix(']').split('[')
         if len(nested_key) == 2:
-            params.setdefault(nested_key[0], {}).update({nested_key[1]: value})  #type: ignore
+            params.setdefault(nested_key[0], {}).update({nested_key[1]: value})  # type: ignore
             continue
         params[key] = value
 
