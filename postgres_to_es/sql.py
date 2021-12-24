@@ -2,7 +2,7 @@ SQL_FOR_UPDATE_FILMWORK_INDEX = """
     SELECT
         fw.id, fw.rating, fw.title, fw.description,
         jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'role', pfw.role)) AS persons,
-        jsonb_agg(jsonb_build_object('id', g.id, 'genre', g.name)) AS genres,
+        jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name)) AS genres,
         GREATEST(fw.updated_at, MAX(p.updated_at), MAX(g.updated_at)) AS latest_update
     FROM content.film_work fw
     LEFT OUTER JOIN content.person_film_work pfw ON fw.id = pfw.film_work_id

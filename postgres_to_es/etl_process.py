@@ -17,9 +17,10 @@ from typing import Any, Optional, Sequence
 
 import elasticsearch
 import psycopg2
-from elasticsearch.helpers import bulk
+from elasticsearch.helpers import bulk, BulkIndexError
 
 from sql import SQL_FOR_UPDATE_FILMWORK_INDEX
+from es_schema import GENRES_INDEX, MOVIES_INDEX, PERSONS_INDEX
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
 from utils.logging_config import LOGGING_CONFIG
@@ -27,15 +28,20 @@ from utils.logging_config import LOGGING_CONFIG
 config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('main')
 
-TRANSFER_BATCH_SIZE = 500
-# path for ElasticSearch index schema
-SCHEMA_PATH = join(dirname(__file__), 'es_schema.json')
-# path for ETL latest state
-STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
-
 
 class ETL:
     """Extracts data from Postges then load it to ElasticSearch."""
+    TRANSFER_BATCH_SIZE = 500
+    # path for ElasticSearch index schema
+    SCHEMA_PATH = join(dirname(__file__), 'es_schema.json')
+    # path for ETL latest state
+    STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
+    INDEXES = {
+        #'movies': MOVIES_INDEX,
+        'genres': GENRES_INDEX,
+        'persons': PERSONS_INDEX,
+        'movies': MOVIES_INDEX
+    }
 
     def extract(self) -> Optional[list[tuple]]:
         """Retrieve data from Postgres.
@@ -57,14 +63,14 @@ class ETL:
                     # persons and genres are selected in one query
                     cur.execute(
                         SQL_FOR_UPDATE_FILMWORK_INDEX,
-                        (latest_update, latest_update, latest_update, TRANSFER_BATCH_SIZE)
+                        (latest_update, latest_update, latest_update, self.TRANSFER_BATCH_SIZE)
                     )
                 except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
                     logger.error('Lost connection with Postgres. Try to reconnect.')
                     continue
                 except Exception:
-                    logger.exception('Postgres db crashed ')
-                    break
+                    logger.error('Postgres db crashed ')
+                    raise
                 else:
                     data = cur.fetchall()
                     message = 'Uploading data from Postgres to Elastic started' if data else 'No updates available'
@@ -77,8 +83,8 @@ class ETL:
         """Transforms raw data to required by ElasticSearch format."""
         prepared_data = []
         for id, rating, title, description, persons, genres, latest_update in data:
-            genre = [*{item['genre'] for item in genres if item.get('genre')}]
-            actors_names, actors, writers_names, writers, directors_names = [], [], [], [], []
+            genres = list({genre['id']: genre for genre in genres}.values())
+            actors_names, actors, writers_names, writers, directors_names, directors = [], [], [], [], [], []
             unique_persons = ({person['id']: person for person in persons}.values())
             for person in unique_persons:
                 if not person.get('role'):
@@ -92,17 +98,19 @@ class ETL:
                     writers.append(person_info)
                 elif person['role'] == 'director':
                     directors_names.append(person['full_name'])
+                    directors.append(person_info)
 
             doc = {
                 '_id': id,
                 'id': id,
                 'imdb_rating': rating,
-                'genre': genre,
+                'genre': genres,
                 'title': title,
                 'description': description,
-                'director': directors_names or None,
+                'directors_names': directors_names or None,
                 'actors_names': actors_names or None,
                 'writers_names': writers_names or None,
+                'directors': directors,
                 'actors': actors,
                 'writers': writers,
             }
@@ -130,7 +138,7 @@ class ETL:
                     client=client,
                     index='movies',
                     actions=data['prepared_data'],
-                    chunk_size=TRANSFER_BATCH_SIZE,
+                    chunk_size=self.TRANSFER_BATCH_SIZE,
                     max_retries=1000,
                     initial_backoff=1,
                     max_backoff=300,
@@ -138,9 +146,6 @@ class ETL:
             except elasticsearch.ConnectionError:
                 logger.error('Lost connection with Elastic. Try to reconnect.')
                 continue
-            except Exception:
-                logger.exception('Elastic db crashed ')
-                break
             else:
                 logger.info('Uploading data from Postgres to Elastic completed - '
                             f'{success} rows were synchronized')
@@ -149,18 +154,17 @@ class ETL:
                 logger.info('ETL state was updated')
                 break
 
-    def create_index(self, client):
+    def create_index(self, client, index='movies'):
         """Creates an index in Elasticsearch if one isn't already there."""
-        with open(SCHEMA_PATH, 'r') as schema:
-            client.indices.create(
-                index='movies',
-                body=json.load(schema),
-                ignore=400,
-            )
+        client.indices.create(
+            index=index,
+            body=self.INDEXES[index],
+            ignore=400,
+        )
 
     def get_state_object(self) -> State:
         """Returns state instance."""
-        storage = JsonFileStorage(STATE_PATH)
+        storage = JsonFileStorage(self.STATE_PATH)
         return State(storage)
 
     def run(self) -> None:
@@ -185,6 +189,8 @@ if __name__ == '__main__':
     while True:
         try:
             etl_process.run()
+        except BulkIndexError as exp:
+            logger.error(f'Elastic db crashed \n{exp.errors[0]}')
         except Exception:
             logger.exception('Main process failed: ')
         sleep(float(os.getenv('UPLOAD_INTERVAL')))  # type: ignore
