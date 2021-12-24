@@ -2,10 +2,11 @@ import uuid
 from http import HTTPStatus
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from services.film import FilmService, get_film_service
+from services.utils import get_params
 
 router = APIRouter()
 
@@ -15,7 +16,7 @@ class PersonName(BaseModel):
     name: str
 
 
-class Film(BaseModel):
+class FilmFull(BaseModel):
     uuid: uuid.UUID
     imdb_rating: float
     genre: list[str]
@@ -28,12 +29,18 @@ class Film(BaseModel):
     writers: list[PersonName]
 
 
-@router.get('/{film_id}', response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+class FilmShort(BaseModel):
+    uuid: uuid.UUID
+    imdb_rating: float
+    title: str
+
+
+@router.get('/{film_id}', response_model=FilmFull)
+async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmFull:
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
-    return Film(
+    return FilmFull(
         uuid=film.id,
         imdb_rating=film.imdb_rating,
         genre=film.genre,
@@ -45,3 +52,20 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
         actors=[PersonName(uuid=actor.id, name=actor.name) for actor in film.actors],
         writers=[PersonName(uuid=writer.id, name=writer.name) for writer in film.writers],
     )
+
+
+@router.get('/', response_model=list[FilmShort])
+async def films_list(
+    sort: str, request: Request, film_service: FilmService = Depends(get_film_service)
+) -> list[FilmShort]:
+    params = get_params(request)
+    film_list = await film_service.get_films_by_params(**params)
+    if not film_list:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+    return [
+        FilmShort(
+            uuid=film.id,
+            title=film.title,
+            imdb_rating=film.imdb_rating,
+        ) for film in film_list
+    ]

@@ -7,18 +7,23 @@ from fastapi import Depends
 from db.elastic import get_elastic
 from models.film import Film
 
+from .utils import get_body
+
 
 class FilmService:
     def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
-        film = await self._get_film_from_elastic(film_id)
+        doc = await self.elastic.get(index='movies', id=film_id)
+        film = Film(**doc['_source'])
         return film or None
 
-    async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
-        doc = await self.elastic.get('movies', film_id)
-        return Film(**doc['_source'])
+    async def get_films_by_params(self, **params) -> Optional[list[Film]]:
+        body = get_body(**params)
+        doc = await self.elastic.search(body=body, index='movies')
+        film_list = [Film(**_doc['_source']) for _doc in doc['hits']['hits']]
+        return film_list
 
 
 @lru_cache()
