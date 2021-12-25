@@ -16,14 +16,21 @@ class Filter(BaseModel):
     value: str
 
 
+class Should(BaseModel):
+    field: str
+    value: str
+
+
 class Body(BaseModel):
     query: Optional[str]
     sort: Optional[str]
     filter: Optional[Filter]
+    should: Optional[list[Should]]
     page: Optional[Page]
 
 
-def _validate_query_params(query: str = None, sort: str = None, page: dict = None, filter: dict = None) -> Body:
+def _validate_query_params(query: str = None, sort: str = None, page: dict = None,
+                           filter: dict = None, should: list = None) -> Body:
     """
     Args:
         sort: sorting field from url. If starts with '-' then desc order will be applied
@@ -36,7 +43,13 @@ def _validate_query_params(query: str = None, sort: str = None, page: dict = Non
     if filter is not None:
         field, value = tuple(filter.items())[0]
         filter = Filter(field=field, value=value)
-    body = Body(query=query, sort=sort, filter=filter, page=page)
+    if should is not None:
+        should_list = []
+        for should_item in should:
+            field, value = tuple(should_item.items())[0]
+            should_list.append(Should(field=field, value=value))
+        should = should_list
+    body = Body(query=query, sort=sort, filter=filter, page=page, should=should)
     return body
 
 
@@ -69,9 +82,11 @@ def get_body(**raw_params) -> dict[str, Any]:
     # searching
     if params.query is not None:
         query_body.setdefault('query', {}).update(_get_search_query(params.query))
-    elif params.filter is not None:
+    if params.filter is not None:
         query_body.setdefault('query', {}).update(_get_filter_query(params.filter))
-    else:
+    if params.should is not None:
+        query_body.setdefault('query', {}).update(_get_should_query(params.should))
+    if 'query' not in query_body:
         query_body['query'] = {'match_all': {}}
 
     # sorting
@@ -87,7 +102,6 @@ def get_body(**raw_params) -> dict[str, Any]:
 
 def _get_search_query(query: str) -> dict:
     return {
-        # "simple_query_string": {
         "query_string": {
             "query": query
         }
@@ -107,6 +121,17 @@ def _get_filter_query(filter: Filter) -> dict:
                     ]
                 }
             }
+        }
+    }
+
+
+def _get_should_query(should_list: list[Should]) -> dict:
+    # selected items by id in list
+    return {
+        "bool": {
+            "should": [
+                {"match": {should.field: should.value}} for should in should_list
+            ]
         }
     }
 

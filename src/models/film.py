@@ -9,14 +9,20 @@ class PersonName(BaseModel):
     name: str
 
 
+class Genre(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
 class Film(BaseModel):
     id: uuid.UUID
     imdb_rating: float
-    genre: list[str]
+    genre: list[Genre]
     title: str
     description: Optional[str]
-    director: Optional[list[str]]
     actors_names: Optional[list[str]]
     writers_names: Optional[list[str]]
+    directors_names: Optional[list[str]]
     actors: list[PersonName]
     writers: list[PersonName]
+    directors: list[PersonName]
