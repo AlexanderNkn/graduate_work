@@ -1,9 +1,11 @@
 from functools import lru_cache
 
+from aioredis import Redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
 from db.elastic import get_elastic
+from db.redis import get_redis
 from models.film import Film
 
 from .base import BaseService
@@ -14,5 +16,6 @@ class FilmService(BaseService):
 
 
 @lru_cache()
-def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic),) -> FilmService:
-    return FilmService(index='movies', model=Film, elastic=elastic)
+def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic),
+                     redis: Redis = Depends(get_redis)) -> FilmService:
+    return FilmService(index='movies', model=Film, elastic=elastic, redis=redis)
