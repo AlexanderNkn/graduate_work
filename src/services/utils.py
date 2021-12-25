@@ -86,8 +86,11 @@ def get_body(**raw_params) -> dict[str, Any]:
 
 
 def _get_search_query(query: str) -> dict:
-    # TODO
-    pass
+    return {
+        "query_string": {
+            "query": query
+        }
+    }
 
 
 def _get_filter_query(filter: Filter) -> dict:

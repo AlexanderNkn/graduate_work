@@ -1,6 +1,6 @@
 import uuid
 from http import HTTPStatus
-from typing import Optional
+import elasticsearch
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -16,17 +16,20 @@ class PersonName(BaseModel):
     name: str
 
 
-class FilmFull(BaseModel):
+class Genre(BaseModel):
     uuid: uuid.UUID
-    imdb_rating: float
-    genre: list[str]
+    name: str
+
+
+class FilmDetailed(BaseModel):
+    uuid: uuid.UUID
     title: str
+    imdb_rating: float
     description: str
-    director: Optional[list[str]]
-    actors_names: Optional[list[str]]
-    writers_names: Optional[list[str]]
+    genre: list[Genre]
     actors: list[PersonName]
     writers: list[PersonName]
+    directors: list[PersonName]
 
 
 class FilmShort(BaseModel):
@@ -35,31 +38,11 @@ class FilmShort(BaseModel):
     title: str
 
 
-@router.get('/{film_id}', response_model=FilmFull)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmFull:
-    film = await film_service.get_by_id(film_id)
-    if not film:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
-    return FilmFull(
-        uuid=film.id,
-        imdb_rating=film.imdb_rating,
-        genre=film.genre,
-        title=film.title,
-        description=film.description,
-        director=film.director,
-        actors_names=film.actors_names,
-        writers_names=film.writers_names,
-        actors=[PersonName(uuid=actor.id, name=actor.name) for actor in film.actors],
-        writers=[PersonName(uuid=writer.id, name=writer.name) for writer in film.writers],
-    )
-
-
-@router.get('/', response_model=list[FilmShort])
-async def films_list(
-    sort: str, request: Request, film_service: FilmService = Depends(get_film_service)
-) -> list[FilmShort]:
+@router.get('/search', response_model=list[FilmShort])
+@router.get('', response_model=list[FilmShort])
+async def films_list(request: Request, film_service: FilmService = Depends(get_film_service)) -> list[FilmShort]:
     params = get_params(request)
-    film_list = await film_service.get_films_by_params(**params)
+    film_list = await film_service.get_by_params(**params)
     if not film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
     return [
@@ -69,3 +52,21 @@ async def films_list(
             imdb_rating=film.imdb_rating,
         ) for film in film_list
     ]
+
+
+@router.get('/{film_id}', response_model=FilmDetailed)
+async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetailed:
+    try:
+        film = await film_service.get_by_id(film_id)
+    except elasticsearch.exceptions.NotFoundError:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+    return FilmDetailed(
+        uuid=film.id,
+        title=film.title,
+        imdb_rating=film.imdb_rating,
+        description=film.description,
+        genre=[Genre(uuid=genre.id, name=genre.name) for genre in film.genre],
+        actors=[PersonName(uuid=actor.id, name=actor.name) for actor in film.actors],
+        writers=[PersonName(uuid=writer.id, name=writer.name) for writer in film.writers],
+        directors=[PersonName(uuid=director.id, name=director.name) for director in film.directors],
+    )
