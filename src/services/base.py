@@ -21,16 +21,18 @@ class BaseService:
     async def get_by_id(self, id: str) -> T:
         try:
             doc = await self.elastic.get(index=self.index, id=id)
-            obj = self.model(**doc['_source'])
         except elasticsearch.exceptions.NotFoundError:
             obj = None
+        else:
+            obj = self.model(**doc['_source'])
         return obj
 
     async def get_by_params(self, **params) -> list[T]:
         body = get_body(**params)
         try:
             doc = await self.elastic.search(body=body, index=self.index)
-            obj_list = [self.model(**_doc['_source']) for _doc in doc['hits']['hits']]
         except elasticsearch.exceptions.NotFoundError:
             obj_list = None
+        else:
+            obj_list = [self.model(**_doc['_source']) for _doc in doc['hits']['hits']]
         return obj_list

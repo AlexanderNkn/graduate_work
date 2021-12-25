@@ -43,4 +43,3 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
         name=genre.name,
         description=genre.description,
     )
-
