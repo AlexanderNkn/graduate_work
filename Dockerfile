@@ -7,7 +7,7 @@ WORKDIR /usr/src/code
 
 COPY ./src .
 
-RUN apt update && apt install -y netcat \
+RUN apt update && apt install -y netcat gcc \
     && pip install --no-cache-dir -r requirements.txt \
     && rm -rf /var/lib/apt/lists/* /tmp/* 
 
