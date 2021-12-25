@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from .base import BaseModel
 
@@ -6,4 +7,4 @@ from .base import BaseModel
 class Genre(BaseModel):
     id: uuid.UUID
     name: str
-    description: str
+    description: Optional[str]

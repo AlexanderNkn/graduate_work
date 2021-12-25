@@ -1,9 +1,9 @@
 import uuid
 from http import HTTPStatus
-import elasticsearch
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from models.base import BaseModel
 
 from services.film import FilmService, get_film_service
 from services.utils import get_params
@@ -13,7 +13,7 @@ router = APIRouter()
 
 class PersonName(BaseModel):
     uuid: uuid.UUID
-    name: str
+    full_name: str
 
 
 class Genre(BaseModel):
@@ -25,7 +25,7 @@ class FilmDetailed(BaseModel):
     uuid: uuid.UUID
     title: str
     imdb_rating: float
-    description: str
+    description: Optional[str]
     genre: list[Genre]
     actors: list[PersonName]
     writers: list[PersonName]
@@ -56,9 +56,8 @@ async def films_list(request: Request, film_service: FilmService = Depends(get_f
 
 @router.get('/{film_id}', response_model=FilmDetailed)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetailed:
-    try:
-        film = await film_service.get_by_id(film_id)
-    except elasticsearch.exceptions.NotFoundError:
+    film = await film_service.get_by_id(film_id)
+    if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
     return FilmDetailed(
         uuid=film.id,
@@ -66,7 +65,7 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
         imdb_rating=film.imdb_rating,
         description=film.description,
         genre=[Genre(uuid=genre.id, name=genre.name) for genre in film.genre],
-        actors=[PersonName(uuid=actor.id, name=actor.name) for actor in film.actors],
-        writers=[PersonName(uuid=writer.id, name=writer.name) for writer in film.writers],
-        directors=[PersonName(uuid=director.id, name=director.name) for director in film.directors],
+        actors=[PersonName(uuid=actor.id, full_name=actor.name) for actor in film.actors],
+        writers=[PersonName(uuid=writer.id, full_name=writer.name) for writer in film.writers],
+        directors=[PersonName(uuid=director.id, full_name=director.name) for director in film.directors],
     )
