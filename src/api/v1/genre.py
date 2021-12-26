@@ -9,8 +9,20 @@ from services.utils import get_params
 router = APIRouter()
 
 
-@router.get('/search', response_model=list[GenreDetailedResponse])
-@router.get('', response_model=list[GenreDetailedResponse])
+@router.get(
+    '/search',
+    response_model=list[GenreDetailedResponse],
+    summary='List of suitable genre',
+    description='List of genre with sort, filter and pagination and text search',
+    response_description='List of genres with id',
+)
+@router.get(
+    '',
+    response_model=list[GenreDetailedResponse],
+    summary='List of genre',
+    description='List of genre with sort, filter and pagination',
+    response_description='List of genres with id',
+)
 async def genres_list(request: Request,
                       genre_service: GenreService = Depends(get_genre_service)) -> list[GenreDetailedResponse]:
     params = get_params(request)
@@ -26,7 +38,13 @@ async def genres_list(request: Request,
     ]
 
 
-@router.get('/{genre_id}', response_model=GenreDetailedResponse)
+@router.get(
+    '/{genre_id}',
+    response_model=GenreDetailedResponse,
+    summary='Genre details',
+    description='Genre details with name and description',
+    response_description='Genre with details by id',
+)
 async def genre_details(genre_id: str,
                         genre_service: GenreService = Depends(get_genre_service)) -> GenreDetailedResponse:
     genre = await genre_service.get_by_id(genre_id)

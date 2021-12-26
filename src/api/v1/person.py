@@ -11,8 +11,20 @@ from services.utils import get_params
 router = APIRouter()
 
 
-@router.get('/search', response_model=list[PersonDetailedResponse])
-@router.get('', response_model=list[PersonDetailedResponse])
+@router.get(
+    '/search',
+    response_model=list[PersonDetailedResponse],
+    summary='List of suitable person',
+    description='List of persons with full_name, roles and film_ids',
+    response_description='List of persons with id',
+)
+@router.get(
+    '',
+    response_model=list[PersonDetailedResponse],
+    summary='List of person',
+    description='List of persons with full_name, roles and film_ids',
+    response_description='List of persons with id',
+)
 async def persons_list(request: Request,
                        person_service: PersonService = Depends(get_person_service)) -> list[PersonDetailedResponse]:
     params = get_params(request)
@@ -29,7 +41,13 @@ async def persons_list(request: Request,
     ]
 
 
-@router.get('/{person_id}/film/', response_model=list[FilmShortResponse])
+@router.get(
+    '/{person_id}/film/',
+    response_model=list[FilmShortResponse],
+    summary='List of films by person',
+    description='List of films in which person participated',
+    response_description='List of films with id',
+)
 async def person_film(person_id: str,
                       request: Request,
                       person_service: PersonService = Depends(get_person_service),
@@ -51,7 +69,13 @@ async def person_film(person_id: str,
     ]
 
 
-@router.get('/{person_id}', response_model=PersonDetailedResponse)
+@router.get(
+    '/{person_id}',
+    response_model=PersonDetailedResponse,
+    summary='Person details',
+    description='Person details with full_name, roles and film_ids',
+    response_description='Person with details by id',
+)
 async def person_details(person_id: str,
                          person_service: PersonService = Depends(get_person_service)) -> PersonDetailedResponse:
     person = await person_service.get_by_id(person_id)
