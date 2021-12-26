@@ -7,8 +7,6 @@ services:
     build: .
     env_file:
       - ./envs/.fastapi.env
-    ports:
-      - 8000:8000
     depends_on:
       - es
       - redis
@@ -24,5 +22,15 @@ services:
     container_name: redis
     image: redis:6.2-alpine
     restart: always
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.4
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+    ports:
+      - 80:80
+    depends_on:
+      - fastapi
 volumes:
   elastic_data:
