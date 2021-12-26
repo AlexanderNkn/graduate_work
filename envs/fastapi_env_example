@@ -1,9 +1,0 @@
-PROJECT_NAME=project_name
-       
-REDIS_HOST=host
-REDIS_PORT=port
-REDIS_DB=redis_db
-
-ELASTIC_HOST=host
-ELASTIC_PORT=port
-ELASTIC_DB=elastic_db
