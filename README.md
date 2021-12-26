@@ -16,7 +16,7 @@ https://github.com/aximon/ETL
     ```
 - переименуйте файл с переменными окружения для тестирования
     ```
-    mv .fastapi.env.sample .fastapi.env
+    mv envs/.fastapi.env.sample envs/.fastapi.env
     ```
 - соберите образ
     ```
@@ -36,9 +36,7 @@ https://github.com/aximon/ETL
 ## Использование
 
 ### Документация доступна по адресу
-    ```
     http://localhost/api/openapi
-    ```
 ### Примеры запросов
 - получить список фильмов по жанру
     ```
