@@ -6,13 +6,13 @@ import elasticsearch.exceptions
 
 from orjson import loads as orjson_loads
 from models.base import orjson_dumps
-from models.film import Film
-from models.genre import Genre
-from models.person import Person
+from models.film import FilmDetailedDTO
+from models.genre import GenreDetailedDTO
+from models.person import PersonDetailedDTO
 
 from .utils import get_body
 
-T = Union[Film, Genre, Person]
+T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
 OBJ_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
@@ -42,13 +42,14 @@ class BaseService:
         body = get_body(**params)
         redis_key = self.redis_key(body)
         obj_list = await self._list_from_cache(redis_key)
-        try:
-            doc = await self.elastic.search(body=body, index=self.index)
-        except elasticsearch.exceptions.NotFoundError:
-            obj_list = None
-        else:
-            obj_list = [self.model(**_doc['_source']) for _doc in doc['hits']['hits']]
-            await self._put_list_to_cache(redis_key, obj_list)
+        if not obj_list:
+            try:
+                doc = await self.elastic.search(body=body, index=self.index)
+            except elasticsearch.exceptions.NotFoundError:
+                obj_list = None
+            else:
+                obj_list = [self.model(**_doc['_source']) for _doc in doc['hits']['hits']]
+                await self._put_list_to_cache(redis_key, obj_list)
 
         return obj_list
 

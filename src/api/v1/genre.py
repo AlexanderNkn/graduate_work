@@ -1,9 +1,7 @@
-import uuid
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from models.base import BaseModel
+from models.genre import GenreDetailedResponse
 
 from services.genre import GenreService, get_genre_service
 from services.utils import get_params
@@ -11,21 +9,16 @@ from services.utils import get_params
 router = APIRouter()
 
 
-class Genre(BaseModel):
-    uuid: uuid.UUID
-    name: str
-    description: Optional[str]
-
-
-@router.get('/search', response_model=list[Genre])
-@router.get('', response_model=list[Genre])
-async def genres_list(request: Request, genre_service: GenreService = Depends(get_genre_service)) -> list[Genre]:
+@router.get('/search', response_model=list[GenreDetailedResponse])
+@router.get('', response_model=list[GenreDetailedResponse])
+async def genres_list(request: Request,
+                      genre_service: GenreService = Depends(get_genre_service)) -> list[GenreDetailedResponse]:
     params = get_params(request)
     genres = await genre_service.get_by_params(**params)
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genres not found')
     return [
-        Genre(
+        GenreDetailedResponse(
             uuid=genre.id,
             name=genre.name,
             description=genre.description,
@@ -33,12 +26,13 @@ async def genres_list(request: Request, genre_service: GenreService = Depends(ge
     ]
 
 
-@router.get('/{genre_id}', response_model=Genre)
-async def genre_details(genre_id: str, genre_service: GenreService = Depends(get_genre_service)) -> Genre:
+@router.get('/{genre_id}', response_model=GenreDetailedResponse)
+async def genre_details(genre_id: str,
+                        genre_service: GenreService = Depends(get_genre_service)) -> GenreDetailedResponse:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
-    return Genre(
+    return GenreDetailedResponse(
         uuid=genre.id,
         name=genre.name,
         description=genre.description,

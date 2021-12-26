@@ -1,33 +1,26 @@
-import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from models.base import BaseModel
+from models.film import FilmShortResponse
+from models.person import PersonDetailedResponse
 
 from services.person import PersonService, get_person_service
 from services.film import FilmService, get_film_service
 from services.utils import get_params
-from api.v1.film import FilmShort
 
 router = APIRouter()
 
 
-class Person(BaseModel):
-    uuid: uuid.UUID
-    full_name: str
-    role: list[str]
-    film_ids: list[uuid.UUID]
-
-
-@router.get('/search', response_model=list[Person])
-@router.get('', response_model=list[Person])
-async def persons_list(request: Request, person_service: PersonService = Depends(get_person_service)) -> list[Person]:
+@router.get('/search', response_model=list[PersonDetailedResponse])
+@router.get('', response_model=list[PersonDetailedResponse])
+async def persons_list(request: Request,
+                       person_service: PersonService = Depends(get_person_service)) -> list[PersonDetailedResponse]:
     params = get_params(request)
     person_list = await person_service.get_by_params(**params)
     if not person_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
     return [
-        Person(
+        PersonDetailedResponse(
             uuid=person.id,
             full_name=person.full_name,
             role=person.role,
@@ -36,11 +29,11 @@ async def persons_list(request: Request, person_service: PersonService = Depends
     ]
 
 
-@router.get('/{person_id}/film/', response_model=list[FilmShort])
+@router.get('/{person_id}/film/', response_model=list[FilmShortResponse])
 async def person_film(person_id: str,
                       request: Request,
                       person_service: PersonService = Depends(get_person_service),
-                      film_service: FilmService = Depends(get_film_service)) -> list[FilmShort]:
+                      film_service: FilmService = Depends(get_film_service)) -> list[FilmShortResponse]:
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
@@ -50,7 +43,7 @@ async def person_film(person_id: str,
     film_list = await film_service.get_by_params(**params)
 
     return [
-        FilmShort(
+        FilmShortResponse(
             uuid=film.id,
             title=film.title,
             imdb_rating=film.imdb_rating,
@@ -58,12 +51,13 @@ async def person_film(person_id: str,
     ]
 
 
-@router.get('/{person_id}', response_model=Person)
-async def person_details(person_id: str, person_service: PersonService = Depends(get_person_service)) -> Person:
+@router.get('/{person_id}', response_model=PersonDetailedResponse)
+async def person_details(person_id: str,
+                         person_service: PersonService = Depends(get_person_service)) -> PersonDetailedResponse:
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
-    return Person(
+    return PersonDetailedResponse(
         uuid=person.id,
         full_name=person.full_name,
         role=person.role,

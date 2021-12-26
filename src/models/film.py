@@ -2,27 +2,36 @@ import uuid
 from typing import Optional
 
 from .base import BaseModel
+from .genre import GenreShortResponse, GenreShortDTO
+from .person import PersonShortResponse, PersonShortDTO
 
 
-class PersonName(BaseModel):
-    id: uuid.UUID
-    name: str
+class FilmShortResponse(BaseModel):
+    uuid: uuid.UUID
+    imdb_rating: float
+    title: str
 
 
-class Genre(BaseModel):
-    id: uuid.UUID
-    name: str
+class FilmDetailedResponse(BaseModel):
+    uuid: uuid.UUID
+    title: str
+    imdb_rating: float
+    description: Optional[str]
+    genre: list[GenreShortResponse]
+    actors: list[PersonShortResponse]
+    writers: list[PersonShortResponse]
+    directors: list[PersonShortResponse]
 
 
-class Film(BaseModel):
+class FilmDetailedDTO(BaseModel):
     id: uuid.UUID
     imdb_rating: float
-    genre: list[Genre]
+    genre: list[GenreShortDTO]
     title: str
     description: Optional[str]
     actors_names: Optional[list[str]]
     writers_names: Optional[list[str]]
     directors_names: Optional[list[str]]
-    actors: list[PersonName]
-    writers: list[PersonName]
-    directors: list[PersonName]
+    actors: list[PersonShortDTO]
+    writers: list[PersonShortDTO]
+    directors: list[PersonShortDTO]
