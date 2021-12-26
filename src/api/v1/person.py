@@ -8,6 +8,8 @@ from services.person import PersonService, get_person_service
 from services.film import FilmService, get_film_service
 from services.utils import get_params
 
+from core.messages import FILM_NOT_FOUND, PERSON_NOT_FOUND
+
 router = APIRouter()
 
 
@@ -30,7 +32,7 @@ async def persons_list(request: Request,
     params = get_params(request)
     person_list = await person_service.get_by_params(**params)
     if not person_list:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=PERSON_NOT_FOUND)
     return [
         PersonDetailedResponse(
             uuid=person.id,
@@ -54,11 +56,13 @@ async def person_film(person_id: str,
                       film_service: FilmService = Depends(get_film_service)) -> list[FilmShortResponse]:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=PERSON_NOT_FOUND)
 
     params = get_params(request)
     params.setdefault('should', []).extend([{'id': str(film_id)} for film_id in person.film_ids])
     film_list = await film_service.get_by_params(**params)
+    if not film_list:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=FILM_NOT_FOUND)
 
     return [
         FilmShortResponse(
@@ -80,7 +84,7 @@ async def person_details(person_id: str,
                          person_service: PersonService = Depends(get_person_service)) -> PersonDetailedResponse:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=PERSON_NOT_FOUND)
     return PersonDetailedResponse(
         uuid=person.id,
         full_name=person.full_name,
