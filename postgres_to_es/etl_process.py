@@ -4,7 +4,6 @@ Number of records in batch could be set up in TRANSFER_BATCH_SIZE. Certain numbe
 according batch size, will be fetched from Postgres and immediately upload to Elasticsearch.
 Then the process will be repeated untill all data from Postgres would be transfered to Elasticsearch.
 """
-import json
 import logging
 import os
 from datetime import datetime
@@ -16,10 +15,11 @@ from time import sleep
 from typing import Any, Optional, Sequence
 
 import elasticsearch
+from elasticsearch.client import Elasticsearch
 import psycopg2
 from elasticsearch.helpers import bulk, BulkIndexError
 
-from sql import SQL_FOR_UPDATE_FILMWORK_INDEX
+from sql import get_sql_query
 from es_schema import GENRES_INDEX, MOVIES_INDEX, PERSONS_INDEX
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
@@ -37,20 +37,20 @@ class ETL:
     # path for ETL latest state
     STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
     INDEXES = {
-        #'movies': MOVIES_INDEX,
-        'genres': GENRES_INDEX,
-        'persons': PERSONS_INDEX,
-        'movies': MOVIES_INDEX
+        'movies': MOVIES_INDEX,
+        # TODO
+        # 'genres': GENRES_INDEX,
+        # 'persons': PERSONS_INDEX,
     }
 
-    def extract(self) -> Optional[list[tuple]]:
+    def extract(self, index: str) -> Optional[list[tuple]]:
         """Retrieve data from Postgres.
         Keeps state of the last call to continue retrieving data starting from
         the save point.
         """
         logger.info('Searching for updates in Postgres db')
         state = self.get_state_object()
-        latest_update: str = state.get_state(key='latest_update')
+        latest_update: str = state.get_state(key=f'{index}_latest_update')
 
         while True:
             logger.info('Getting connection with Postgres db ...')
@@ -59,12 +59,7 @@ class ETL:
             logger.info('Connection with Postgres was successfully established')
             with conn.cursor() as cur:
                 try:
-                    # With provided sql script all updated data for film_works,
-                    # persons and genres are selected in one query
-                    cur.execute(
-                        SQL_FOR_UPDATE_FILMWORK_INDEX,
-                        (latest_update, latest_update, latest_update, self.TRANSFER_BATCH_SIZE)
-                    )
+                    cur.execute(*get_sql_query(index, updated_at=latest_update, batch_size=self.TRANSFER_BATCH_SIZE))
                 except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
                     logger.error('Lost connection with Postgres. Try to reconnect.')
                     continue
@@ -73,14 +68,25 @@ class ETL:
                     raise
                 else:
                     data = cur.fetchall()
-                    message = 'Uploading data from Postgres to Elastic started' if data else 'No updates available'
+                    message = (f'Uploading {index} data from Postgres to Elastic started' if data
+                               else f'No updates available for {index}')
                     logger.info(message)
                     return data
 
-        return None
-
-    def transform(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
+    def transform(self, data: list[tuple], index: str) -> dict[str, Sequence[Any] | datetime]:
         """Transforms raw data to required by ElasticSearch format."""
+        data, updated_at = {  # type: ignore
+            'movies': self.prepare_movies_data(data),
+            'genres': self.prepare_genres_data(data),
+            'persons': self.prepare_genres_data(data),
+        }[index]
+
+        return {
+            'prepared_data': data,
+            'latest_update': updated_at,
+        }
+
+    def prepare_movies_data(self, data: list[tuple]) -> Sequence[Any] | datetime:
         prepared_data = []
         for id, rating, title, description, persons, genres, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
@@ -110,18 +116,21 @@ class ETL:
                 'directors_names': directors_names or None,
                 'actors_names': actors_names or None,
                 'writers_names': writers_names or None,
-                'directors': directors,
-                'actors': actors,
-                'writers': writers,
+                'directors': directors or None,
+                'actors': actors or None,
+                'writers': writers or None,
             }
             prepared_data.append(doc)
 
-        return {
-            'prepared_data': prepared_data,
-            'latest_update': latest_update
-        }
+        return prepared_data, latest_update
 
-    def load(self, data: dict[str, Any]) -> None:
+    def prepare_genres_data(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
+        pass
+
+    def prepare_persons_data(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
+        pass
+
+    def load(self, data: dict[str, Any], statistics: dict[str, int], index: str) -> None:
         """Load data to Elasticsearch.
         Keeps state of the last call to continue loading data starting from
         the save point.
@@ -133,7 +142,7 @@ class ETL:
             client = es_connection.get_client()
             logger.info('Connection with Elastic was successfully established')
             try:
-                self.create_index(client)
+                self.create_index(client, index)
                 success, _ = bulk(
                     client=client,
                     index='movies',
@@ -147,14 +156,15 @@ class ETL:
                 logger.error('Lost connection with Elastic. Try to reconnect.')
                 continue
             else:
-                logger.info('Uploading data from Postgres to Elastic completed - '
-                            f'{success} rows were synchronized')
+                logger.info(f'Batch {statistics["batch_number"]} was uploaded successfully from Postgres to Elastic')
+                statistics['batch_number'] += 1
+                statistics['total'] += success
                 latest_update = data['latest_update'].strftime('%Y-%m-%d %H:%M:%S.%f')
-                state.set_state(key='latest_update', value=latest_update)
+                state.set_state(key=f'{index}_latest_update', value=latest_update)
                 logger.info('ETL state was updated')
                 break
 
-    def create_index(self, client, index='movies'):
+    def create_index(self, client: Elasticsearch, index: str):
         """Creates an index in Elasticsearch if one isn't already there."""
         client.indices.create(
             index=index,
@@ -169,12 +179,19 @@ class ETL:
 
     def run(self) -> None:
         """Runs ETL processes."""
-        while True:
-            raw_data = self.extract()
-            if not raw_data:
-                break
-            prepared_data = self.transform(raw_data)
-            self.load(prepared_data)
+        for index in self.INDEXES:
+            statistics = {
+                'batch_number': 1,
+                'total': 0,
+            }
+            while True:
+                raw_data = self.extract(index)
+                if not raw_data:
+                    break
+                prepared_data = self.transform(raw_data, index)
+                self.load(prepared_data, statistics, index)
+            logger.info(f'Uploading {index} data from Postgres to Elastic completed - '
+                        f'{statistics["total"]} rows were synchronized')
 
 
 if __name__ == '__main__':
