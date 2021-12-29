@@ -14,10 +14,16 @@ def get_sql_query(index, **kwargs) -> tuple:
     return {
         'movies': (
             UPDATE_FILMWORK_INDEX,
-            (kwargs['updated_at'], kwargs['updated_at'], kwargs['updated_at'], kwargs['batch_size'])
+            (kwargs['updated_at'], kwargs['updated_at'], kwargs['updated_at'], kwargs['batch_size']),
         ),
-        'persons': (kwargs['updated_at'], kwargs['batch_size']),
-        'genres': (kwargs['updated_at'], kwargs['batch_size']),
+        'persons': (
+            UPDATE_PERSONS_INDEX,
+            (kwargs['updated_at'], kwargs['batch_size']),
+        ),
+        'genres': (
+            UPDATE_GENRE_INDEX,
+            (kwargs['updated_at'], kwargs['batch_size'])
+        ),
     }[index]
 
 
@@ -37,5 +43,20 @@ UPDATE_FILMWORK_INDEX = """
     WHERE fw.updated_at > %s or p.updated_at > %s or g.updated_at > %s
     GROUP BY fw.id
     ORDER BY latest_update
+    LIMIT %s;
+"""
+
+UPDATE_PERSONS_INDEX = """
+"""
+
+UPDATE_GENRE_INDEX = """
+    SELECT
+        id,
+        name,
+        description,
+        updated_at
+    FROM content.genre
+    WHERE updated_at > %s
+    ORDER BY updated_at
     LIMIT %s;
 """

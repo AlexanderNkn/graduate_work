@@ -38,8 +38,8 @@ class ETL:
     STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
     INDEXES = {
         'movies': MOVIES_INDEX,
+        'genres': GENRES_INDEX,
         # TODO
-        # 'genres': GENRES_INDEX,
         # 'persons': PERSONS_INDEX,
     }
 
@@ -48,7 +48,7 @@ class ETL:
         Keeps state of the last call to continue retrieving data starting from
         the save point.
         """
-        logger.info('Searching for updates in Postgres db')
+        logger.info(f'Searching for {index} updates in Postgres db')
         state = self.get_state_object()
         latest_update: str = state.get_state(key=f'{index}_latest_update')
 
@@ -73,20 +73,54 @@ class ETL:
                     logger.info(message)
                     return data
 
-    def transform(self, data: list[tuple], index: str) -> dict[str, Sequence[Any] | datetime]:
+    def transform(self, data: list[tuple], index: str) -> dict[str, list[dict[str, Any]] | datetime]:
         """Transforms raw data to required by ElasticSearch format."""
-        data, updated_at = {  # type: ignore
-            'movies': self.prepare_movies_data(data),
-            'genres': self.prepare_genres_data(data),
-            'persons': self.prepare_genres_data(data),
-        }[index]
+        prepared_data, updated_at = {
+            'movies': self.prepare_movies_data,
+            'genres': self.prepare_genres_data,
+            'persons': self.prepare_persons_data,
+        }[index](data)
 
         return {
-            'prepared_data': data,
-            'latest_update': updated_at,
+            'prepared_data': prepared_data,  # type: ignore
+            'latest_update': updated_at,  # type: ignore
         }
 
-    def prepare_movies_data(self, data: list[tuple]) -> Sequence[Any] | datetime:
+    def load(self, data: dict[str, Any], statistics: dict[str, int], index: str) -> None:
+        """Load data to Elasticsearch.
+        Keeps state of the last call to continue loading data starting from
+        the save point.
+        """
+        state = self.get_state_object()
+        while True:
+            logger.info('Getting connection with Elastic db ...')
+            es_connection = ElasticConnection()
+            client = es_connection.get_client()
+            logger.info('Connection with Elastic was successfully established')
+            try:
+                self.create_index(client, index)
+                success, _ = bulk(
+                    client=client,
+                    index=index,
+                    actions=data['prepared_data'],
+                    chunk_size=self.TRANSFER_BATCH_SIZE,
+                    max_retries=1000,
+                    initial_backoff=1,
+                    max_backoff=300,
+                )
+            except elasticsearch.ConnectionError:
+                logger.error('Lost connection with Elastic. Try to reconnect.')
+                continue
+            else:
+                logger.info(f'Batch {statistics["batch_number"]} was uploaded successfully from Postgres to Elastic')
+                statistics['batch_number'] += 1
+                statistics['total'] += success
+                latest_update = data['latest_update'].strftime('%Y-%m-%d %H:%M:%S.%f')
+                state.set_state(key=f'{index}_latest_update', value=latest_update)
+                logger.info('ETL state was updated')
+                break
+
+    def prepare_movies_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
         prepared_data = []
         for id, rating, title, description, persons, genres, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
@@ -124,45 +158,21 @@ class ETL:
 
         return prepared_data, latest_update
 
-    def prepare_genres_data(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
-        pass
+    def prepare_genres_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
+        prepared_data = []
+        for id, name, description, latest_update in data:
+            doc = {
+                '_id': id,
+                'id': id,
+                'name': name,
+                'description': description,
+            }
+            prepared_data.append(doc)
+
+        return prepared_data, latest_update
 
     def prepare_persons_data(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
         pass
-
-    def load(self, data: dict[str, Any], statistics: dict[str, int], index: str) -> None:
-        """Load data to Elasticsearch.
-        Keeps state of the last call to continue loading data starting from
-        the save point.
-        """
-        state = self.get_state_object()
-        while True:
-            logger.info('Getting connection with Elastic db ...')
-            es_connection = ElasticConnection()
-            client = es_connection.get_client()
-            logger.info('Connection with Elastic was successfully established')
-            try:
-                self.create_index(client, index)
-                success, _ = bulk(
-                    client=client,
-                    index='movies',
-                    actions=data['prepared_data'],
-                    chunk_size=self.TRANSFER_BATCH_SIZE,
-                    max_retries=1000,
-                    initial_backoff=1,
-                    max_backoff=300,
-                )
-            except elasticsearch.ConnectionError:
-                logger.error('Lost connection with Elastic. Try to reconnect.')
-                continue
-            else:
-                logger.info(f'Batch {statistics["batch_number"]} was uploaded successfully from Postgres to Elastic')
-                statistics['batch_number'] += 1
-                statistics['total'] += success
-                latest_update = data['latest_update'].strftime('%Y-%m-%d %H:%M:%S.%f')
-                state.set_state(key=f'{index}_latest_update', value=latest_update)
-                logger.info('ETL state was updated')
-                break
 
     def create_index(self, client: Elasticsearch, index: str):
         """Creates an index in Elasticsearch if one isn't already there."""
