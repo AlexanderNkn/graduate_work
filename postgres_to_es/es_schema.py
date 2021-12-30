@@ -1,4 +1,4 @@
-MOVIES_INDEX =  {
+MOVIES_INDEX = {
     "settings": {
         "refresh_interval": "1s",
         "analysis": {

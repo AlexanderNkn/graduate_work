@@ -12,7 +12,7 @@ import sys
 from logging import config
 from os.path import dirname, join
 from time import sleep
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 import elasticsearch
 from elasticsearch.client import Elasticsearch
@@ -39,8 +39,7 @@ class ETL:
     INDEXES = {
         'movies': MOVIES_INDEX,
         'genres': GENRES_INDEX,
-        # TODO
-        # 'persons': PERSONS_INDEX,
+        'persons': PERSONS_INDEX,
     }
 
     def extract(self, index: str) -> Optional[list[tuple]]:
@@ -146,13 +145,13 @@ class ETL:
                 'imdb_rating': rating,
                 'genre': genres,
                 'title': title,
-                'description': description,
+                'description': description or None,
                 'directors_names': directors_names or None,
                 'actors_names': actors_names or None,
                 'writers_names': writers_names or None,
-                'directors': directors or None,
-                'actors': actors or None,
-                'writers': writers or None,
+                'directors': directors,
+                'actors': actors,
+                'writers': writers,
             }
             prepared_data.append(doc)
 
@@ -165,14 +164,25 @@ class ETL:
                 '_id': id,
                 'id': id,
                 'name': name,
-                'description': description,
+                'description': description or None,
             }
             prepared_data.append(doc)
 
         return prepared_data, latest_update
 
-    def prepare_persons_data(self, data: list[tuple]) -> dict[str, Sequence[Any] | datetime]:
-        pass
+    def prepare_persons_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
+        prepared_data = []
+        for id, full_name, role, film_ids, latest_update in data:
+            doc = {
+                '_id': id,
+                'id': id,
+                'full_name': full_name,
+                'role': role,
+                'film_ids': film_ids,
+            }
+            prepared_data.append(doc)
+
+        return prepared_data, latest_update
 
     def create_index(self, client: Elasticsearch, index: str):
         """Creates an index in Elasticsearch if one isn't already there."""

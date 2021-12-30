@@ -47,6 +47,19 @@ UPDATE_FILMWORK_INDEX = """
 """
 
 UPDATE_PERSONS_INDEX = """
+    SELECT
+        p.id,
+        p.full_name,
+        jsonb_agg(DISTINCT(pfw.role)) as role,
+        jsonb_agg(pfw.film_work_id) as film_ids,
+        p.updated_at
+    FROM content.person p
+    INNER JOIN person_film_work pfw
+    ON p.id = pfw.person_id
+    WHERE p.updated_at > %s
+    GROUP BY p.id
+    ORDER BY p.updated_at
+    LIMIT %s;
 """
 
 UPDATE_GENRE_INDEX = """
