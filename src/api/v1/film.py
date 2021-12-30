@@ -27,7 +27,8 @@ router = APIRouter()
     description='List of films with title and imdb_rating, with sort, filter and pagination',
     response_description='List of films with id',
 )
-async def films_list(request: Request, film_service: FilmService = Depends(get_film_service)) -> list[FilmShortResponse]:
+async def films_list(request: Request, film_service: FilmService = Depends(get_film_service)
+                     ) -> list[FilmShortResponse]:
     params = get_params(request)
     film_list = await film_service.get_by_params(**params)
     if not film_list:
