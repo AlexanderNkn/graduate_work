@@ -3,3 +3,5 @@
 **/envs
 **/.vscode
 **/.git*
+**/.pytest_cache
+**/docker

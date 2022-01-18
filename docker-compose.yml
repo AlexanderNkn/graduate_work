@@ -3,8 +3,10 @@ version: '3.9'
 services:
   fastapi:
     container_name: film_search
-    image: film_search:v1.0
-    build: .
+    image: film_search:v2.0
+    build:
+      context: .
+      dockerfile: fastapi/docker/Dockerfile
     env_file:
       - ./envs/.fastapi.env
     depends_on:
@@ -34,6 +36,17 @@ services:
       - 80:80
     depends_on:
       - fastapi
+  tests:
+    container_name: test_fastapi
+    image: test_fastapi:v1.0
+    build:
+      context: .
+      dockerfile: tests/docker/Dockerfile
+    env_file:
+      - ./envs/.fastapi.env
+    depends_on:
+      - es
+      - redis
 volumes:
   elastic_data:
   redis_data:

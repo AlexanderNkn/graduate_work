@@ -12,7 +12,7 @@ https://github.com/aximon/ETL
 ## Установка
 - склонируйте проект с реппозитория GitHub
     ```
-    git clone https://github.com/AlexanderNkn/Async_API_sprint_1.git
+    git clone https://github.com/AlexanderNkn/Async_API_sprint_2.git
     ```
 - переименуйте файл с переменными окружения для тестирования
     ```
