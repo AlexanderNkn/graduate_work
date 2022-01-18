@@ -49,6 +49,7 @@ async def persons_list(request: Request,
     summary='List of films by person',
     description='List of films in which person participated',
     response_description='List of films with id',
+    tags=['film'],
 )
 async def person_film(person_id: str,
                       request: Request,
