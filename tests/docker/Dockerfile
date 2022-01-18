@@ -5,15 +5,12 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/code
 
-COPY ../../tests .
+COPY ["../../tests", "redis_elastic_waiter.sh", "pytest.ini", "./"]
 
 RUN apt update && apt install -y netcat \
     && pip install --no-cache-dir -r requirements.txt \
-    && rm -rf /var/lib/apt/lists/* /tmp/* 
-
-COPY redis_elastic_waiter.sh .
-
-RUN chmod +x /usr/src/code/redis_elastic_waiter.sh
+    && rm -rf /var/lib/apt/lists/* /tmp/* \
+    && chmod +x /usr/src/code/redis_elastic_waiter.sh
 
 ENTRYPOINT ["/usr/src/code/redis_elastic_waiter.sh"]
 
