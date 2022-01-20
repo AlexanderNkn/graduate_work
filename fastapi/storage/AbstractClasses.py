@@ -21,6 +21,10 @@ class AbstractCacheStorage(ABC):
     """Абстрактный класс для работы с Cache хранилещем"""
 
     @abstractmethod
+    def __init__(self, engine):
+        self.engine = engine
+
+    @abstractmethod
     async def get(self, *args, **kwargs):
         pass
 
