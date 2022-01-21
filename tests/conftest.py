@@ -52,6 +52,7 @@ def clear_cache(redis_client: Redis):
 def send_data_to_elastic(es_client: AsyncElasticsearch, clear_cache: Callable):
     """Sends test data to Elastic before test, then deletes data and cache after test
 
+    Not to remove cache for testing purposes should set with_clear_cache = False
     Example data
         [
             {
