@@ -18,8 +18,8 @@ app = FastAPI(
     redoc_url='/api/redoc',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
-    description="Информация о фильмах, жанрах и людях, участвовавших в создании произведения",
-    version="1.0.0"
+    description='Information about movies, genres and persons involved in movie making',
+    version='1.0.0'
 )
 
 
