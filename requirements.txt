@@ -1,2 +1,2 @@
--r fastapi/requirements.txt
+-r fast_api/requirements.txt
 -r tests/requirements.txt

@@ -6,7 +6,7 @@ services:
     image: film_search:v2.0
     build:
       context: .
-      dockerfile: fastapi/docker/Dockerfile
+      dockerfile: fast_api/docker/Dockerfile
     env_file:
       - ./envs/.fastapi.env
     depends_on:
