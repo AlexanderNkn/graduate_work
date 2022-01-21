@@ -17,14 +17,14 @@ router = APIRouter()
     response_model=list[FilmShortResponse],
     summary='List of suitable films',
     description='List of films with title and imdb_rating, with sort, filter and pagination and text search',
-    response_description='List of films with id',
+    response_description='List of films with id, title and rating',
 )
 @router.get(
     '',
     response_model=list[FilmShortResponse],
     summary='List of films',
     description='List of films with title and imdb_rating, with sort, filter and pagination',
-    response_description='List of films with id',
+    response_description='List of films with id, title and rating',
 )
 async def films_list(request: Request, film_service: FilmService = Depends(get_film_service)
                      ) -> list[FilmShortResponse]:
