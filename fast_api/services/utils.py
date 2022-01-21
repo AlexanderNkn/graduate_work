@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
 from fastapi import Request
-from pydantic.types import PositiveInt
 
 from models.base import BaseModel
+from pydantic.types import PositiveInt
 
 
 class Page(BaseModel):

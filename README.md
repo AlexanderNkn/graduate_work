@@ -12,7 +12,7 @@ https://github.com/aximon/ETL
 ## Установка
 - склонируйте проект с реппозитория GitHub
     ```
-    git clone https://github.com/AlexanderNkn/Async_API_sprint_1.git
+    git clone https://github.com/AlexanderNkn/Async_API_sprint_2.git
     ```
 - переименуйте файл с переменными окружения для тестирования
     ```
@@ -27,6 +27,27 @@ https://github.com/aximon/ETL
     docker-compose up -d
     ```
 
+## Тестирование
+### В контейнере
+- тесты запускаются автоматически при старте контейнера. Для перезапуска выполните
+    ```
+    docker-compose start tests
+    ```
+### Локально
+- активируйте виртуальное окружение
+- установите необходимые библиотеки
+    ```
+    pip install -r requirements.txt
+    ```
+- соберите образ по инструкции [выше](#Установка)
+- запустите проект
+    ```
+    docker-compose -f docker-compose_local_test.yml up -d
+    ```
+- запустите тесты
+   ```
+   pytest tests
+   ```
 ### Дополнительные возможности
 - просмотр логов
     ```
@@ -34,9 +55,8 @@ https://github.com/aximon/ETL
     ```
 
 ## Использование
-
 ### Документация доступна по адресу
-    http://localhost/api/openapi
+-    http://localhost/api/openapi
 ### Примеры запросов
 - получить список фильмов по жанру
     ```

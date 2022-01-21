@@ -4,9 +4,6 @@ services:
   fastapi:
     container_name: film_search
     image: film_search:v2.0
-    build:
-      context: .
-      dockerfile: fast_api/docker/Dockerfile
     env_file:
       - ./envs/.fastapi.env
     depends_on:
@@ -20,12 +17,16 @@ services:
     restart: always
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
+    ports:
+      - 9210:9200
   redis:
     container_name: redis
     image: redis:6.2-alpine
     restart: always
     volumes:
       - redis_data:/data
+    ports:
+      - 6389:6379
   nginx:
     container_name: nginx
     image: nginx:1.21.4
@@ -39,9 +40,6 @@ services:
   tests:
     container_name: test_fastapi
     image: test_fastapi:v1.0
-    build:
-      context: .
-      dockerfile: tests/docker/Dockerfile
     env_file:
       - ./envs/.fastapi.env
     depends_on:
