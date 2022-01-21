@@ -5,7 +5,7 @@ from storage.AbstractClasses import AbstractCacheStorage, AbstractRemoteStorage
 
 class ElasticStorage(AbstractRemoteStorage):
 
-    def __init__(self, engine=AsyncElasticsearch):
+    def __init__(self, engine: AsyncElasticsearch):
         self.engine = engine
 
     async def get(self, *args, **kwargs):
@@ -17,7 +17,7 @@ class ElasticStorage(AbstractRemoteStorage):
 
 class RedisCacheStorage(AbstractCacheStorage):
 
-    def __init__(self, engine=Redis):
+    def __init__(self, engine: Redis):
         self.engine = engine
     
     async def get(self, *args, **kwargs):
