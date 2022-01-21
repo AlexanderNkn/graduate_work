@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/code
 
-COPY ["../../fastapi", "redis_elastic_waiter.sh", "./"]
+COPY ["../../fast_api", "redis_elastic_waiter.sh", "./"]
 
 RUN apt update && apt install -y netcat gcc \
     && pip install --no-cache-dir -r requirements.txt \
