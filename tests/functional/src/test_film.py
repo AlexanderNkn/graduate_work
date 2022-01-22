@@ -1,6 +1,6 @@
 import pytest
 
-from ..testdata.film import film_by_id_expected, film_list
+from ..testdata.film import film_by_id_expected, film_list, film_list_expected
 
 
 @pytest.mark.asyncio
@@ -11,6 +11,16 @@ async def test_get_film_by_id(send_data_to_elastic, film_list, make_get_request,
         assert response.status == 200
         assert len(response.body) == 8, 'check fields count'
         assert response.body == film_by_id_expected, 'check data in document'
+
+
+@pytest.mark.asyncio
+async def test_full_film_list(send_data_to_elastic, film_list, make_get_request, film_list_expected, clear_cache):
+    async with send_data_to_elastic(data=film_list):
+        response = await make_get_request('/film')
+
+        assert response.status == 200
+        assert len(response.body) == 1, 'check fields count'
+        assert response.body == film_list_expected, 'check data in document'
 
 
 @pytest.mark.asyncio
@@ -34,3 +44,13 @@ async def test_get_cached_film(
     await clear_cache()
     response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
     assert response.status == 404, 'data in cache still exists after deletion'
+
+
+@pytest.mark.asyncio
+async def test_get_nonexistent_film(
+    send_data_to_elastic, film_list, make_get_request, film_by_id_expected, clear_cache, es_client
+):
+    async with send_data_to_elastic(data=film_list):
+        response = await make_get_request('/film/12345678-1234-1234-1234-123456789100')
+
+        assert response.status == 404
