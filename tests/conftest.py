@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import AsyncGenerator, Callable
 
 import aiohttp
+import asyncio
 import pytest_asyncio
 from aioredis import Redis, create_redis
 from elasticsearch import AsyncElasticsearch
@@ -71,6 +72,7 @@ def send_data_to_elastic(es_client: AsyncElasticsearch, clear_cache: Callable):
     @asynccontextmanager
     async def inner(data: list[dict], with_clear_cache: bool = True) -> AsyncGenerator[None, None]:
         await async_bulk(client=es_client, actions=data)
+        await asyncio.sleep(0.5)
         try:
             yield
         finally:
