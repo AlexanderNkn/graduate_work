@@ -24,14 +24,15 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
-    redis.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
+    elastic.es = AsyncElasticsearch(hosts=f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}')
+    redis.redis = await aioredis.create_redis(address=f'redis://{config.REDIS_HOST}:{config.REDIS_PORT}')
 
 
 @app.on_event('shutdown')
 async def shutdown():
     await elastic.es.close()
-    await redis.redis.close()
+    redis.redis.close()
+    await redis.redis.wait_closed()
 
 app.include_router(film.router, prefix='/api/v1/film', tags=['film'])
 app.include_router(genre.router, prefix='/api/v1/genre', tags=['genre'])
