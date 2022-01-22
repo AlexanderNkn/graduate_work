@@ -52,7 +52,8 @@ async def test_full_film_list(send_data_to_elastic, film_list, make_get_request,
         assert response.status == 200, 'film list should be available'
         assert len(response.body) == len(film_list_expected), 'check film count'
         key_sort = lambda film_info: film_info['uuid']
-        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), 'check data in document'
+        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
+            'check data in documents'
 
 
 @pytest.mark.asyncio
@@ -110,18 +111,15 @@ async def test_film_pagination(send_data_to_elastic, film_list, make_get_request
 
         assert len(response.body) == 1, 'check film count'
 
-        response = await make_get_request(f'/film?page[size]=-1')
+        response = await make_get_request('/film?page[size]=-1')
         assert response.status == 400
 
-        response = await make_get_request(f'/film?page[size]=a')
+        response = await make_get_request('/film?page[size]=a')
         assert response.status == 400
 
 
 @pytest.mark.asyncio
 async def test_film_text_search(send_data_to_elastic, film_list, make_get_request, film_list_expected):
-    # testing scenario:
-    # check filter by: genre id, actor id, writer id, director id
-
     async with send_data_to_elastic(data=film_list):
         response = await make_get_request('/film/search?query=star')
 

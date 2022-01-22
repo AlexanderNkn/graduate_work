@@ -1,9 +1,9 @@
+import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import AsyncGenerator, Callable
 
 import aiohttp
-import asyncio
 import pytest_asyncio
 from aioredis import Redis, create_redis
 from elasticsearch import AsyncElasticsearch
