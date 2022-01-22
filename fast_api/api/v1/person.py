@@ -1,13 +1,14 @@
 from http import HTTPStatus
 
+from fastapi import APIRouter, Depends, HTTPException, Request
+
 from core.messages import FILM_NOT_FOUND, PERSON_NOT_FOUND
 from models.film import FilmShortResponse
 from models.person import PersonDetailedResponse
+from services.person import PersonService, get_person_service
 from services.film import FilmService, get_film_service
 from services.person import PersonService, get_person_service
 from services.utils import get_params
-
-from fastapi import APIRouter, Depends, HTTPException, Request
 
 router = APIRouter()
 
@@ -48,6 +49,7 @@ async def persons_list(request: Request,
     summary='List of films by person',
     description='List of films in which person participated',
     response_description='List of films with id',
+    tags=['film'],
 )
 async def person_film(person_id: str,
                       request: Request,
