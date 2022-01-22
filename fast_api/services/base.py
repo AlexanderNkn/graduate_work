@@ -1,18 +1,18 @@
-from typing import Optional, Union
+from typing import Union
 
 import elasticsearch.exceptions
+from orjson import loads as orjson_loads
+
+from db.storage import RedisCacheStorage, RemoteStorage
 from models.base import orjson_dumps
 from models.film import FilmDetailedDTO
 from models.genre import GenreDetailedDTO
 from models.person import PersonDetailedDTO
-from orjson import loads as orjson_loads
-from storage.MainClasses import RedisCacheStorage, RemoteStorage
-
-from .utils import get_body
+from services.utils import get_body
 
 T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
-OBJ_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+OBJ_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 minutes
 
 
 class BaseService:
@@ -36,11 +36,11 @@ class BaseService:
 
         return obj
 
-    async def get_by_params(self, **params) -> list[T]:
+    async def get_by_params(self, **params) -> list[T] | None:
         body = get_body(**params)
         redis_key = self.redis_key(body)
         obj_list = await self._list_from_cache(redis_key)
-        if not obj_list:
+        if obj_list is None:
             try:
                 doc = await self.storage.search(body=body, index=self.index)
             except elasticsearch.exceptions.NotFoundError:
@@ -54,7 +54,7 @@ class BaseService:
     def redis_key(self, params):
         return hash(self.index + orjson_dumps(params))
 
-    async def _obj_from_cache(self, redis_key: str) -> Optional[T]:
+    async def _obj_from_cache(self, redis_key: str) -> T | None:
         data = await self.cache.get(redis_key)
         if not data:
             return None
@@ -62,7 +62,7 @@ class BaseService:
         obj = self.model.parse_raw(data)
         return obj
 
-    async def _list_from_cache(self, redis_key: str) -> Optional[list[T]]:
+    async def _list_from_cache(self, redis_key: str) -> list[T] | None:
         data = await self.cache.get(redis_key)
         if not data:
             return None

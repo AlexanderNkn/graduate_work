@@ -16,7 +16,7 @@ services:
       - discovery.type=single-node
     restart: always
     volumes:
-      - elastic_data:/usr/share/elasticsearch/data
+      - elastic_data_test:/usr/share/elasticsearch/data
     ports:
       - 9210:9200
   redis:
@@ -24,7 +24,7 @@ services:
     image: redis:6.2-alpine
     restart: always
     volumes:
-      - redis_data:/data
+      - redis_data_test:/data
     ports:
       - 6389:6379
   nginx:
@@ -46,5 +46,5 @@ services:
       - es
       - redis
 volumes:
-  elastic_data:
-  redis_data:
+  elastic_data_test:
+  redis_data_test:

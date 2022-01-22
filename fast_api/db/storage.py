@@ -1,4 +1,5 @@
-from storage.StorageClasses import ElasticStorage, RedisCacheStorage
+from .elastic_db import ElasticStorage
+from .redis_db import RedisCacheStorage
 
 
 class RemoteStorage(ElasticStorage):
