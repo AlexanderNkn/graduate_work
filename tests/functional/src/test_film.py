@@ -9,7 +9,7 @@ async def test_get_film_by_id(send_data_to_elastic, film_list, make_get_request,
         response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
 
         assert response.status == 200, 'film doesn\'t available by id'
-        assert len(response.body) == 8, 'check fields count'
+        assert len(response.body) == len(film_by_id_expected), 'check fields count'
         assert response.body == film_by_id_expected, 'check data in document'
 
 
@@ -63,7 +63,8 @@ async def test_film_sort(send_data_to_elastic, film_list, make_get_request, film
 
         assert response.status == 200, 'sort should be available'
         key_sort = lambda film_info: -film_info['imdb_rating']
-        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), 'check data in document'
+        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
+            'check data in document'
 
 
 @pytest.mark.asyncio
@@ -77,17 +78,17 @@ async def test_film_filter(send_data_to_elastic, film_list, make_get_request):
         assert response.status == 200, 'filter by genre should be available'
         assert len(response.body) == 2, 'check film count'
 
-        response = await make_get_request('/film?filter[actors]=82b7dffe-6254-4598-b6ef-5be747193946')
+        response = await make_get_request('/film?filter[actors]=22345678-1234-1234-1234-123456789104')
 
         assert response.status == 200, 'filter by actor should be available'
         assert len(response.body) == 2, 'check film count'
 
-        response = await make_get_request('/film?filter[writers]=9f38323f-5912-40d2-a90c-b56899746f2a')
+        response = await make_get_request('/film?filter[writers]=22345678-1234-1234-1234-123456789105')
 
         assert response.status == 200, 'filter by writer should be available'
         assert len(response.body) == 3, 'check film count'
 
-        response = await make_get_request('/film?filter[directors]=41ac0f45-d12d-434a-81b4-3bb9c1ebd4e4')
+        response = await make_get_request('/film?filter[directors]=22345678-1234-1234-1234-123456789102')
 
         assert response.status == 200, 'filter by director should be available'
         assert len(response.body) == 2, 'check film count'
