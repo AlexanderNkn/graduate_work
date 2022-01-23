@@ -11,6 +11,8 @@ from core import config
 from core.logger import LOGGING
 from db import elastic_db, redis_db
 
+logging.getLogger('backoff').addHandler(logging.StreamHandler())
+
 app = FastAPI(
     title=config.PROJECT_NAME,
     docs_url='/api/openapi',
