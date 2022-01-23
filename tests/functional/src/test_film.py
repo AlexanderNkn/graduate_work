@@ -14,7 +14,7 @@ async def test_get_film_by_id(send_data_to_elastic, film_list, make_get_request,
 
 
 @pytest.mark.asyncio
-async def test_get_nonexistent_film(send_data_to_elastic, film_list, make_get_request, film_by_id_expected):
+async def test_get_nonexistent_film(send_data_to_elastic, film_list, make_get_request):
     async with send_data_to_elastic(data=film_list):
         response = await make_get_request('/film/12345678-1234-1234-1234-123456789100')
 
@@ -67,7 +67,7 @@ async def test_film_sort(send_data_to_elastic, film_list, make_get_request, film
 
 
 @pytest.mark.asyncio
-async def test_film_filter(send_data_to_elastic, film_list, make_get_request, film_list_expected):
+async def test_film_filter(send_data_to_elastic, film_list, make_get_request):
     # testing scenario:
     # check filter by: genre id, actor id, writer id, director id
 
@@ -119,7 +119,7 @@ async def test_film_pagination(send_data_to_elastic, film_list, make_get_request
 
 
 @pytest.mark.asyncio
-async def test_film_text_search(send_data_to_elastic, film_list, make_get_request, film_list_expected):
+async def test_film_text_search(send_data_to_elastic, film_list, make_get_request):
     async with send_data_to_elastic(data=film_list):
         response = await make_get_request('/film/search?query=star')
 

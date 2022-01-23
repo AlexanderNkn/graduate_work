@@ -72,7 +72,7 @@ def send_data_to_elastic(es_client: AsyncElasticsearch, clear_cache: Callable):
     @asynccontextmanager
     async def inner(data: list[dict], with_clear_cache: bool = True) -> AsyncGenerator[None, None]:
         await async_bulk(client=es_client, actions=data)
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         try:
             yield
         finally:

@@ -2,10 +2,10 @@ from typing import Any, Optional
 
 from fastapi import Request
 from fastapi.exceptions import HTTPException
-
-from models.base import BaseModel
 from pydantic import ValidationError
 from pydantic.types import PositiveInt
+
+from models.base import BaseModel
 
 
 class Page(BaseModel):
