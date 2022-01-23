@@ -1,6 +1,8 @@
 from typing import Any, Optional
 
 from fastapi import Request
+from fastapi.exceptions import HTTPException
+from pydantic import ValidationError
 from pydantic.types import PositiveInt
 
 from models.base import BaseModel
@@ -72,7 +74,10 @@ def get_body(**raw_params) -> dict[str, Any]:
 
     """
     query_body: dict[str, Any] = {}
-    params = _validate_query_params(**raw_params)
+    try:
+        params = _validate_query_params(**raw_params)
+    except ValidationError:
+        raise HTTPException(status_code=400, detail='Invalid query parameters')
 
     # pagination
     if params.page is not None:
