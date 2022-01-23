@@ -31,7 +31,7 @@ class BaseService:
         cache_key = self.cache.create_key(index=self.index, params=body)
         obj_list = await self.cache.get_list(key=cache_key, model=self.model)
         if not obj_list:
-            obj_list = await self.storage.get_by_params(body=body, index=self.index)
+            obj_list = await self.storage.get_by_params(body=body, index=self.index, model=self.model)
         if obj_list is not None:
             await self.cache.put_list(key=cache_key, obj_list=obj_list, model=self.model)
             return obj_list

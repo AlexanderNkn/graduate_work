@@ -17,19 +17,19 @@ class RemoteStorage(AbstractRemoteStorage):
         self.engine = engine
 
     async def _get_by_id(self, index, id, *args, **kwargs):
-        return await self.engine.get_by_id(index, id, *args, **kwargs)
+        return await self.engine.get_by_id(index=index, id=id, *args, **kwargs)
 
     async def _get_by_params(self, index, body, *args, **kwargs):
-        return await self.engine.get_by_params(index, body, *args, **kwargs)
+        return await self.engine.get_by_params(index=index, body=body, *args, **kwargs)
 
     async def get_by_id(self, index: str, id: str, model: T, *args, **kwargs) -> T | None:
-        doc = await self._get_by_id(index, id, *args, **kwargs)
+        doc = await self._get_by_id(index=index, id=id, *args, **kwargs)
         if doc is not None:
             return model(**doc['_source'])
         return None
 
     async def get_by_params(self, index: str, body: dict, model: T, *args, **kwargs) -> list[T] | None:
-        doc = await self._get_by_params(index, body, *args, **kwargs)
+        doc = await self._get_by_params(index=index, body=body, *args, **kwargs)
         if doc is not None:
             return [model(**_doc['_source']) for _doc in doc['hits']['hits']]
         return None
@@ -40,10 +40,10 @@ class CacheStorage(AbstractCacheStorage):
         self.engine = engine
 
     async def get_by_key(self, key, *args, **kwargs):
-        return await self.engine.get_by_key(key, *args, **kwargs)
+        return await self.engine.get_by_key(key=key, *args, **kwargs)
 
     async def set_by_key(self, key, value, *args, **kwargs):
-        return await self.engine.set_by_key(key, value, *args, **kwargs)
+        return await self.engine.set_by_key(key=key, value=value, *args, **kwargs)
 
     def create_key(self, index: str, params: str | dict):
         return hash(index + orjson_dumps(params))

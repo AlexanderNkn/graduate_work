@@ -13,7 +13,7 @@ class RedisStorage:
         self.redis = redis
 
     async def get_by_key(self, key, *args, **kwargs):
-        return await self.redis.get(key, *args, **kwargs)
+        return await self.redis.get(key=key, *args, **kwargs)
 
     async def set_by_key(self, key, value, *args, **kwargs):
-        return await self.redis.set(key, value, *args, **kwargs)
+        return await self.redis.set(key=key, value=value, *args, **kwargs)

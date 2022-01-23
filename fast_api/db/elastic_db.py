@@ -15,12 +15,12 @@ class ElasticStorage:
 
     async def get_by_id(self, index, id, *args, **kwargs):
         try:
-            return await self.elastic.get(index, id, *args, **kwargs)
+            return await self.elastic.get(index=index, id=id, *args, **kwargs)
         except NotFoundError:
             return None
 
     async def get_by_params(self, index, body, *args, **kwargs):
         try:
-            return await self.elastic.search(index, body, *args, **kwargs)
+            return await self.elastic.search(index=index, body=body, *args, **kwargs)
         except NotFoundError:
             return None
