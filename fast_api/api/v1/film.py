@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from core.messages import FILM_NOT_FOUND
-from models.film import FilmShortResponse, FilmDetailedResponse
+from models.film import FilmDetailedResponse, FilmShortResponse
 from models.genre import GenreShortResponse
 from models.person import PersonShortResponse
 from services.film import FilmService, get_film_service
