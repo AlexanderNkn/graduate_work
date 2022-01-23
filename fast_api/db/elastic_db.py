@@ -1,6 +1,6 @@
 import backoff
 from elasticsearch import AsyncElasticsearch
-from elasticsearch.exceptions import NotFoundError, ConnectionError
+from elasticsearch.exceptions import ConnectionError, NotFoundError
 
 es: AsyncElasticsearch | None = None
 

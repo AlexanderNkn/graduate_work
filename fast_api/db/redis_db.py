@@ -1,6 +1,6 @@
 import aioredis.errors
-from aioredis import Redis
 import backoff
+from aioredis import Redis
 
 redis: Redis | None = None
 

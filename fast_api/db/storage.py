@@ -3,7 +3,7 @@ from typing import Union
 from orjson import loads as orjson_loads
 
 from core import config
-from db.abstract_storage import AbstractRemoteStorage, AbstractCacheStorage
+from db.abstract_storage import AbstractCacheStorage, AbstractRemoteStorage
 from models.base import orjson_dumps
 from models.film import FilmDetailedDTO
 from models.genre import GenreDetailedDTO
