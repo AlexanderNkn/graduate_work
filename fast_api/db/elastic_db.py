@@ -1,6 +1,5 @@
 from elasticsearch import AsyncElasticsearch
-
-from db.abstract_storage import AbstractRemoteStorage
+from elasticsearch.exceptions import NotFoundError
 
 es: AsyncElasticsearch | None = None
 
@@ -9,13 +8,19 @@ async def get_elastic() -> AsyncElasticsearch | None:
     return es
 
 
-class ElasticStorage(AbstractRemoteStorage):
+class ElasticStorage:
 
-    def __init__(self, engine: AsyncElasticsearch):
-        self.engine = engine
+    def __init__(self, elastic: AsyncElasticsearch):
+        self.elastic = elastic
 
-    async def get(self, *args, **kwargs):
-        return await self.engine.get(*args, **kwargs)
+    async def get_by_id(self, index, id, *args, **kwargs):
+        try:
+            return await self.elastic.get(index, id, *args, **kwargs)
+        except NotFoundError:
+            return None
 
-    async def search(self, *args, **kwargs):
-        return await self.engine.search(*args, **kwargs)
+    async def get_by_params(self, index, body, *args, **kwargs):
+        try:
+            return await self.elastic.search(index, body, *args, **kwargs)
+        except NotFoundError:
+            return None

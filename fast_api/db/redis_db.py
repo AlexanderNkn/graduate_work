@@ -1,7 +1,5 @@
 from aioredis import Redis
 
-from db.abstract_storage import AbstractCacheStorage
-
 redis: Redis | None = None
 
 
@@ -9,13 +7,13 @@ async def get_redis() -> Redis:
     return redis
 
 
-class RedisCacheStorage(AbstractCacheStorage):
+class RedisStorage:
 
-    def __init__(self, engine: Redis):
-        self.engine = engine
+    def __init__(self, redis: Redis):
+        self.redis = redis
 
-    async def get(self, *args, **kwargs):
-        return await self.engine.get(*args, **kwargs)
+    async def get_by_key(self, key, *args, **kwargs):
+        return await self.redis.get(key, *args, **kwargs)
 
-    async def set(self, *args, **kwargs):
-        return await self.engine.set(*args, **kwargs)
+    async def set_by_key(self, key, value, *args, **kwargs):
+        return await self.redis.set(key, value, *args, **kwargs)

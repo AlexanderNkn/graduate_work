@@ -9,11 +9,19 @@ class AbstractRemoteStorage(ABC):
         self.engine = engine
 
     @abstractmethod
-    async def get(self, *args, **kwargs):
+    async def _get_by_id(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    async def search(self, *args, **kwargs):
+    async def _get_by_params(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def get_by_params(self, *args, **kwargs):
         pass
 
 
@@ -25,9 +33,29 @@ class AbstractCacheStorage(ABC):
         self.engine = engine
 
     @abstractmethod
-    async def get(self, *args, **kwargs):
+    async def get_by_key(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    async def set(self, *args, **kwargs):
+    async def set_by_key(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def create_key(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def get_obj(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def put_obj(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def get_list(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    async def put_list(self, *args, **kwargs):
         pass
