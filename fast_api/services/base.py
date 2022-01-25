@@ -8,10 +8,26 @@ from services.utils import get_body
 
 T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
+# attrs that have to be implemented in BaseService and all chiled classes
+MANDATORY_ATTRS = ('index', 'model')
 
-class BaseService:
+
+class BaseServiceAttrs(type):
+    """Checks for mandatory attrs in child classes."""
+    mandatory_attrs = MANDATORY_ATTRS
+    def __new__(mcls, name, bases, mdct):
+        cls = super().__new__(mcls, name, bases, mdct)
+        for attr in mcls.mandatory_attrs:
+            if not attr in mdct:
+                raise AttributeError(f'Class attribute `{attr}` is mandatory for class {name}')
+        return cls
+
+
+class BaseService(metaclass=BaseServiceAttrs):
+    index: str | None = None
+    model: T | None = None
+
     def __init__(self, storage: RemoteStorage, cache: CacheStorage) -> None:
-        self.meta = self.Meta(self)
         self.storage = storage
         self.cache = cache
 
