@@ -21,6 +21,9 @@ def film_list():
                     "name": "Music"
                 }
             ],
+            "actors_names": ["David Mallet", "Robert Elms"],
+            "writers_names": [],
+            "directors_names": [],
             "actors": [
                 {
                     "id": "22345678-1234-1234-1234-123456789103",
@@ -47,6 +50,9 @@ def film_list():
                     "name": "Comedy"
                 }
             ],
+            "actors_names": ["Alex Kurtzman", "Robert Elms"],
+            "writers_names": ["Chris Pine"],
+            "directors_names": ["David Tomaszewski"],
             "actors": [
                 {
                     "id": "22345678-1234-1234-1234-123456789104",
@@ -83,6 +89,9 @@ def film_list():
                     "name": "Comedy"
                 }
             ],
+            "actors_names": ["Chris Weitz"],
+            "writers_names": ["Chris Pine"],
+            "directors_names": ["David Tomaszewski"],
             "actors": [
                 {
                     "id": "22345678-1234-1234-1234-123456789101",
@@ -115,6 +124,9 @@ def film_list():
                     "name": "Romance"
                 }
             ],
+            "actors_names": ["Alex Kurtzman", "Robert Elms"],
+            "writers_names": ["Chris Pine"],
+            "directors_names": [],
             "actors": [
                 {
                     "id": "22345678-1234-1234-1234-123456789104",
