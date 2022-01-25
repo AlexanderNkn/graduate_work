@@ -1,6 +1,4 @@
-from asyncio.log import logger
 import logging
-from nis import cat
 
 import aioredis
 import uvicorn
