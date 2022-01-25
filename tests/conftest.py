@@ -20,14 +20,14 @@ class HTTPResponse:
     status: int
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture
 async def es_client() -> AsyncGenerator[AsyncElasticsearch, None]:
     client = AsyncElasticsearch(hosts=settings.elastic_url)
     yield client
     await client.close()
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture
 async def redis_client() -> AsyncGenerator[Redis, None]:
     redis = await create_redis(address=settings.redis_url)
     yield redis
@@ -35,7 +35,7 @@ async def redis_client() -> AsyncGenerator[Redis, None]:
     await redis.wait_closed()
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture
 async def session() -> AsyncGenerator[aiohttp.ClientSession, None]:
     session = aiohttp.ClientSession()
     yield session
@@ -71,8 +71,7 @@ def send_data_to_elastic(es_client: AsyncElasticsearch, clear_cache: Callable):
     """
     @asynccontextmanager
     async def inner(data: list[dict], with_clear_cache: bool = True) -> AsyncGenerator[None, None]:
-        await async_bulk(client=es_client, actions=data)
-        await asyncio.sleep(1.5)
+        await async_bulk(client=es_client, actions=data, refresh='wait_for')
         try:
             yield
         finally:
