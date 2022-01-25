@@ -10,9 +10,8 @@ T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
 
 class BaseService:
-    def __init__(self, index: str, model: T, storage: RemoteStorage, cache: CacheStorage) -> None:
-        self.index = index
-        self.model = model
+    def __init__(self, storage: RemoteStorage, cache: CacheStorage) -> None:
+        self.meta = self.Meta(self)
         self.storage = storage
         self.cache = cache
 
@@ -34,3 +33,9 @@ class BaseService:
             await self.cache.put_list(key=cache_key, obj_list=obj_list, model=self.model)
             return obj_list
         return None
+
+    class Meta:
+        def __init__(self, object):
+            self.object = object
+            getattr(self.object, "index")
+            getattr(self.object, "model")

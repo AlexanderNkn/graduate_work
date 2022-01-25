@@ -12,7 +12,8 @@ from services.base import BaseService
 
 
 class PersonService(BaseService):
-    pass
+    index = 'persons'
+    model = PersonDetailedDTO
 
 
 @lru_cache()
@@ -21,4 +22,4 @@ def get_person_service(
 ) -> PersonService:
     storage: RemoteStorage = RemoteStorage(ElasticStorage(elastic))
     cache: CacheStorage = CacheStorage(RedisStorage(redis))
-    return PersonService(index='persons', model=PersonDetailedDTO, storage=storage, cache=cache)
+    return PersonService(storage=storage, cache=cache)

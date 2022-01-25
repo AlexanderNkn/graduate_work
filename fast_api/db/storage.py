@@ -13,8 +13,6 @@ T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
 
 class RemoteStorage(AbstractRemoteStorage):
-    def __init__(self, engine):
-        self.engine = engine
 
     async def _get_by_id(self, index, id, *args, **kwargs):
         return await self.engine.get_by_id(index=index, id=id, *args, **kwargs)
@@ -36,8 +34,6 @@ class RemoteStorage(AbstractRemoteStorage):
 
 
 class CacheStorage(AbstractCacheStorage):
-    def __init__(self, engine):
-        self.engine = engine
 
     async def get_by_key(self, key, *args, **kwargs):
         return await self.engine.get_by_key(key=key, *args, **kwargs)
@@ -46,7 +42,7 @@ class CacheStorage(AbstractCacheStorage):
         return await self.engine.set_by_key(key=key, value=value, *args, **kwargs)
 
     def create_key(self, index: str, params: str | dict):
-        return hash(index + orjson_dumps(params))
+        return index + str(hash(orjson_dumps(params)))
 
     async def get_obj(self, key: str, model: T) -> T | None:
         data = await self.get_by_key(key)

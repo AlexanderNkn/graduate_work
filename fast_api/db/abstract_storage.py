@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 class AbstractRemoteStorage(ABC):
     """Abstract class for remote storage."""
 
-    @abstractmethod
     def __init__(self, engine):
         self.engine = engine
 
@@ -28,7 +27,6 @@ class AbstractRemoteStorage(ABC):
 class AbstractCacheStorage(ABC):
     """Abstract class for cache storage."""
 
-    @abstractmethod
     def __init__(self, engine):
         self.engine = engine
 
