@@ -12,7 +12,8 @@ from services.base import BaseService
 
 
 class FilmService(BaseService):
-    pass
+    index = 'movies'
+    model = FilmDetailedDTO
 
 
 @lru_cache()
@@ -21,4 +22,4 @@ def get_film_service(
 ) -> FilmService:
     storage: RemoteStorage = RemoteStorage(ElasticStorage(elastic))
     cache: CacheStorage = CacheStorage(RedisStorage(redis))
-    return FilmService(index='movies', model=FilmDetailedDTO, storage=storage, cache=cache)
+    return FilmService(storage=storage, cache=cache)

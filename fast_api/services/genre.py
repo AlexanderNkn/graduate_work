@@ -12,7 +12,8 @@ from services.base import BaseService
 
 
 class GenreService(BaseService):
-    pass
+    index = 'genres'
+    model = GenreDetailedDTO
 
 
 @lru_cache()
@@ -21,4 +22,4 @@ def get_genre_service(
 ) -> GenreService:
     storage: RemoteStorage = RemoteStorage(ElasticStorage(elastic))
     cache: CacheStorage = CacheStorage(RedisStorage(redis))
-    return GenreService(index='genres', model=GenreDetailedDTO, storage=storage, cache=cache)
+    return GenreService(storage=storage, cache=cache)
