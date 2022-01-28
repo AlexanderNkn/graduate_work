@@ -1,25 +1,31 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
+import pytest_asyncio
 
 from ..testdata.film import film_by_id_expected, film_list, film_list_expected
 
 pytestmark = pytest.mark.asyncio
 
 
-async def test_get_film_by_id(send_data_to_elastic, film_list, make_get_request, film_by_id_expected):
+@pytest_asyncio.fixture
+async def upload_film_data(send_data_to_elastic, film_list):
     async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
-
-        assert response.status == HTTPStatus.OK, 'film doesn\'t available by id'
-        assert len(response.body) == len(film_by_id_expected), 'check fields count'
-        assert response.body == film_by_id_expected, 'check data in document'
+        yield
 
 
-async def test_get_nonexistent_film(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/12345678-1234-1234-1234-123456789100')
+async def test_get_film_by_id(upload_film_data, make_get_request, film_by_id_expected):
+    response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
 
-        assert response.status == HTTPStatus.NOT_FOUND, 'available nonexistent film'
+    assert response.status == HTTPStatus.OK, 'film doesn\'t available by id'
+    assert len(response.body) == len(film_by_id_expected), 'check fields count'
+    assert response.body == film_by_id_expected, 'check data in document'
+
+
+async def test_get_nonexistent_film(upload_film_data, make_get_request):
+    response = await make_get_request('/film/12345678-1234-1234-1234-123456789100')
+
+    assert response.status == HTTPStatus.NOT_FOUND, 'available nonexistent film'
 
 
 async def test_get_cached_film(
@@ -45,134 +51,113 @@ async def test_get_cached_film(
     assert response.status == HTTPStatus.NOT_FOUND, 'data in cache still exists after deletion'
 
 
-async def test_full_film_list(send_data_to_elastic, film_list, make_get_request, film_list_expected):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film')
+async def test_full_film_list(upload_film_data, make_get_request, film_list_expected):
+    response = await make_get_request('/film')
 
-        assert response.status == HTTPStatus.OK, 'film list should be available'
-        assert len(response.body) == len(film_list_expected), 'check film count'
-        key_sort = lambda film_info: film_info['uuid']
-        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
-            'check data in documents'
-
-
-async def test_film_sort(send_data_to_elastic, film_list, make_get_request, film_list_expected):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film?sort=-imdb_rating')
-
-        assert response.status == HTTPStatus.OK, 'sort should be available'
-        key_sort = lambda film_info: -film_info['imdb_rating']
-        assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
-            'check data in document'
+    assert response.status == HTTPStatus.OK, 'film list should be available'
+    assert len(response.body) == len(film_list_expected), 'check film count'
+    key_sort = lambda film_info: film_info['uuid']
+    assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
+        'check data in documents'
 
 
-async def test_film_filter_by_genre(send_data_to_elastic, film_list, make_get_request):
+async def test_film_sort(upload_film_data, make_get_request, film_list_expected):
+    response = await make_get_request('/film?sort=-imdb_rating')
 
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film?filter[genre]=5373d043-3f41-4ea8-9947-4b746c601bbd')
-
-        assert response.status == HTTPStatus.OK, 'filter by genre should be available'
-        assert len(response.body) == 2, 'check film count'
-
-
-async def test_film_filter_by_actor(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-
-        response = await make_get_request('/film?filter[actors]=22345678-1234-1234-1234-123456789104')
-
-        assert response.status == HTTPStatus.OK, 'filter by actor should be available'
-        assert len(response.body) == 2, 'check film count'
+    assert response.status == HTTPStatus.OK, 'sort should be available'
+    key_sort = lambda film_info: -film_info['imdb_rating']
+    assert sorted(response.body, key=key_sort) == sorted(film_list_expected, key=key_sort), \
+        'check data in document'
 
 
-async def test_film_filter_by_writer(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
+async def test_film_filter_by_genre(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[genre]=5373d043-3f41-4ea8-9947-4b746c601bbd')
 
-        response = await make_get_request('/film?filter[writers]=22345678-1234-1234-1234-123456789105')
-
-        assert response.status == HTTPStatus.OK, 'filter by writer should be available'
-        assert len(response.body) == 3, 'check film count'
+    assert response.status == HTTPStatus.OK, 'filter by genre should be available'
+    assert len(response.body) == 2, 'check film count'
 
 
-async def test_film_filter_by_director(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
+async def test_film_filter_by_actor(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[actors]=22345678-1234-1234-1234-123456789104')
 
-        response = await make_get_request('/film?filter[directors]=22345678-1234-1234-1234-123456789102')
-
-        assert response.status == HTTPStatus.OK, 'filter by director should be available'
-        assert len(response.body) == 2, 'check film count'
+    assert response.status == HTTPStatus.OK, 'filter by actor should be available'
+    assert len(response.body) == 2, 'check film count'
 
 
-async def test_pagination_first_page_size(send_data_to_elastic, film_list, make_get_request, film_list_expected):
+async def test_film_filter_by_writer(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[writers]=22345678-1234-1234-1234-123456789105')
+
+    assert response.status == HTTPStatus.OK, 'filter by writer should be available'
+    assert len(response.body) == 3, 'check film count'
+
+
+async def test_film_filter_by_director(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[directors]=22345678-1234-1234-1234-123456789102')
+
+    assert response.status == HTTPStatus.OK, 'filter by director should be available'
+    assert len(response.body) == 2, 'check film count'
+
+
+async def test_pagination_first_page_size(upload_film_data, make_get_request, film_list_expected):
     # testing scenario:
     # we select page size that there are n-1 record on first page and 1 record on second page
+    page_size = min(len(film_list_expected) - 1, 29)
+    response = await make_get_request(f'/film?page[size]={page_size}&page[number]=1')
 
-    async with send_data_to_elastic(data=film_list):
-        page_size = min(len(film_list_expected) - 1, 29)
-        response = await make_get_request(f'/film?page[size]={page_size}&page[number]=1')
-
-        assert response.status == HTTPStatus.OK, 'pagination should be available'
-        assert len(response.body) == page_size, 'check film count'
+    assert response.status == HTTPStatus.OK, 'pagination should be available'
+    assert len(response.body) == page_size, 'check film count'
 
 
-async def test_pagination_second_page_size(send_data_to_elastic, film_list, make_get_request, film_list_expected):
+async def test_pagination_second_page_size(upload_film_data, make_get_request, film_list_expected):
     # testing scenario:
     # we select page size that there are n-1 record on first page and 1 record on second page
+    page_size = len(film_list_expected) - 1
+    response = await make_get_request(f'/film?page[size]={page_size}&page[number]=2')
 
-    async with send_data_to_elastic(data=film_list):
-        page_size = len(film_list_expected) - 1
-        response = await make_get_request(f'/film?page[size]={page_size}&page[number]=2')
-
-        assert response.status == HTTPStatus.OK, 'pagination should be available'
-        assert len(response.body) == 1, 'check film count'
+    assert response.status == HTTPStatus.OK, 'pagination should be available'
+    assert len(response.body) == 1, 'check film count'
 
 
-async def test_pagination_page_size_negative(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film?page[size]=-1')
-        assert response.status == HTTPStatus.BAD_REQUEST
+async def test_pagination_page_size_negative(upload_film_data, make_get_request):
+    response = await make_get_request('/film?page[size]=-1')
+    assert response.status == HTTPStatus.BAD_REQUEST
 
 
-async def test_pagination_page_size_not_number(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film?page[size]=a')
-        assert response.status == HTTPStatus.BAD_REQUEST
+async def test_pagination_page_size_not_number(upload_film_data, make_get_request):
+    response = await make_get_request('/film?page[size]=a')
+    assert response.status == HTTPStatus.BAD_REQUEST
 
 
-async def test_film_text_search_by_title(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/search?query=star')
+async def test_film_text_search_by_title(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query=star')
 
-        assert response.status == HTTPStatus.OK, 'text search should be available'
-        assert len(response.body) == 1, 'search by title doesn\'t available'
-
-
-async def test_film_text_search_by_description(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/search?query=movie')
-
-        assert response.status == HTTPStatus.OK, 'text search should be available'
-        assert len(response.body) == 2, 'search by description doesn\'t available'
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 1, 'search by title doesn\'t available'
 
 
-async def test_film_text_search_by_actors(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/search?query=Kurtzman')
+async def test_film_text_search_by_description(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query=movie')
 
-        assert response.status == HTTPStatus.OK, 'text search should be available'
-        assert len(response.body) == 2, 'search by actors doesn\'t available'
-
-
-async def test_film_text_search_by_writers(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/search?query=Pine')
-
-        assert response.status == HTTPStatus.OK, 'text search should be available'
-        assert len(response.body) == 3, 'search by writers doesn\'t available'
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 2, 'search by description doesn\'t available'
 
 
-async def test_film_text_search_by_directors(send_data_to_elastic, film_list, make_get_request):
-    async with send_data_to_elastic(data=film_list):
-        response = await make_get_request('/film/search?query=Tomaszewski')
+async def test_film_text_search_by_actors(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query=Kurtzman')
 
-        assert response.status == HTTPStatus.OK, 'text search should be available'
-        assert len(response.body) == 2, 'search by directors doesn\'t available'
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 2, 'search by actors doesn\'t available'
+
+
+async def test_film_text_search_by_writers(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query=Pine')
+
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 3, 'search by writers doesn\'t available'
+
+
+async def test_film_text_search_by_directors(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query=Tomaszewski')
+
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 2, 'search by directors doesn\'t available'
