@@ -8,7 +8,7 @@ from services.utils import get_body
 
 T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
 
-# attrs that have to be implemented in BaseService and all chiled classes
+# attrs that have to be implemented in BaseService and all child classes
 MANDATORY_ATTRS = ('index', 'model')
 
 
@@ -49,9 +49,3 @@ class BaseService(metaclass=BaseServiceAttrs):
             await self.cache.put_list(key=cache_key, obj_list=obj_list, model=self.model)
             return obj_list
         return None
-
-    class Meta:
-        def __init__(self, object):
-            self.object = object
-            getattr(self.object, "index")
-            getattr(self.object, "model")
