@@ -10,7 +10,7 @@ COPY ["../../tests", "redis_postgre_waiter.sh", "pytest.ini", "./"]
 RUN apt update && apt install -y netcat gcc \
     && pip install --no-cache-dir -r requirements.txt \
     && rm -rf /var/lib/apt/lists/* /tmp/* \
-    && chmod +x /usr/src/code/redis_elastic_waiter.sh
+    && chmod +x /usr/src/code/redis_postgre_waiter.sh
 
 ENTRYPOINT ["/usr/src/code/redis_postgre_waiter.sh"]
 
