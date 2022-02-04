@@ -2,8 +2,8 @@ version: '3.9'
 
 services:
   auth:
-    container_name: user_auth
-    image: user_auth:v2.0
+    container_name: auth
+    image: auth:v1.0
     env_file:
       - ./envs/.auth.env
     depends_on:
@@ -15,9 +15,9 @@ services:
     volumes:
       - postgres_data_test:/var/lib/postgresql/data/
     env_file:
-      - ./envs/.auth.env
+      - ./envs/.db.env
     ports:
-      - 5432:5432
+      - 5433:5432
 
   redis:
     container_name: redis
