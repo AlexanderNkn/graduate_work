@@ -1,0 +1,96 @@
+openapi: 3.0.2
+
+info:
+  title: 'Authentication service'
+  version: '1.0'
+
+servers:
+  - url: /api/v1/
+
+paths:
+  /auth/login:
+    post:
+      tags:
+      - LOGIN
+      description: Get JWT tokens after login
+      requestBody:
+        content:
+          application/json:
+            name: credentials
+            description: username/password to get jwt tokens
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        200:
+          description: A pair of access/refresh tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+        401:
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginErrorResponse'
+  /role:
+    get:
+      tags:
+        - Role
+      description: List of all available roles
+components:
+  schemas:
+    Credentials:
+      title: Credentials
+      type: object
+      properties:
+        username:
+          type: string
+          example: yandex
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+          example: 12345
+      required:
+        - username
+        - password
+
+    LoginSuccessResponse:
+      title: LoginSuccessResponse
+      type: object
+      properties:
+        status:
+          type: string
+          title: response status
+          example: success
+        message:
+          type: string
+          title: response message
+          example: JWT tokens were generated successfully
+        tokens: 
+          $ref: '#/components/schemas/Token'
+    Token:
+      title: Token
+      type: object
+      properties:
+        access_token:
+          type: string
+          title: access token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIHZlcnkgc21hcnQhIn0.GZvDoQdT9ldwmlPOrZWrpiaHas0DiFmZlytr1dhaxi4
+        refresh_token:
+          type: string
+          title: refresh token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIGF3ZXNvbWUhIn0.PhRXjIVL1yUhAND4uiE-p6V2rXHQ0drCj9156thJAJg
+    LoginErrorResponse:
+      title: LoginErrorResponse
+      type: object
+      properties:
+        status:
+          type: string
+          title: response status
+          example: error
+        message:
+          type: string
+          title: response message
+          example: username/password are not valid
