@@ -13,7 +13,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
-@blueprint.route('/register', methods=('POST', 'GET'))
+@blueprint.route('/register', methods=('POST',))
 async def register():
     if request.method == 'POST':
         username = request.json.get('username')
@@ -47,7 +47,7 @@ async def register():
             }, 200)
 
 
-@blueprint.route('/login', methods=('POST', ))
+@blueprint.route('/login', methods=('POST',))
 async def login():
     username = request.json.get('username')
     password = request.json.get('password')
@@ -91,7 +91,7 @@ async def login():
     return response
 
 
-@blueprint.route('/logout')
+@blueprint.route('/logout', methods=('POST',))
 @jwt_required()
 async def logout():
     response = make_response({"message": "logout successful"})
@@ -99,7 +99,7 @@ async def logout():
     return response
 
 
-@blueprint.route('/refresh_token')
+@blueprint.route('/refresh_token', methods=('POST',))
 @jwt_required(refresh=True)
 async def refresh_token():
     identity = get_jwt_identity()
@@ -116,26 +116,26 @@ async def refresh_token():
         }, 200)
 
 
-@blueprint.route('/change_credentials')
-async def change_credentials():
+@blueprint.route('/change_password/<uuid:user_id>', methods=('PATCH',))
+async def change_password():
     pass
 
 
-@blueprint.route('/add_personal_data')
+@blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
 async def add_personal_data():
     pass
 
 
-@blueprint.route('/change_personal_data')
+@blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
 async def change_personal_data():
     pass
 
 
-@blueprint.route('/delete_personal_data')
+@blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
 async def delete_personal_data():
     pass
 
 
-@blueprint.route('/login_history')
+@blueprint.route('/login_history/<uuid:user_id>')
 async def get_login_history():
     pass
