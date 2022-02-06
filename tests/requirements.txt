@@ -1,3 +1,5 @@
+Flask[async]==2.0.2
+Flask-JWT-Extended==4.3.1
 pydantic==1.9.0
 pytest==6.2.5
 pytest-asyncio==0.17.0
