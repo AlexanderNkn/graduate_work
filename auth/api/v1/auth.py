@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask import request, make_response
-from models.users import User
+from models.users import User, UserData
 
 from db.postgres import db as db
 from werkzeug.security import check_password_hash
@@ -95,7 +95,6 @@ async def login():
 @jwt_required()
 async def logout():
     response = make_response({"message": "logout successful"})
-    # unset_jwt_cookies(response)
     return response
 
 
@@ -117,25 +116,120 @@ async def refresh_token():
 
 
 @blueprint.route('/change_password/<uuid:user_id>', methods=('PATCH',))
-async def change_password():
-    pass
+@jwt_required()
+async def change_password(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, 401)
+    old_password = request.json.get('old_password')
+    new_password = request.json.get('new_password')
+
+    if not check_password_hash(user.pwd_hash, old_password):
+        return make_response(
+            {
+                "message": "username/password are not valid",
+                "status": "error"
+            }, 401)
+
+    user.pwd_hash = generate_password_hash(new_password)
+    db.session.add(user)
+    db.session.commit()
+    return make_response(
+        {
+            "message": "password changed successfully",
+            "status": "success"
+        }, 200)
 
 
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
-async def add_personal_data():
-    pass
+@jwt_required()
+async def add_personal_data(user_id):
+    # {
+    #     "birth_date": "1970-10-8",
+    #     "city": "Cambridge",
+    #     "email": "matt@damon.com",
+    #     "first_name": "Matt",
+    #     "last_name": "Damon",
+    #     "phone": 71234567
+    # }
+
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, 401)
+
+    # user_data = UserData.query.filter_by(id=user_id).first()
+    # if user_data is None:
+    user_data = UserData(user_id=user_id)
+
+    for key in request.json:
+        setattr(user_data, key, request.json[key])
+
+    db.session.add(user_data)
+    db.session.commit()
+    return make_response(
+        {
+            "message": "user personal was data added successfully",
+            "status": "success"
+        }, 200)
 
 
 @blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
-async def change_personal_data():
-    pass
+@jwt_required()
+async def change_personal_data(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, 401)
+
+    user_data = UserData.query.filter_by(user_id=user_id).first()
+    if user_data is None:
+        user_data = UserData(user_id=user_id)
+
+    for key in request.json:
+        setattr(user_data, key, request.json[key])
+
+    db.session.add(user_data)
+    db.session.commit()
+    return make_response(
+        {
+            "message": "user personal was data added successfully",
+            "status": "success"
+        }, 200)
 
 
 @blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
-async def delete_personal_data():
-    pass
+@jwt_required()
+async def delete_personal_data(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, 401)
+
+    UserData.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
+
+    return make_response(
+        {
+            "message": "user personal data was deleted successfully",
+            "status": "success"
+        }, 200)
 
 
 @blueprint.route('/login_history/<uuid:user_id>')
-async def get_login_history():
+@jwt_required()
+async def get_login_history(user_id):
     pass

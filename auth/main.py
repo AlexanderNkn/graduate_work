@@ -9,7 +9,7 @@ from core import config
 from core.config import SWAGGER_CONFIG
 from core.logger import LOGGING
 from db import postgres
-from models.users import User
+# import models.users
 
 app = Flask(__name__)
 app.register_blueprint(auth.blueprint)
@@ -30,6 +30,7 @@ Swagger(app, config=swagger_config, template_file='swagger_doc.yml')
 app.config["JWT_SECRET_KEY"] = config.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = config.JWT_ACCESS_TOKEN_EXPIRES
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = config.JWT_REFRESH_TOKEN_EXPIRES
+app.config["JWT_ERROR_MESSAGE_KEY"] = "message"
 jwt = JWTManager(app)
 
 asgi_app = WsgiToAsgi(app)

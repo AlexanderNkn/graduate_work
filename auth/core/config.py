@@ -42,8 +42,8 @@ BASE_URL = os.getenv('BASE_URL', '/api/v1')
 
 # CACHE_EXPIRE_IN_SECONDS = int(os.getenv('CACHE_EXPIRE_IN_SECONDS', 300))
 
-JWT_SECRET_KEY = 'super-secret'
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=2)
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 1))
+JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
