@@ -33,12 +33,12 @@ paths:
                 properties:
                   tokens: 
                     $ref: '#/components/schemas/Token'
-                example:
-                  status: success
-                  message: JWT tokens were generated successfully
-                  tokens:
-                    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIHZlcnkgc21hcnQhIn0.GZvDoQdT9ldwmlPOrZWrpiaHas0DiFmZlytr1dhaxi4
-                    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIGF3ZXNvbWUhIn0.PhRXjIVL1yUhAND4uiE-p6V2rXHQ0drCj9156thJAJg
+              example:
+                status: success
+                message: JWT tokens were generated successfully
+                tokens:
+                  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIHZlcnkgc21hcnQhIn0.GZvDoQdT9ldwmlPOrZWrpiaHas0DiFmZlytr1dhaxi4
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIGF3ZXNvbWUhIn0.PhRXjIVL1yUhAND4uiE-p6V2rXHQ0drCj9156thJAJg
         401:
           description: Unauthorized access
           content:
@@ -122,14 +122,7 @@ paths:
       security:
       - jwt_auth:
         - write:admin,subscriber,member
-  /auth/change_password/<uuid:user_id>:
-    parameters:
-    - name: user_id
-      in: path
-      required: true
-      description: User id to change password
-      schema:
-        type: string
+  /auth/change_password:
     patch:
       tags:
       - CHANGE_PASSWORD
@@ -140,10 +133,10 @@ paths:
             name: credentials
             description: password to change
             schema:
-              $ref: '#/components/schemas/Credentials'
+              $ref: '#/components/schemas/Passwords'
             example:
-              username: yandex
-              password: 12345
+              old_password: 12345
+              new_password: 678910
       responses:
         200:
           description: Password changed successfully
@@ -191,7 +184,7 @@ paths:
               phone: +71234567
               city: Cambridge
       responses:
-        200:
+        201:
           description: User data was added successfully
           content:
             application/json:
@@ -269,7 +262,7 @@ paths:
       - DELETE_PERSONAL_DATA
       description: Additional info about user
       responses:
-        200:
+        204:
           description: User data was deleted successfully
           content:
             application/json:
@@ -311,19 +304,19 @@ paths:
                   history:
                     $ref: '#/components/schemas/UserLoginHistory'
               example:
-                  status: success
-                  message: user login history is available
-                  history:
-                    - login_date: 2022-02-06
-                      device:
-                        ip: 89.100.100.100
-                        user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
-                        created_at: 2021-02-15
-                    - login_date: 2022-02-04
-                      device:
-                        ip: 89.100.100.100
-                        user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
-                        created_at: 2021-02-15
+                status: success
+                message: user login history is available
+                history:
+                  - login_date: 2022-02-06
+                    device:
+                      ip: 89.100.100.100
+                      user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
+                      created_at: 2021-02-15
+                  - login_date: 2022-02-04
+                    device:
+                      ip: 89.100.100.100
+                      user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
+                      created_at: 2021-02-15
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
@@ -337,8 +330,281 @@ paths:
   /role:
     get:
       tags:
-        - Role
+        - ROLE_LIST
       description: List of all available roles
+      responses:
+        200:
+          description: List of roles is available
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/components/schemas/Role'
+                example:
+                  - id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                    code: admin
+                    description: unlimited access to all actions
+                  - id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                    code: subscriber
+                    description: account without paying for registered users
+                  - id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                    code: member
+                    description: account with payment options
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - CREATE_ROLE
+      description: Create new role
+      requestBody:
+        content:
+          application/json:
+            name: new role
+            description: new role data
+            schema:
+              $ref: '#/components/schemas/Role'
+            example:
+              code: admin
+              description: unlimited access to all actions
+      responses:
+        201:
+          description: List of roles is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role: 
+                    $ref: '#/components/schemas/Role'
+              example:
+                status: success
+                message: New role was created
+                role:
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  code: admin
+                  description: unlimited access to all actions
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - jwt_auth:
+        - write:admin
+        - read:admin
+  /role/<uuid:role_id>:
+    parameters:
+    - name: role_id
+      in: path
+      required: true
+      description: Role uuid
+      schema:
+        type: string
+      example:
+        role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+    get:
+      tags:
+      - ROLE_DETAILS
+      description: detailed info about role
+      responses:
+        200:
+          description: info about role is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role: 
+                    $ref: '#/components/schemas/Role'
+              example:
+                status: success
+                message: info about role is available
+                role:
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  code: admin
+                  description: unlimited access to all actions
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+      - CHANGE_ROLE_DETAILS
+      description: detailed info about role
+      responses:
+        200:
+          description: info about role was changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role: 
+                    $ref: '#/components/schemas/Role'
+              example:
+                status: success
+                message: info about role was changed successfully
+                role:
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  code: admin
+                  description: unlimited access to all actions
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - DELETE_ROLE
+      description: delete role
+      responses:
+        204:
+          description: role was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                status: success
+                message: role was deleted successfully
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    security:
+      - jwt_auth:
+        - write:admin
+        - read:admin
+  /assign_roles:
+    post:
+      tags:
+        - ASSIGN_ROLES
+      description: Assign roles to user
+      requestBody:
+        content:
+          application/json:
+            name: roles for user
+            description: roles for user
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+            example:
+              user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+              role_ids: [a9c6e8da-f2bf-458a-978b-d2f50a031451, 7cf56926-054c-4522-ac6f-d9f5d0e9d18e]
+      responses:
+        201:
+          description: Roles were assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  user_roles:
+                    $ref: '#/components/schemas/UserRoleResponse'
+              example:
+                status: success
+                message: roles were assigned to user
+                user_roles:
+                  - id: 4a73b964-af72-4801-aed9-113783561540
+                    user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+                    role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  - id: 0f55b9d8-f027-4766-9476-2b89e17c1854
+                    user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+                    role_id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                nouser:
+                  value:
+                    status: error
+                    message: user not found
+                norole:
+                  value:
+                    status: error
+                    message: role not found
+      security:
+      - jwt_auth:
+        - write:admin
+        - read:admin
+  /check_permissions:
+    post:
+      tags:
+        - CHECK_PERMISSIONS
+      description: check if user belongs to specified roles
+      requestBody:
+        content:
+          application/json:
+            name: user and possible roles
+            description: user and possible roles
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+            example:
+              user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+              role_ids: [a9c6e8da-f2bf-458a-978b-d2f50a031451, 7cf56926-054c-4522-ac6f-d9f5d0e9d18e]
+      responses:
+        200:
+          description: Roles were checked successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                status:
+                  type: string
+                message:
+                  type: string
+                has_permissions:
+                  type: boolean
+              examples:
+                approved:
+                  value:
+                    status: success
+                    message: roles were checked successfully
+                    has_permissions: true
+                disapproved:
+                  value:
+                    status: success
+                    message: roles were checked successfully
+                    has_permissions: false
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                nouser:
+                  value:
+                    status: error
+                    message: user not found
+                norole:
+                  value:
+                    status: error
+                    message: role not found
+      security:
+      - jwt_auth:
+        - write:admin
+        - read:admin
 
 components:
   responses:
@@ -384,6 +650,19 @@ components:
           type: string
           writeOnly: true
         password:
+          type: string
+          writeOnly: true
+      required:
+        - username
+        - password
+    Passwords:
+      title: Passwords
+      type: object
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+        new_password:
           type: string
           writeOnly: true
       required:
@@ -459,7 +738,51 @@ components:
       items:
         type: object
         $ref: '#/components/schemas/UserLogin'
-          
+    Role:
+      title: Role
+      properties:
+        id:
+          type: string
+          title: role uuid
+        code:
+          type: string
+          title: role name
+        description:
+          type: string
+          title: role detailed description
+      required:
+        - code
+        - description
+    UserRole:
+      title: UserRole
+      properties:
+        id:
+          type: string
+          title: user_role uuid
+        user_id:
+          type: string
+          title: user uuid
+        role_id:
+          type: string
+          title: role uuid
+    UserRoleRequest:
+      title: UserRoleRequest
+      properties:
+        user_id:
+          type: string
+          title: user uuid
+        role_ids:
+          type: array
+          items:
+            type: string
+            title: role uuids
+    UserRoleResponse:
+      title: UserRoleResponse
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/UserRole'
+
 securitySchemes:
   jwt_auth:
     type: http
