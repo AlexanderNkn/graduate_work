@@ -437,7 +437,17 @@ paths:
     patch:
       tags:
       - CHANGE_ROLE_DETAILS
-      description: detailed info about role
+      description: change role info
+      requestBody:
+        content:
+          application/json:
+            name: change role
+            description: change role info
+            schema:
+              $ref: '#/components/schemas/Role'
+            example:
+              code: admin
+              description: unlimited access to all actions
       responses:
         200:
           description: info about role was changed successfully
