@@ -4,10 +4,11 @@ from flasgger import swag_from
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 
-@swag_from('/docs/role_list.yml')
+# @swag_from('/docs/role_list.yml')
 @blueprint.route('/role', methods=('GET',))
 async def get_role_list():
     pass
+    return "It works"
 
 
 @blueprint.route('/role', methods=('POST',))
