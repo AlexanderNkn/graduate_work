@@ -98,20 +98,7 @@ paths:
                 status: success
                 message: User logout successfull
         401:
-          description: Logout failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -131,20 +118,7 @@ paths:
                 status: success
                 message: New tokens were generated
         401:
-          description: Refresh token failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -181,38 +155,11 @@ paths:
                 status: success
                 message: password changed successfully
         401:
-          description: Password changing failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
         403:
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: permission denied
+          $ref: '#/components/responses/Forbidden'
         404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: user not found
+          $ref: '#/components/responses/NotFound'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -254,38 +201,11 @@ paths:
                 status: success
                 message: user personal was data added successfully
         401:
-          description: User data addition failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
         403:
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: permission denied
+          $ref: '#/components/responses/Forbidden'
         404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: user not found
+          $ref: '#/components/responses/NotFound'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -327,38 +247,11 @@ paths:
                 status: success
                 message: user personal data was changed successfully
         401:
-          description: User data changing failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
         403:
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: permission denied
+          $ref: '#/components/responses/Forbidden'
         404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: user not found
+          $ref: '#/components/responses/NotFound'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -386,38 +279,11 @@ paths:
                 status: success
                 message: user personal data was deleted successfully
         401:
-          description: User data deletion failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
         403:
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: permission denied
+          $ref: '#/components/responses/Forbidden'
         404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: user not found
+          $ref: '#/components/responses/NotFound'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -459,38 +325,11 @@ paths:
                         user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
                         created_at: 2021-02-15
         401:
-          description: User login history is unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    status: error
-                    message: Token expired
-                notvalid:
-                  value:
-                    status: error
-                    message: Token is not valid
+          $ref: '#/components/responses/Unauthorized'
         403:
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: permission denied
+          $ref: '#/components/responses/Forbidden'
         404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                status: error
-                message: user not found
+          $ref: '#/components/responses/NotFound'
       security:
       - jwt_auth:
         - write:admin,subscriber,member
@@ -502,6 +341,40 @@ paths:
       description: List of all available roles
 
 components:
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response'
+          example:
+            status: error
+            message: resource not found
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response'
+          examples:
+            expired:
+              value:
+                status: error
+                message: token expired
+            notvalid:
+              value:
+                status: error
+                message: token is not valid
+    Forbidden:
+      description: Access is not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response'
+          example:
+            status: error
+            message: permission denied
   schemas:
     Credentials:
       title: Credentials
