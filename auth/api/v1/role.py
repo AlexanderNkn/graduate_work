@@ -1,9 +1,10 @@
 from flask import Blueprint
+from flasgger import swag_from
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 
-@blueprint.route('/role')
+@blueprint.route('/role', methods=('GET',))
 async def get_role_list():
     pass
 
