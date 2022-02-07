@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import request, make_response
+from http import HTTPStatus
 from models.users import User, UserData
 
 from db.postgres import db as db
@@ -15,19 +16,15 @@ blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 @blueprint.route('/register', methods=('POST',))
 async def register():
-    if request.method == 'POST':
-        username = request.json.get('username')
-        password = request.json.get('password')
-    elif request.method == 'GET':
-        username = request.args.get('username')
-        password = request.args.get('password')
+    username = request.json.get('username')
+    password = request.json.get('password')
 
     if not username or not password:
         return make_response(
             {
                 "message": "username/password is empty",
                 "status": "error"
-            }, 400)
+            }, HTTPStatus.BAD_REQUEST)
 
     user = User.query.filter_by(username=username).first()
     if user is not None:
@@ -35,7 +32,7 @@ async def register():
             {
                 "message": "username already used",
                 "status": "error"
-            }, 400)
+            }, HTTPStatus.BAD_REQUEST)
 
     user = User(username=username, pwd_hash=generate_password_hash(password))
     db.session.add(user)
@@ -44,7 +41,7 @@ async def register():
             {
                 "message": "User register",
                 "status": "success"
-            }, 200)
+            }, HTTPStatus.OK)
 
 
 @blueprint.route('/login', methods=('POST',))
@@ -57,7 +54,7 @@ async def login():
             {
                 "message": "username/password is empty",
                 "status": "error"
-            }, 400)
+            }, HTTPStatus.BAD_REQUEST)
         return response
 
     user = User.query.filter_by(username=username).first()
@@ -66,14 +63,14 @@ async def login():
             {
                 "message": "user is not exist",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     if not check_password_hash(user.pwd_hash, password):
         return make_response(
             {
                 "message": "username/password are not valid",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     access_token = create_access_token(identity="example_user")
     refresh_token = create_refresh_token(identity="example_user")
@@ -85,7 +82,7 @@ async def login():
                 "access_token": access_token,
                 "refresh_token": refresh_token
               }
-        }, 200)
+        }, HTTPStatus.OK)
     # set_access_cookies(response, access_token)
 
     return response
@@ -112,7 +109,7 @@ async def refresh_token():
                 "access_token": access_token,
                 # "refresh_token": refresh_token,
               }
-        }, 200)
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/change_password/<uuid:user_id>', methods=('PATCH',))
@@ -124,7 +121,7 @@ async def change_password(user_id):
             {
                 "message": "user not found",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
     old_password = request.json.get('old_password')
     new_password = request.json.get('new_password')
 
@@ -133,7 +130,7 @@ async def change_password(user_id):
             {
                 "message": "username/password are not valid",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     user.pwd_hash = generate_password_hash(new_password)
     db.session.add(user)
@@ -142,7 +139,7 @@ async def change_password(user_id):
         {
             "message": "password changed successfully",
             "status": "success"
-        }, 200)
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
@@ -163,7 +160,7 @@ async def add_personal_data(user_id):
             {
                 "message": "user not found",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     # user_data = UserData.query.filter_by(id=user_id).first()
     # if user_data is None:
@@ -178,7 +175,7 @@ async def add_personal_data(user_id):
         {
             "message": "user personal was data added successfully",
             "status": "success"
-        }, 200)
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
@@ -190,7 +187,7 @@ async def change_personal_data(user_id):
             {
                 "message": "user not found",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     user_data = UserData.query.filter_by(user_id=user_id).first()
     if user_data is None:
@@ -205,7 +202,7 @@ async def change_personal_data(user_id):
         {
             "message": "user personal was data added successfully",
             "status": "success"
-        }, 200)
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
@@ -217,7 +214,7 @@ async def delete_personal_data(user_id):
             {
                 "message": "user not found",
                 "status": "error"
-            }, 401)
+            }, HTTPStatus.UNAUTHORIZED)
 
     UserData.query.filter_by(user_id=user_id).delete()
     db.session.commit()
@@ -226,7 +223,7 @@ async def delete_personal_data(user_id):
         {
             "message": "user personal data was deleted successfully",
             "status": "success"
-        }, 200)
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/login_history/<uuid:user_id>')
