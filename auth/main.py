@@ -19,8 +19,8 @@ asgi_app = WsgiToAsgi(app)
 
 
 @app.cli.command("create-superuser")
-@click.argument("name")
-def create_superuser(name):
+@click.argument("name", "password")
+def create_superuser(name, password):
     user = User(username=name, pwd_hash=generate_password_hash(password), is_superuser=True)
     db.session.add(user)
     db.session.commit()
