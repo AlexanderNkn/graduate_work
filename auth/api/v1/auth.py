@@ -28,17 +28,17 @@ async def change_password():
     pass
 
 
-@blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
+@blueprint.route('/personal_data/<uuid:user_id>', methods=('POST',))
 async def add_personal_data():
     pass
 
 
-@blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
+@blueprint.route('/personal_data/<uuid:user_id>', methods=('PATCH',))
 async def change_personal_data():
     pass
 
 
-@blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
+@blueprint.route('/personal_data/<uuid:user_id>', methods=('DELETE',))
 async def delete_personal_data():
     pass
 
