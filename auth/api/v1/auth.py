@@ -76,8 +76,6 @@ def login():
             }, HTTPStatus.UNAUTHORIZED)
 
     access_token, refresh_token = common.get_tokens(user.id)
-    # access_token = create_access_token(identity=username)
-    # refresh_token = create_refresh_token(identity=username)
     response = make_response(
         {
             "message": "JWT tokens were generated successfully",
@@ -107,7 +105,7 @@ def refresh_token():
 
     # access_token = create_access_token(identity=identity)
     try:
-        access_token, _ = common.get_tokens(user_id, token)
+        access_token, refresh_token = common.get_tokens(user_id, token)
     except ValueError:
         return make_response(
                 {
@@ -121,7 +119,8 @@ def refresh_token():
             "status": "success",
             "tokens": {
                 "access_token": access_token,
-              }
+                "refresh_token": refresh_token,
+            }
         }, HTTPStatus.OK)
 
 
