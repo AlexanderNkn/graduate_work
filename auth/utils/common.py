@@ -36,28 +36,26 @@ def get_user_permissions(user_id):
     return permissions
 
 
-def get_tokens(user=None, token=None):
-    if user is None and token is None:
-        raise ValueError('User or token must be fill')
+def get_tokens(user_id, token=None):
 
-    if user is not None:
-        identity = user.id
+    if token is None:
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            raise ValueError('User not exists', user_id)
+
         perms = [perm.code for perm in get_user_permissions(user.id)]
         is_superuser = user.is_superuser
     else:
-        verify_jwt_in_request()
-        identity = get_jwt_identity()
-        claims = get_jwt()
-        perms = claims.get('perms', [])
-        is_superuser = claims.get('is_superuser', False)
+        perms = token.get('perms', [])
+        is_superuser = token.get('is_superuser', False)
 
     additional_claims = {
         'perms': perms,
         'is_superuser': is_superuser,
     }
 
-    access_token = create_access_token(identity=identity, additional_claims=additional_claims)
-    refresh_token = create_refresh_token(identity=identity, additional_claims=additional_claims)
+    access_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+    refresh_token = create_refresh_token(identity=user_id, additional_claims=additional_claims)
 
     return access_token, refresh_token
 

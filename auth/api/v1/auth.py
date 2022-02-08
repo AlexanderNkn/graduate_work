@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
 # from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 # from flask_jwt_extended import set_access_cookies
 
 from utils import common
@@ -75,7 +75,7 @@ def login():
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    access_token, refresh_token = common.get_tokens(user=user)
+    access_token, refresh_token = common.get_tokens(user.id)
     # access_token = create_access_token(identity=username)
     # refresh_token = create_refresh_token(identity=username)
     response = make_response(
@@ -103,16 +103,18 @@ def logout():
 @jwt_required(refresh=True)
 def refresh_token():
     user_id = get_jwt_identity()
-    user = User.query.filter_by(id=user_id).first()
-    if user is None:
-        return make_response(
-            {
-                "message": "user is not exist",
-                "status": "error"
-            }, HTTPStatus.UNAUTHORIZED)
+    token = get_jwt()
 
     # access_token = create_access_token(identity=identity)
-    access_token, _ = common.get_tokens(user=user)
+    try:
+        access_token, _ = common.get_tokens(user_id, token)
+    except ValueError:
+        return make_response(
+                {
+                    "message": "user is not exist",
+                    "status": "error"
+                }, HTTPStatus.UNAUTHORIZED)
+
     return make_response(
         {
             "message": "JWT tokens were generated successfully",
