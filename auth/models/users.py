@@ -47,6 +47,15 @@ class UserData(BaseModel):
     phone = db.Column(db.TEXT())
     city = db.Column(db.TEXT())
 
+    _default_fields = [
+        "first_name",
+        "last_name",
+        "email",
+        "birth_date",
+        "phone",
+        "city",
+    ]
+
     def __repr__(self):
         return f'{self.first_name} {self.last_name}'
 

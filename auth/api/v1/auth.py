@@ -154,6 +154,26 @@ def change_password(user_id):
         }, HTTPStatus.OK)
 
 
+@blueprint.route('/personal_data/<uuid:user_id>', methods=('GET',))
+@jwt_required()
+async def get_personal_data(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, HTTPStatus.UNAUTHORIZED)
+
+    user_data = UserData.query.filter_by(user_id=user_id).first()
+    if user_data is None:
+        user_data = UserData(user_id=user_id)
+
+    return make_response(
+        user_data.to_dict()
+        , HTTPStatus.OK)
+
+
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
 @perm_required(permission='add_personal_data')
 def add_personal_data(user_id):
@@ -174,8 +194,6 @@ def add_personal_data(user_id):
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    # user_data = UserData.query.filter_by(id=user_id).first()
-    # if user_data is None:
     user_data = UserData(user_id=user_id)
 
     for key in request.json:
