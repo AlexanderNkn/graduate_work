@@ -13,6 +13,19 @@ import json
 # установить время access и refresh токенов 1с, залогиниться, подождать 1с, попытаться получить refresh токен, должна быть ошибка
 
 
+@pytest.fixture
+def create_user():
+    pass
+
+
+@pytest.fixture
+def login_user():
+    # create user
+    # login
+    # return tokens
+    pass
+
+
 def test_register_user(app, db):
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = app.test_client().post(
