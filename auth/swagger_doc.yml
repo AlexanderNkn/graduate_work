@@ -106,10 +106,10 @@ paths:
     post:
       tags:
       - REFRESH_TOKEN
-      description: Refresh expired access token
+      description: Refresh expired tokens
       responses:
         200:
-          description: Successfull refresh tokens
+          description: New tokens were generated
           content:
             application/json:
               schema:
@@ -157,12 +157,12 @@ paths:
       - jwt_auth:
         - write:admin,subscriber,member
         - read:admin,subscriber,member
-  /add_personal_data/<uuid:user_id>:
+  /personal_data/<uuid:user_id>:
     parameters:
     - name: user_id
       in: path
       required: true
-      description: User id to add personal data
+      description: User id to add/change/delete personal data
       schema:
         type: string
     post:
@@ -180,7 +180,7 @@ paths:
               first_name: Matt
               last_name: Damon
               email: matt@damon.com
-              birth_date: 1970-10-8
+              birth_date: 1970-10-08
               phone: +71234567
               city: Cambridge
       responses:
@@ -199,18 +199,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
-      security:
-      - jwt_auth:
-        - write:admin,subscriber,member
-        - read:admin,subscriber,member
-  /change_personal_data/<uuid:user_id>:
-    parameters:
-    - name: user_id
-      in: path
-      required: true
-      description: User id to change personal data
-      schema:
-        type: string
     patch:
       tags:
       - CHANGE_PERSONAL_DATA
@@ -249,14 +237,6 @@ paths:
       - jwt_auth:
         - write:admin,subscriber,member
         - read:admin,subscriber,member
-  /delete_personal_data/<uuid:user_id>:
-    parameters:
-    - name: user_id
-      in: path
-      required: true
-      description: User id to delete personal data
-      schema:
-        type: string
     delete:
       tags:
       - DELETE_PERSONAL_DATA
@@ -437,7 +417,17 @@ paths:
     patch:
       tags:
       - CHANGE_ROLE_DETAILS
-      description: detailed info about role
+      description: change role info
+      requestBody:
+        content:
+          application/json:
+            name: change role
+            description: change role info
+            schema:
+              $ref: '#/components/schemas/Role'
+            example:
+              code: admin
+              description: unlimited access to all actions
       responses:
         200:
           description: info about role was changed successfully
