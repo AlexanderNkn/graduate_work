@@ -53,7 +53,7 @@ def create_db(db_url):
 def db(app):
     db_url = f"postgresql+psycopg2://{settings.dsn.user}:{settings.dsn.password}" + \
               f"@{settings.dsn.host}:{settings.dsn.port}/{settings.dsn.dbname}"
-    create_db(db_url)
+    # create_db(db_url)
 
     from db.postgres import db
 

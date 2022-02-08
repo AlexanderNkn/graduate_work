@@ -13,9 +13,40 @@ import json
 # установить время access и refresh токенов 1с, залогиниться, подождать 1с, попытаться получить refresh токен, должна быть ошибка
 
 
-# @pytest.mark.asyncio
-# async \
-def test_get_user_by_id(app, db):
+def test_register_user(app, db):
+    body = json.dumps({'username': 'user1', 'password': '234'})
+    response = app.test_client().post(
+        '/api/v1/auth/register',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_register_empty_user(app, db):
+    body = json.dumps({'username': '', 'password': '234'})
+    response = app.test_client().post(
+        '/api/v1/auth/login',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_register_without_username(app, db):
+    body = json.dumps({'password': '234'})
+    response = app.test_client().post(
+        '/api/v1/auth/login',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_login_user(app, db):
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = app.test_client().post(
         '/api/v1/auth/login',
@@ -24,4 +55,38 @@ def test_get_user_by_id(app, db):
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_login_non_existent_user(app, db):
+    body = json.dumps({'username': 'user2', 'password': '234'})
+    response = app.test_client().post(
+        '/api/v1/auth/login',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_login_empty_user(app, db):
+    body = json.dumps({'password': '234'})
+    response = app.test_client().post(
+        '/api/v1/auth/login',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_login_empty_password(app, db):
+    body = json.dumps({'user': 'user1'})
+    response = app.test_client().post(
+        '/api/v1/auth/login',
+        data=body,
+        content_type='application/json',
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
 
