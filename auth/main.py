@@ -9,7 +9,6 @@ from core import config
 from core.config import SWAGGER_CONFIG
 from core.logger import LOGGING
 from db import postgres
-# import models.users
 
 app = Flask(__name__)
 app.register_blueprint(auth.blueprint)

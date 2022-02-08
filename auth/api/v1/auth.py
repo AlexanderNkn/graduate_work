@@ -1,15 +1,17 @@
 from flask import Blueprint
 from flask import request, make_response
 from http import HTTPStatus
-from models.users import User, UserData
+from models.users import User, UserData, UserDevice
 
 from db.postgres import db as db
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-from flask_jwt_extended import create_access_token, create_refresh_token
+# from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt_identity, jwt_required
 # from flask_jwt_extended import set_access_cookies
+
+from utils import common
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
@@ -72,8 +74,9 @@ async def login():
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    access_token = create_access_token(identity="example_user")
-    refresh_token = create_refresh_token(identity="example_user")
+    access_token, refresh_token = common.get_tokens(user=user)
+    # access_token = create_access_token(identity=username)
+    # refresh_token = create_refresh_token(identity=username)
     response = make_response(
         {
             "message": "JWT tokens were generated successfully",
@@ -98,16 +101,23 @@ async def logout():
 @blueprint.route('/refresh_token', methods=('POST',))
 @jwt_required(refresh=True)
 async def refresh_token():
-    identity = get_jwt_identity()
-    access_token = create_access_token(identity=identity)
-    # refresh_token = create_refresh_token(identity=identity)
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user is not exist",
+                "status": "error"
+            }, HTTPStatus.UNAUTHORIZED)
+
+    # access_token = create_access_token(identity=identity)
+    access_token, _ = common.get_tokens(user=user)
     return make_response(
         {
             "message": "JWT tokens were generated successfully",
             "status": "success",
             "tokens": {
                 "access_token": access_token,
-                # "refresh_token": refresh_token,
               }
         }, HTTPStatus.OK)
 
