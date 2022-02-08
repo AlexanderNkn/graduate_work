@@ -1,3 +1,5 @@
+from flask import make_response
+from http import HTTPStatus
 
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
@@ -59,15 +61,25 @@ def get_tokens(user=None, token=None):
 
     return access_token, refresh_token
 
-# def admin_required():
-#     def wrapper(fn):
-#         @wraps(fn)
-#         def decorator(*args, **kwargs):
-#             verify_jwt_in_request()
-#             claims = get_jwt()
-#             if claims["is_administrator"]:
-#                 return fn(*args, **kwargs)
-#             else:
-#                 return jsonify(msg="Admins only!"), 403
-#
-#         return decorator
+
+def perm_required(permission):
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            verify_jwt_in_request()
+            claims = get_jwt()
+            perms = claims.get('perms', [])
+            is_superuser = claims.get('is_superuser', False)
+
+            if is_superuser or permission in perms:
+                return fn(*args, **kwargs)
+            else:
+                return make_response(
+                    {
+                        "message": "Permission denied",
+                        "status": "error"
+                    }, HTTPStatus.FORBIDDEN)
+
+        return decorator
+
+    return wrapper
