@@ -7,7 +7,7 @@ from api.v1 import auth, role
 from .settings import settings
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app():
     app = Flask(__name__)
     app.register_blueprint(auth.blueprint)
@@ -49,11 +49,11 @@ def create_db(db_url):
             print("Соединение с PostgreSQL закрыто")
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def db(app):
     db_url = f"postgresql+psycopg2://{settings.dsn.user}:{settings.dsn.password}" + \
               f"@{settings.dsn.host}:{settings.dsn.port}/{settings.dsn.dbname}"
-    create_db(db_url)
+    # create_db(db_url)
 
     from db.postgres import db
 
@@ -66,6 +66,24 @@ def db(app):
     db.create_all()
 
     return db
+
+
+def clear_all_tables(db):
+    import contextlib
+
+    meta = db.metadata
+
+    with contextlib.closing(db.engine.connect()) as con:
+        trans = con.begin()
+        for table in reversed(meta.sorted_tables):
+            con.execute(table.delete())
+        trans.commit()
+
+
+@pytest.fixture
+def session(db):
+    yield db.session
+    clear_all_tables(db)
 
 
 def init_jwt(app):
