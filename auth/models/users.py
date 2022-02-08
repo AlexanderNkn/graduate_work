@@ -22,17 +22,17 @@ class User(BaseModel):
     def __repr__(self):
         return f'{self.username}'
 
-    # @hybrid_property
-    # def password(self):
-    #     return self.pwd_hash
-    #
-    # @password.setter
-    # def password(self, value):
-    #     """Store the password as a hash for security."""
-    #     self.pwd_hash = generate_password_hash(value)
-    #
-    # def check_password(self, value):
-    #     return check_password_hash(self.pwd_hash, value)
+    @hybrid_property
+    def password(self):
+        return self.pwd_hash
+
+    @password.setter
+    def password(self, value):
+        """Store the password as a hash for security."""
+        self.pwd_hash = generate_password_hash(value)
+
+    def check_password(self, value):
+        return check_password_hash(self.pwd_hash, value)
 
 
 class UserData(BaseModel):
