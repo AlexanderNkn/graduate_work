@@ -2,7 +2,6 @@ import uvicorn
 from asgiref.wsgi import WsgiToAsgi
 from flasgger import Swagger
 from flask import Flask
-import click
 
 from api.v1 import auth, role
 from core.config import SWAGGER_CONFIG
@@ -16,14 +15,6 @@ swagger_config = SWAGGER_CONFIG
 Swagger(app, config=swagger_config, template_file='swagger_doc.yml')
 
 asgi_app = WsgiToAsgi(app)
-
-
-@app.cli.command("create-superuser")
-@click.argument("name", "password")
-def create_superuser(name, password):
-    user = User(username=name, pwd_hash=generate_password_hash(password), is_superuser=True)
-    db.session.add(user)
-    db.session.commit()
 
 
 if __name__ == '__main__':
