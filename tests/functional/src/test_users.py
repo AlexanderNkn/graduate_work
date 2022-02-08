@@ -21,7 +21,7 @@ def create_user(session):
     created_records = []
 
     def _create_user(username, password):
-        user = User(username=username, password=password)
+        user = User(username=username, password=password, is_superuser=True)
         created_records.append(username)
         session.add(user)
         session.commit()
