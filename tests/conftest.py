@@ -1,28 +1,29 @@
+from itsdangerous import json
 import pytest
-from auth.main import app
-from flask_jwt_extended import create_access_token
+# import pytest_asyncio
+
+from flask import Flask
+from auth.api.v1 import auth, role
+
+from .settings import settings
 
 
-app.testing = True
-
-
-@pytest.fixture(scope='session')
-def admin_access_token():
-    access_token = create_access_token('admin')
+@pytest.fixture
+def admin_token(client):
+    response = client.post('/login', json={'username': 'username', 'password': 'password'}
+    )
+    access_token = response.tokens.access_token
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)
     }
     return headers
 
-@pytest.fixture(scope='session')
-def user_access_token():
-    access_token = create_access_token('subscriber')
+@pytest.fixture
+def user_token(client):
+    response = client.post('/login', json={'username': 'username', 'password': 'password'}
+    )
+    access_token = response.tokens.access_token
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)
     }
     return headers
-
-@pytest.fixture(scope='session')
-def test_client():
-    with app.test_client() as testing_client:
-        yield testing_client
