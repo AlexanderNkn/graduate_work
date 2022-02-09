@@ -3,7 +3,7 @@ import uuid
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
-from db.postgres import db as db
+from auth.db.postgres import db as db
 
 
 class BaseModel(db.Model):
