@@ -4,10 +4,10 @@ from .base import BaseModel
 
 
 class Role(BaseModel):
-    __tablename__ = 'users'
+    __tablename__ = 'roles'
 
     code = Column(VARCHAR(255), nullable=False, unique=True)
-    description = Column(Text, nullable=False)
+    description = Column(Text, default='')
 
     def __repr__(self):
         return f'({self.code}) {self.description}'
