@@ -1,4 +1,4 @@
-from db.postgres import db as db
+from auth.extensions import db
 from .base import BaseModel
 import datetime
 

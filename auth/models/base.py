@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.attributes import QueryableAttribute
 
-from db.postgres import db as db
+from auth.extensions import db
 
 
 class BaseModel(db.Model):
@@ -13,7 +13,7 @@ class BaseModel(db.Model):
 
     id = db.Column(UUID(as_uuid=True), nullable=False, unique=True, primary_key=True, default=uuid.uuid4)
     created_at = db.Column(db.TIMESTAMP, nullable=False, default=datetime.datetime.now())
-    updated_at = db.Column(db.TIMESTAMP, nullable=False, default=datetime.datetime.now(), onupdate=datetime.datetime.now())
+    updated_at = db.Column(db.TIMESTAMP, nullable=False, default=datetime.datetime.now(), onupdate=datetime.datetime.now())  # noqa
 
     def __repr__(self):
         return "<{0.__class__.__name__}(id={0.id!r})>".format(self)

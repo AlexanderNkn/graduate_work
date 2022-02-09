@@ -1,11 +1,11 @@
 from flask import Blueprint
 from flask import request, make_response
 from http import HTTPStatus
-from models.users import User, UserData, UserDevice
+from auth.models.users import User, UserData, UserDevice
 
-from db.postgres import db as db
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+from auth.extensions import db
+# from werkzeug.security import check_password_hash
+# from werkzeug.security import generate_password_hash
 
 # from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
@@ -33,16 +33,16 @@ def register():
     if user is not None:
         return make_response(
             {
-                "message": "username already used",
+                "message": "The username is already in use",
                 "status": "error"
             }, HTTPStatus.BAD_REQUEST)
 
-    user = User(username=username, pwd_hash=generate_password_hash(password))
+    user = User(username=username, password=password)
     db.session.add(user)
     db.session.commit()
     return make_response(
             {
-                "message": "User register",
+                "message": "New account was registered successfully",
                 "status": "success"
             }, HTTPStatus.OK)
 
@@ -68,10 +68,11 @@ def login():
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    if not check_password_hash(user.pwd_hash, password):
+    # if not check_password_hash(user.pwd_hash, password):
+    if not user.check_password(password):
         return make_response(
             {
-                "message": "username/password are not valid",
+                "message": "username or password are not correct",
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
@@ -131,20 +132,20 @@ def change_password(user_id):
     if user is None:
         return make_response(
             {
-                "message": "user not found",
+                "message": "resource not found",
                 "status": "error"
-            }, HTTPStatus.UNAUTHORIZED)
+            }, HTTPStatus.NOT_FOUND)
     old_password = request.json.get('old_password')
     new_password = request.json.get('new_password')
 
-    if not check_password_hash(user.pwd_hash, old_password):
+    if not user.check_password(old_password):
         return make_response(
             {
                 "message": "username/password are not valid",
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    user.pwd_hash = generate_password_hash(new_password)
+    user.password = new_password
     db.session.add(user)
     db.session.commit()
     return make_response(
@@ -190,9 +191,9 @@ def add_personal_data(user_id):
     if user is None:
         return make_response(
             {
-                "message": "user not found",
+                "message": "resource not found",
                 "status": "error"
-            }, HTTPStatus.UNAUTHORIZED)
+            }, HTTPStatus.NOT_FOUND)
 
     user_data = UserData(user_id=user_id)
 
