@@ -1,22 +1,16 @@
+import contextlib
+
 import pytest
-# import pytest_asyncio
 
-from flask import Flask
-from auth.api.v1 import auth, role
+from auth import create_app
+from auth.extensions import db
 
-from .settings import (POSTGRES_HOST_TEST, POSTGRES_PORT_TEST, POSTGRES_NAME_TEST,
-    POSTGRES_USER_TEST, POSTGRES_PASSWORD_TEST, POSTGRES_OPTIONS_TEST, JWT_SECRET_KEY_TEST,
-    JWT_ACCESS_TOKEN_EXPIRES_TEST, JWT_REFRESH_TOKEN_EXPIRES_TEST, JWT_ERROR_MESSAGE_KEY_TEST)
+from . import config
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def app():
-    app = Flask(__name__)
-    app.register_blueprint(auth.blueprint)
-    app.register_blueprint(role.blueprint)
-
-    init_jwt(app)
-    return app
+    return create_app(config=config)
 
 
 @pytest.fixture
@@ -24,77 +18,16 @@ def client(app):
     return app.test_client()
 
 
-#def create_db(db_url):
-#    import psycopg2
-#    from psycopg2 import Error
-#    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-#    try:
-#        # Подключение к существующей базе данных
-#        connection = psycopg2.connect(user=settings.dsn.user,
-#                                      # пароль, который указали при установке PostgreSQL
-#                                      password=settings.dsn.password,
-#                                      host=settings.dsn.host,
-#                                      port=settings.dsn.port)
-#        connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-#        # Курсор для выполнения операций с базой данных
-#        cursor = connection.cursor()
-#        sql_drop_database = f'DROP DATABASE IF EXISTS {settings.dsn.dbname}'
-#        cursor.execute(sql_drop_database)
-#        sql_create_database = f'CREATE DATABASE {settings.dsn.dbname}'
-#        cursor.execute(sql_create_database)
-#    except (Exception, Error) as error:
-#        print("Ошибка при работе с PostgreSQL", error)
-#    finally:
-#        if connection:
-#            cursor.close()
-#            connection.close()
-#            print("Соединение с PostgreSQL закрыто")
+@pytest.fixture
+def session():
+    yield db.session
+    _clear_all_tables(db)
 
 
-@pytest.fixture(scope="session")
-def db(app):
-    db_url = f"postgresql+psycopg2://{POSTGRES_USER_TEST}:{POSTGRES_PASSWORD_TEST}" + \
-              f"@{POSTGRES_HOST_TEST}:{POSTGRES_PORT_TEST}/{POSTGRES_NAME_TEST}"
-    # create_db(db_url)
-
-    
-
-    from auth.db.postgres import db
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-    db.init_app(app)
-    app.app_context().push()
-    db.drop_all()
-    db.create_all()
-
-    return db
-
-
-def clear_all_tables(db):
-    import contextlib
-
+def _clear_all_tables(db):
     meta = db.metadata
-
     with contextlib.closing(db.engine.connect()) as con:
         trans = con.begin()
         for table in reversed(meta.sorted_tables):
             con.execute(table.delete())
         trans.commit()
-
-
-@pytest.fixture
-def session(db):
-    yield db.session
-    clear_all_tables(db)
-
-
-def init_jwt(app):
-    from flask_jwt_extended import JWTManager
-
-    app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY_TEST
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = JWT_ACCESS_TOKEN_EXPIRES_TEST
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = JWT_REFRESH_TOKEN_EXPIRES_TEST
-    app.config["JWT_ERROR_MESSAGE_KEY"] = "message"
-    jwt = JWTManager(app)

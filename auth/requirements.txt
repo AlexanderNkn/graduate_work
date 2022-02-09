@@ -1,5 +1,0 @@
-flask[async]==2.0.2
-uvicorn==0.17.1
-asyncio==3.4.3
-gunicorn==20.1.0
-flasgger==0.9.5

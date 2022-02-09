@@ -10,4 +10,4 @@ COPY ["../../auth", "./"]
 RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /var/lib/apt/lists/* /tmp/* 
 
-CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "main:asgi_app", "--bind", "0.0.0.0:5000"]
+CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "app:asgi_app", "--bind", "0.0.0.0:5000"]

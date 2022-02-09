@@ -3,7 +3,7 @@ from flask import request, make_response
 from http import HTTPStatus
 from auth.models.users import User, UserData
 
-from auth.db.postgres import db as db
+from auth.extensions import db
 # from werkzeug.security import check_password_hash
 # from werkzeug.security import generate_password_hash
 
