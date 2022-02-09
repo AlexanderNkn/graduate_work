@@ -11,15 +11,15 @@ then
     echo "Redis db started"
 fi
 
-if [ "$POSTGRE_NAME" = "movies_database" ]
+if [ "$POSTGRES_NAME" = "auth_database" || "$POSTGRES_NAME" = "auth_database_test"]
 then
-    echo "Waiting for Postgre db..."
+    echo "Waiting for Postgres db..."
 
-    while ! nc -z $POSTGRE_HOST $POSTGRE_PORT; do
+    while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
       sleep 0.1
     done
 
-    echo "Postgre db started"
+    echo "Postgres db started"
 fi
 
 exec "$@"
