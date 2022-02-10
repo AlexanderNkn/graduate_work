@@ -1,32 +1,34 @@
+import uuid
 from http import HTTPStatus
 
 from flask import Blueprint, make_response, request
 from flask_jwt_extended import jwt_required
-from models.roles import Role, UserRole
 
 from extensions import db
+from models.roles import Role, UserRole
+from models.users import User
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 
 @blueprint.route('/role', methods=('GET', ))
-async def get_role_list():
-    roles_list = Role.query.all()
-    if roles_list is None:
+def get_role_list():
+    roles = Role.query.all()
+    if roles is None:
         return make_response({
             "message": "Role list is empty",
             "status": "success",
         }, HTTPStatus.NO_CONTENT)
     return make_response(
-            {
-                "status": "success",
-                "roles": roles_list
-            }, HTTPStatus.OK)
+        {
+            "status": "success",
+            "roles": [role.to_dict() for role in roles]
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/role', methods=('POST',))
 @jwt_required()
-async def create_role():
+def create_role():
     role_code = request.json.get('code')
     role_description = request.json.get('description')
     if not role_code or not role_description:
@@ -46,15 +48,15 @@ async def create_role():
     db.session.add(role)
     db.session.commit()
     return make_response(
-            {
-                "message": "Role created",
-                "status": "success"
-            }, HTTPStatus.CREATED)
+        {
+            "message": "Role created",
+            "status": "success"
+        }, HTTPStatus.CREATED)
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('GET', ))
 @jwt_required()
-async def get_role_by_id(role_id):
+def get_role_by_id(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -63,15 +65,15 @@ async def get_role_by_id(role_id):
                 "status": "error"
             }, HTTPStatus.NOT_FOUND)
     return make_response(
-            {
-                "status": "success",
-                "role": role
-            }, HTTPStatus.OK)
+        {
+            "status": "success",
+            "role": role.to_dict()
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('PATCH',))
 @jwt_required()
-async def change_role(role_id):
+def change_role(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -87,13 +89,13 @@ async def change_role(role_id):
         {
             "message": "role data was changed sucessfully",
             "status": "success",
-            "role": role
+            "role": role.to_dict()
         }, HTTPStatus.OK)
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('DELETE',))
 @jwt_required()
-async def delete_role(role_id):
+def delete_role(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -112,16 +114,17 @@ async def delete_role(role_id):
 
 @blueprint.route('/assign_roles', methods=('POST',))
 @jwt_required()
-async def assign_roles():
+def assign_roles():
     pass
 
 
 @blueprint.route('/check_permissions', methods=('POST',))
 @jwt_required()
-async def check_permissions():
-    user_id = request.json.get('user_id')
-    role_id = request.json.get('role_id')
-    user_role = UserRole.query.filter_by(user_id=user_id, role_id=role_id).all()
+def check_permissions():
+    user_id = uuid.UUID(request.json.get('user_id'))
+    role_ids = [uuid.UUID(role_id) for role_id in request.json.get('role_ids')]
+    user_role = UserRole.query.join(User).filter(User.id.in_(
+        [user_id])).join(Role).filter(Role.id.in_(role_ids)).first()
     if user_role is None:
         make_response(
             {

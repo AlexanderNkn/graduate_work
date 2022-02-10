@@ -1,9 +1,5 @@
-import pytest
-from http import HTTPStatus
-
 import json
-
-from models.users import User
+from http import HTTPStatus
 
 # создать нового пользователя (залогиниться), проверить наличие данных в базе psql
 # создать пользователя, добавить ему перс.данные, проверить наличие перс.данных в базе
@@ -13,48 +9,6 @@ from models.users import User
 # залогиниться под пользователем, разлогиниться, выполнить доступ к ресурсам с его access токеном
 # установить время access токена 1с, залогиниться, подождать 1с, доступ с токеном, должна быть ошибка
 # установить время access и refresh токенов 1с, залогиниться, подождать 1с, попытаться получить refresh токен, должна быть ошибка
-
-
-@pytest.fixture
-def create_user(session):
-
-    created_records = []
-
-    def _create_user(username, password):
-        user = User(username=username, password=password, is_superuser=True)
-        created_records.append(username)
-        session.add(user)
-        session.commit()
-        return user
-
-    yield _create_user
-
-    for username in created_records:
-        User.query.filter_by(username=username).delete()
-    session.commit()
-
-
-@pytest.fixture
-def login_user(client, create_user):
-    # create user
-    # login
-    # return tokens
-
-    def _login_user(username, password):
-        user = create_user(username, password)
-        body = json.dumps({'username': username, 'password': password})
-        response = client.post(
-            '/api/v1/auth/login',
-            data=body,
-            content_type='application/json',
-        )
-
-        if response.status_code == HTTPStatus.OK:
-            return user, response.json['tokens']
-        else:
-            raise Exception('Bad login request')
-
-    return _login_user
 
 
 def test_register_user(client, session):
@@ -69,7 +23,7 @@ def test_register_user(client, session):
 
 
 def test_register_existent_user(client, session, create_user):
-    user = create_user('user1', '234')
+    create_user('user1', '234')
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = client.post(
         '/api/v1/auth/register',
@@ -103,7 +57,7 @@ def test_register_without_username(client, session):
 
 
 def test_login_user(client, session, create_user):
-    user = create_user('user1', '234')
+    create_user('user1', '234')
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = client.post(
         '/api/v1/auth/login',
@@ -148,7 +102,7 @@ def test_login_empty_password(client, session):
 
 
 def test_login_wrong_password(client, session, create_user):
-    user = create_user('user1', '234')
+    create_user('user1', '234')
     body = json.dumps({'username': 'user1', 'password': '345'})
     response = client.post(
         '/api/v1/auth/login',

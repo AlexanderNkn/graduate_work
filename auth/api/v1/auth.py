@@ -149,7 +149,7 @@ def change_password(user_id):
 
 @blueprint.route('/personal_data/<uuid:user_id>', methods=('GET',))
 @perm_required(permission='get_personal_data')
-async def get_personal_data(user_id):
+def get_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return make_response(
