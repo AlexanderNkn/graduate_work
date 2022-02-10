@@ -9,11 +9,11 @@ class Permission(BaseModel):
     code = Column(VARCHAR(255), nullable=False, unique=True)
 
     def __repr__(self):
-        return f'{self.code}'
+        return f'({self.code}) {self.description}'
 
 
 class RolePerms(BaseModel):
-    __tablename__ = 'roles_perms'
+    __tablename__ = 'users_roles'
 
     role_id = Column(ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, index=True)
     perm_id = Column(ForeignKey('perms.id', ondelete='CASCADE'), nullable=False, index=True)

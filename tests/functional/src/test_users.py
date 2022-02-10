@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import json
 
-from auth.models.users import User, UserData
+from auth.models.users import User
 
 # создать нового пользователя (залогиниться), проверить наличие данных в базе psql
 # создать пользователя, добавить ему перс.данные, проверить наличие перс.данных в базе
