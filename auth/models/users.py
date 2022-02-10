@@ -1,6 +1,6 @@
 import datetime
 
-from auth.extensions import db
+from extensions import db
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import check_password_hash, generate_password_hash

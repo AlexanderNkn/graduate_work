@@ -3,8 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint, make_response, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
-from auth.extensions import db
-from auth.models.users import User, UserData
+from extensions import db
+from models.users import User, UserData
 from utils import common
 from utils.common import perm_required
 

@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.attributes import QueryableAttribute
 
-from auth.extensions import db
+from extensions import db
 
 
 class BaseModel(db.Model):

@@ -1,9 +1,15 @@
+import os
+import sys
+
+SOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'auth')
+sys.path.append(SOURCE_DIR)
+
 import contextlib
 
 import pytest
 
-from auth import create_app
-from auth.extensions import db
+from app import create_app
+from extensions import db
 
 from . import config
 
@@ -20,6 +26,7 @@ def client(app):
 
 @pytest.fixture
 def session():
+    _clear_all_tables(db)
     yield db.session
     _clear_all_tables(db)
 

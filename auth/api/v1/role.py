@@ -4,7 +4,7 @@ from flask import Blueprint, make_response, request
 from flask_jwt_extended import jwt_required
 from models.roles import Role, UserRole
 
-from auth.extensions import db
+from extensions import db
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 

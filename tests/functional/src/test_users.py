@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import json
 
-from auth.models.users import User
+from models.users import User
 
 # создать нового пользователя (залогиниться), проверить наличие данных в базе psql
 # создать пользователя, добавить ему перс.данные, проверить наличие перс.данных в базе
@@ -161,11 +161,13 @@ def test_login_wrong_password(client, session, create_user):
 
 def test_logout(client, session, login_user):
     _, tokens = login_user('user1', '234')
+    access_token = tokens['access_token']
     body = json.dumps({})
     response = client.post(
         '/api/v1/auth/logout',
         data=body,
         content_type='application/json',
+        headers={'Authorization': f'Bearer {access_token}'}
     )
 
     assert response.status_code == HTTPStatus.OK

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, VARCHAR, ForeignKey
 
 from .base import BaseModel
-from models import roles
+import models.roles
 
 
 class Permission(BaseModel):

@@ -1,4 +1,4 @@
-from auth.extensions import db
+from extensions import db
 
 from .base import BaseModel
 
