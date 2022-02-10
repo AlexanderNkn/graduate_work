@@ -1,15 +1,10 @@
-from crypt import methods
-from flask import Blueprint
-from flask import request, make_response
 from http import HTTPStatus
+
+from flask import Blueprint, make_response, request
+from flask_jwt_extended import jwt_required
 from models.roles import Role, UserRole
 
-from db.postgres import db as db
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-
-from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from auth.extensions import db
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
@@ -114,6 +109,7 @@ async def delete_role(role_id):
             "status": "success"
         }, HTTPStatus.NO_CONTENT)
 
+
 @blueprint.route('/assign_roles', methods=('POST',))
 @jwt_required()
 async def assign_roles():
@@ -128,11 +124,10 @@ async def check_permissions():
     user_role = UserRole.query.filter_by(user_id=user_id, role_id=role_id).all()
     if user_role is None:
         make_response(
-        {
-            "message": "user is not foud or hasn't any roles",
-            "status": "success"
-        }, HTTPStatus.NOT_FOUND)
-    
+            {
+                "message": "user is not foud or hasn't any roles",
+                "status": "success"
+            }, HTTPStatus.NOT_FOUND)
     return make_response(
         {
             "message": "permissions checked",

@@ -1,17 +1,14 @@
-from flask import make_response
+from functools import wraps
 from http import HTTPStatus
 
+from flask import make_response
 from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
-from flask_jwt_extended import verify_jwt_in_request
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
-from models.users import User, UserData, UserDevice
-from models.roles import Role, UserRole
+from extensions import db
 from models.perms import Permission, RolePerms
-
-from functools import wraps
-
-from db.postgres import db as db
+from models.roles import UserRole
+from models.users import User
 
 
 def get_user_id_by_username(username):

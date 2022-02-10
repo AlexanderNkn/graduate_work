@@ -1,17 +1,15 @@
-from auth.extensions import db
-from .base import BaseModel
 import datetime
 
-from sqlalchemy.ext.hybrid import hybrid_property
+from auth.extensions import db
 from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.ext.hybrid import hybrid_property
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+from .base import BaseModel
 
 
 class User(BaseModel):
     __tablename__ = 'users'
-    # __table_args__ = ({"schema": "users"})
 
     username = db.Column(db.VARCHAR(255), nullable=False, unique=True)
     pwd_hash = db.Column(db.VARCHAR(255))
@@ -39,7 +37,7 @@ class UserData(BaseModel):
     __tablename__ = 'users_data'
     # __table_args__ = ({"schema": "users"})
 
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     first_name = db.Column(db.TEXT())
     last_name = db.Column(db.TEXT())
     email = db.Column(db.TEXT())
@@ -62,21 +60,11 @@ class UserData(BaseModel):
 
 class UserDevice(BaseModel):
     __tablename__ = 'users_device'
-    # __table_args__ = ({"schema": "users"})
 
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     ip = db.Column(INET())
     device_key = db.Column(db.TEXT())
     user_agent = db.Column(db.TEXT())
 
     def __repr__(self):
         return f'{self.ip} {self.user_agent}'
-
-
-# class UserWithRoles(BaseModel):
-#     roles = relation(
-#         Role,
-#         secondary=UserRole.__tablename__,
-#         viewonly=True
-#     )
-#

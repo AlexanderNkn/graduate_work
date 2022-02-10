@@ -1,18 +1,13 @@
-from flask import Blueprint
-from flask import request, make_response
 from http import HTTPStatus
-from auth.models.users import User, UserData, UserDevice
+
+from flask import Blueprint, make_response, request
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from auth.extensions import db
-# from werkzeug.security import check_password_hash
-# from werkzeug.security import generate_password_hash
-
-# from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
-# from flask_jwt_extended import set_access_cookies
-
+from auth.models.users import User, UserData
 from utils import common
 from utils.common import perm_required
+
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
@@ -68,7 +63,6 @@ def login():
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    # if not check_password_hash(user.pwd_hash, password):
     if not user.check_password(password):
         return make_response(
             {
@@ -86,7 +80,6 @@ def login():
                 "refresh_token": refresh_token
               }
         }, HTTPStatus.OK)
-    # set_access_cookies(response, access_token)
 
     return response
 
@@ -104,7 +97,6 @@ def refresh_token():
     user_id = get_jwt_identity()
     token = get_jwt()
 
-    # access_token = create_access_token(identity=identity)
     try:
         access_token, refresh_token = common.get_tokens(user_id, token)
     except ValueError:
@@ -170,23 +162,12 @@ async def get_personal_data(user_id):
     if user_data is None:
         user_data = UserData(user_id=user_id)
 
-    return make_response(
-        user_data.to_dict()
-        , HTTPStatus.OK)
+    return make_response(user_data.to_dict(), HTTPStatus.OK)
 
 
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
 @perm_required(permission='add_personal_data')
 def add_personal_data(user_id):
-    # {
-    #     "birth_date": "1970-10-8",
-    #     "city": "Cambridge",
-    #     "email": "matt@damon.com",
-    #     "first_name": "Matt",
-    #     "last_name": "Damon",
-    #     "phone": 71234567
-    # }
-
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return make_response(
@@ -255,9 +236,3 @@ def delete_personal_data(user_id):
             "message": "user personal data was deleted successfully",
             "status": "success"
         }, HTTPStatus.OK)
-
-
-@blueprint.route('/login_history/<uuid:user_id>')
-@perm_required(permission='get_login_history')
-def get_login_history(user_id):
-    pass

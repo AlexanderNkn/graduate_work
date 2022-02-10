@@ -232,11 +232,10 @@ def test_change_password_nonexistent_user(client, session, login_user):
     access_token = tokens['access_token']
     body = json.dumps({'old_password': '345', 'new_password': '456'})
     response = client.patch(
-        f'/api/v1/auth/change_password/789',
+        '/api/v1/auth/change_password/789',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {access_token}'}
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-

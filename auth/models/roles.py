@@ -1,4 +1,4 @@
-from sqlalchemy import Column, VARCHAR, Text, ForeignKey
+from auth.extensions import db
 
 from .base import BaseModel
 
@@ -6,8 +6,8 @@ from .base import BaseModel
 class Role(BaseModel):
     __tablename__ = 'roles'
 
-    code = Column(VARCHAR(255), nullable=False, unique=True)
-    description = Column(Text, default='')
+    code = db.Column(db.VARCHAR(255), nullable=False, unique=True)
+    description = db.Column(db.Text, default='')
 
     def __repr__(self):
         return f'({self.code}) {self.description}'
@@ -16,5 +16,5 @@ class Role(BaseModel):
 class UserRole(BaseModel):
     __tablename__ = 'users_roles'
 
-    user_id = Column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
-    role_id = Column(ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    role_id = db.Column(db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)

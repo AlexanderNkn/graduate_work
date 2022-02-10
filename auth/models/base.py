@@ -26,7 +26,6 @@ class BaseModel(db.Model):
 
         hidden = self._hidden_fields if hasattr(self, "_hidden_fields") else []
         default = self._default_fields if hasattr(self, "_default_fields") else []
-        # default.extend(['id', 'created_at', 'updated_at'])
 
         if not _path:
             _path = self.__tablename__.lower()
