@@ -1,13 +1,11 @@
-from sqlalchemy import Column, VARCHAR, ForeignKey
-
-from .base import BaseModel
-import models.roles
+from extensions import db
+from models.base import BaseModel
 
 
 class Permission(BaseModel):
     __tablename__ = 'perms'
 
-    code = Column(VARCHAR(255), nullable=False, unique=True)
+    code = db.Column(db.VARCHAR(255), nullable=False, unique=True)
 
     def __repr__(self):
         return f'({self.code}) {self.description}'
@@ -16,5 +14,5 @@ class Permission(BaseModel):
 class RolePerms(BaseModel):
     __tablename__ = 'roles_perms'
 
-    role_id = Column(ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
-    perm_id = Column(ForeignKey('perms.id', ondelete='CASCADE'), nullable=False)
+    role_id = db.Column(db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
+    perm_id = db.Column(db.ForeignKey('perms.id', ondelete='CASCADE'), nullable=False)

@@ -1,15 +1,16 @@
 import os
 import sys
 
-SOURCE_DIR = os.path.dirname(__file__)
-sys.path.append(SOURCE_DIR)
-
 import uvicorn
 from asgiref.wsgi import WsgiToAsgi
 
 from app import create_app
 from core.config import FLASK_HOST, FLASK_PORT
 from core.logger import LOGGING
+
+SOURCE_DIR = os.path.dirname(__file__)
+if SOURCE_DIR not in sys.path:
+    sys.path.append(SOURCE_DIR)
 
 asgi_app = WsgiToAsgi(create_app())
 

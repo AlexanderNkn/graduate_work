@@ -1,14 +1,10 @@
-import os
-import sys
-
-import json
 from http import HTTPStatus
-
-from ..testdata.roles import assigned_roles_to_user, role_by_id_expected, roles_list
 
 import pytest
 
-from models.roles import Role
+from auth.models import Role
+
+from ..testdata.roles import assigned_roles_to_user, role_by_id_expected, roles_list
 
 
 @pytest.fixture

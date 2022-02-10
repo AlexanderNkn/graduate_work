@@ -4,9 +4,8 @@ from flask import Blueprint, make_response, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
-from models.users import User, UserData
-from utils import common
-from utils.common import perm_required
+from models import User, UserData
+from utils.common import perm_required, get_tokens
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
@@ -70,7 +69,7 @@ def login():
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
 
-    access_token, refresh_token = common.get_tokens(user.id)
+    access_token, refresh_token = get_tokens(user.id)
     response = make_response(
         {
             "message": "JWT tokens were generated successfully",
@@ -98,7 +97,7 @@ def refresh_token():
     token = get_jwt()
 
     try:
-        access_token, refresh_token = common.get_tokens(user_id, token)
+        access_token, refresh_token = get_tokens(user_id, token)
     except ValueError:
         return make_response(
                 {

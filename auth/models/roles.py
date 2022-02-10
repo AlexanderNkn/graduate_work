@@ -3,8 +3,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 from extensions import db
-
-from .base import BaseModel
+from models.base import BaseModel
 
 
 class Role(BaseModel):

@@ -6,9 +6,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
 from extensions import db
-from models.roles import UserRole
-from models.perms import Permission, RolePerms
-from models.users import User
+from models import Permission, RolePerms, UserRole, User
 
 
 def get_user_id_by_username(username):

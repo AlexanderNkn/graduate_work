@@ -1,11 +1,11 @@
 import datetime
 
-from extensions import db
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .base import BaseModel
+from extensions import db
+from models.base import BaseModel
 
 
 class User(BaseModel):
@@ -35,7 +35,6 @@ class User(BaseModel):
 
 class UserData(BaseModel):
     __tablename__ = 'users_data'
-    # __table_args__ = ({"schema": "users"})
 
     user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     first_name = db.Column(db.TEXT())

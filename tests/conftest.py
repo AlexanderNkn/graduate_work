@@ -1,17 +1,10 @@
-import os
-import sys
-
-SOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'auth')
-sys.path.append(SOURCE_DIR)
-
-import pytest
+import json
 from http import HTTPStatus
 
-import json
+import pytest
 
-from app import create_app
-from extensions import db
-from models.users import User
+from auth.app import create_app, db
+from auth.models import User
 
 from . import config
 
