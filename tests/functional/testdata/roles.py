@@ -21,6 +21,7 @@ def roles_list():
         },
     ]
 
+
 @pytest.fixture
 def role_by_id_expected():
     return {
@@ -28,6 +29,7 @@ def role_by_id_expected():
         "code": "admin",
         "description": "unlimited access to all actions"
     }
+
 
 @pytest.fixture
 def assigned_roles_to_user():

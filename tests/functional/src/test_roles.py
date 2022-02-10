@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from ..testdata.roles import roles_list, role_by_id_expected, assigned_roles_to_user
+
 
 def test_get_role_list(client, roles_list):
     response = client.get('/role')

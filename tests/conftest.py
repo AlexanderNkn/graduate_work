@@ -26,7 +26,6 @@ def client(app):
 
 @pytest.fixture
 def session():
-    _clear_all_tables(db)
     yield db.session
     _clear_all_tables(db)
 
