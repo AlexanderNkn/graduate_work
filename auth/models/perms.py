@@ -1,6 +1,7 @@
 from sqlalchemy import Column, VARCHAR, ForeignKey
 
 from .base import BaseModel
+from models import roles
 
 
 class Permission(BaseModel):
@@ -13,7 +14,7 @@ class Permission(BaseModel):
 
 
 class RolePerms(BaseModel):
-    __tablename__ = 'users_roles'
+    __tablename__ = 'roles_perms'
 
     role_id = Column(ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
     perm_id = Column(ForeignKey('perms.id', ondelete='CASCADE'), nullable=False)

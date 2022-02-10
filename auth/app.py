@@ -12,10 +12,10 @@ def create_app(config=None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     config = config or default_config
+    configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_swagger(app)
-    configure_blueprints(app)
 
     return app
 
@@ -24,7 +24,7 @@ def configure_db(app, config) -> None:
     app.config.from_object(config)
     db.init_app(app)
     app.app_context().push()
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 
