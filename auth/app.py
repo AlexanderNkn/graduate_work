@@ -1,3 +1,4 @@
+import click
 from flasgger import Swagger
 from flask import Flask
 
@@ -16,6 +17,7 @@ def create_app(config=None) -> Flask:
     configure_db(app, config=config.PostgresSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_swagger(app)
+    configure_cli(app)
 
     return app
 
@@ -24,7 +26,6 @@ def configure_db(app, config) -> None:
     app.config.from_object(config)
     db.init_app(app)
     app.app_context().push()
-    # db.drop_all()
     db.create_all()
 
 
@@ -42,3 +43,25 @@ def configure_blueprints(app) -> None:
     from api.v1.role import blueprint as role_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(role_blueprint)
+
+
+def configure_cli(app):
+
+    @app.cli.command('recreate-database')
+    def initdb():
+        db.drop_all()
+        db.create_all()
+
+    @app.cli.command('create-superuser')
+    @click.argument('name')
+    @click.argument('password')
+    def create_superuser(name, password):
+        from models import Role, User, UserRole
+        user = User(username=name, password=password, is_superuser=True)
+        db.session.add(user)
+
+        admin_role = Role.query.filter_by(code='admin').first()
+        if admin_role:
+            user_role = UserRole(user_id=user.id, role_id=admin_role.id)
+            db.session.add(user_role)
+        db.session.commit()
