@@ -23,9 +23,12 @@ def create_role(session):
     session.commit()
 
 
-def test_get_role_list(create_role, client, roles_list, session):
+def test_get_role_list(create_role, headers_with_admin_access, client, roles_list, session):
     create_role(roles_list)
-    response = client.get('api/v1/role')
+    response = client.get(
+        'api/v1/role',
+        headers=headers_with_admin_access,
+        )
     assert response.status_code == HTTPStatus.OK
     assert response.json.get('roles') == roles_list
 

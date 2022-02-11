@@ -2,16 +2,17 @@ import uuid
 from http import HTTPStatus
 
 from flask import Blueprint, make_response, request
-from flask_jwt_extended import jwt_required
 
 from extensions import db
 from models import Role, UserRole, User
 from schemas import role_schema
+from utils.common import permission_required
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 
 @blueprint.route('/role', methods=('GET', ))
+@permission_required('roles')
 def get_role_list():
     """
     Endpoint to get all roles
@@ -60,7 +61,7 @@ def get_role_list():
 
 
 @blueprint.route('/role', methods=('POST',))
-@jwt_required()
+@permission_required('roles')
 def create_role():
     """
     Endpoint to create new role
@@ -129,8 +130,8 @@ def create_role():
         }, HTTPStatus.CREATED)
 
 
-@blueprint.route('/role/<uuid:role_id>')
-@jwt_required()
+@blueprint.route('/role/<uuid:role_id>', methods=('GET', ))
+@permission_required('roles')
 def get_role_by_id(role_id):
     """
     Get role detailes
@@ -186,7 +187,7 @@ def get_role_by_id(role_id):
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('PATCH',))
-@jwt_required()
+@permission_required('roles')
 def change_role(role_id):
     """
     Endpoint to change role
@@ -257,7 +258,7 @@ def change_role(role_id):
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('DELETE',))
-@jwt_required()
+@permission_required('roles')
 def delete_role(role_id):
     """
     Endpoint to delete role
@@ -311,8 +312,8 @@ def delete_role(role_id):
         }, HTTPStatus.NO_CONTENT)
 
 
-@blueprint.route('/assign-roles', methods=('POST',))
-@jwt_required()
+@blueprint.route('/assign_roles', methods=('POST',))
+@permission_required('roles')
 def assign_roles():
     """
     Endpoint to assign roles to user
@@ -377,8 +378,8 @@ def assign_roles():
     pass
 
 
-@blueprint.route('/check-permissions', methods=('POST',))
-@jwt_required()
+@blueprint.route('/check_permissions', methods=('POST',))
+@permission_required('roles')
 def check_permissions():
     """
     Endpoint to check user permissions
@@ -451,7 +452,7 @@ def check_permissions():
     if user_role is None:
         make_response(
             {
-                "message": "user is not foud or hasn't any roles",
+                "message": "user is not found or hasn't any roles",
                 "status": "success"
             }, HTTPStatus.NOT_FOUND)
     return make_response(

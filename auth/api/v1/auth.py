@@ -243,7 +243,7 @@ def refresh_token():
 
 
 @blueprint.route('/change-password/<uuid:user_id>', methods=('PATCH',))
-@permission_required(permission='change_password')
+@permission_required('users')
 def change_password(user_id):
     """
     Endpoint to change forgotten password
@@ -310,7 +310,7 @@ def change_password(user_id):
 
 
 @blueprint.route('/personal-data/<uuid:user_id>', methods=('GET',))
-@permission_required(permission='get_personal_data')
+@permission_required('personal_data')
 def get_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -328,7 +328,7 @@ def get_personal_data(user_id):
 
 
 @blueprint.route('/add-personal-data/<uuid:user_id>', methods=('POST',))
-@permission_required(permission='add_personal_data')
+@permission_required('personal_data')
 def add_personal_data(user_id):
     """
     Endpoint for user to add personal data
@@ -401,7 +401,7 @@ def add_personal_data(user_id):
 
 
 @blueprint.route('/change-personal-data/<uuid:user_id>', methods=('PATCH',))
-@permission_required(permission='change_personal_data')
+@permission_required('personal_data')
 def change_personal_data(user_id):
     """
     Endpoint for user to change data
@@ -476,7 +476,7 @@ def change_personal_data(user_id):
 
 
 @blueprint.route('/login-history/<uuid:user_id>')
-@permission_required(permission='delete_personal_data')
+@permission_required('personal_data')
 def get_login_history(user_id):
     """
     Endoint to get history of user logouts
@@ -530,7 +530,7 @@ def get_login_history(user_id):
 
 
 @blueprint.route('/delete-personal-data/<uuid:user_id>', methods=('DELETE',))
-@permission_required(permission='delete_personal_data')
+@permission_required('personal_data')
 def delete_personal_data(user_id):
     """
     Endpoint to delete user personal data
