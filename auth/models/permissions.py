@@ -3,7 +3,7 @@ from models.base import BaseModel
 
 
 class Permission(BaseModel):
-    __tablename__ = 'perms'
+    __tablename__ = 'permissions'
 
     code = db.Column(db.VARCHAR(255), nullable=False, unique=True)
 
@@ -11,8 +11,8 @@ class Permission(BaseModel):
         return f'({self.code}) {self.description}'
 
 
-class RolePerms(BaseModel):
-    __tablename__ = 'roles_perms'
+class RolePermissions(BaseModel):
+    __tablename__ = 'roles_permissions'
 
     role_id = db.Column(db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
-    perm_id = db.Column(db.ForeignKey('perms.id', ondelete='CASCADE'), nullable=False)
+    perm_id = db.Column(db.ForeignKey('permissions.id', ondelete='CASCADE'), nullable=False)

@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.fixture
-def perms_list():
+def permissions_list():
     return [
         "/login",
         "/logout",

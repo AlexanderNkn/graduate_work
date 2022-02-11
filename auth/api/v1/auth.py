@@ -5,10 +5,21 @@ from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
 from models import User, UserData
-from utils.common import perm_required, get_tokens
+from schemas import user_data_schema
+from utils.common import permission_required, get_tokens
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+
+
+def check_empty_user_password(username, password):
+    if not username or not password:
+        return make_response(
+            {
+                "message": "username/password is empty",
+                "status": "error"
+            }, HTTPStatus.BAD_REQUEST)
+    return
 
 
 @blueprint.route('/register', methods=('POST',))
@@ -16,12 +27,9 @@ def register():
     username = request.json.get('username')
     password = request.json.get('password')
 
-    if not username or not password:
-        return make_response(
-            {
-                "message": "username/password is empty",
-                "status": "error"
-            }, HTTPStatus.BAD_REQUEST)
+    response = check_empty_user_password(username, password)
+    if response:
+        return response
 
     user = User.query.filter_by(username=username).first()
     if user is not None:
@@ -46,12 +54,8 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
 
-    if not username or not password:
-        response = make_response(
-            {
-                "message": "username/password is empty",
-                "status": "error"
-            }, HTTPStatus.BAD_REQUEST)
+    response = check_empty_user_password(username, password)
+    if response:
         return response
 
     user = User.query.filter_by(username=username).first()
@@ -117,7 +121,7 @@ def refresh_token():
 
 
 @blueprint.route('/change_password/<uuid:user_id>', methods=('PATCH',))
-@perm_required(permission='change_password')
+@permission_required(permission='change_password')
 def change_password(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -147,7 +151,7 @@ def change_password(user_id):
 
 
 @blueprint.route('/personal_data/<uuid:user_id>', methods=('GET',))
-@perm_required(permission='get_personal_data')
+@permission_required(permission='get_personal_data')
 def get_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -161,11 +165,11 @@ def get_personal_data(user_id):
     if user_data is None:
         user_data = UserData(user_id=user_id)
 
-    return make_response(user_data.to_dict(), HTTPStatus.OK)
+    return make_response(user_data_schema.dump(user_data), HTTPStatus.OK)
 
 
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
-@perm_required(permission='add_personal_data')
+@permission_required(permission='add_personal_data')
 def add_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -190,7 +194,7 @@ def add_personal_data(user_id):
 
 
 @blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
-@perm_required(permission='change_personal_data')
+@permission_required(permission='change_personal_data')
 def change_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -217,7 +221,7 @@ def change_personal_data(user_id):
 
 
 @blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
-@perm_required(permission='delete_personal_data')
+@permission_required(permission='delete_personal_data')
 def delete_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
