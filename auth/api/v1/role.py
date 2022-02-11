@@ -6,11 +6,13 @@ from flask_jwt_extended import jwt_required
 
 from extensions import db
 from models import Role, UserRole, User
+from utils.common import perm_required
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 
 @blueprint.route('/role', methods=('GET', ))
+@perm_required('roles')
 def get_role_list():
     roles = Role.query.all()
     if roles is None:
@@ -26,7 +28,7 @@ def get_role_list():
 
 
 @blueprint.route('/role', methods=('POST',))
-@jwt_required()
+@perm_required('roles')
 def create_role():
     role_code = request.json.get('code')
     role_description = request.json.get('description')
@@ -54,7 +56,7 @@ def create_role():
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('GET', ))
-@jwt_required()
+@perm_required('roles')
 def get_role_by_id(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
@@ -71,7 +73,7 @@ def get_role_by_id(role_id):
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('PATCH',))
-@jwt_required()
+@perm_required('roles')
 def change_role(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
@@ -93,7 +95,7 @@ def change_role(role_id):
 
 
 @blueprint.route('/role/<uuid:role_id>', methods=('DELETE',))
-@jwt_required()
+@perm_required('roles')
 def delete_role(role_id):
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
@@ -112,13 +114,13 @@ def delete_role(role_id):
 
 
 @blueprint.route('/assign_roles', methods=('POST',))
-@jwt_required()
+@perm_required('roles')
 def assign_roles():
     pass
 
 
 @blueprint.route('/check_permissions', methods=('POST',))
-@jwt_required()
+@perm_required('roles')
 def check_permissions():
     user_id = uuid.UUID(request.json.get('user_id'))
     role_ids = [uuid.UUID(role_id) for role_id in request.json.get('role_ids')]
@@ -127,7 +129,7 @@ def check_permissions():
     if user_role is None:
         make_response(
             {
-                "message": "user is not foud or hasn't any roles",
+                "message": "user is not found or hasn't any roles",
                 "status": "success"
             }, HTTPStatus.NOT_FOUND)
     return make_response(

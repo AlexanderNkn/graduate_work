@@ -117,7 +117,7 @@ def refresh_token():
 
 
 @blueprint.route('/change_password/<uuid:user_id>', methods=('PATCH',))
-@perm_required(permission='change_password')
+@perm_required('users')
 def change_password(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -147,7 +147,7 @@ def change_password(user_id):
 
 
 @blueprint.route('/personal_data/<uuid:user_id>', methods=('GET',))
-@perm_required(permission='get_personal_data')
+@perm_required('personal_data')
 def get_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -165,7 +165,7 @@ def get_personal_data(user_id):
 
 
 @blueprint.route('/add_personal_data/<uuid:user_id>', methods=('POST',))
-@perm_required(permission='add_personal_data')
+@perm_required('personal_data')
 def add_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -190,7 +190,7 @@ def add_personal_data(user_id):
 
 
 @blueprint.route('/change_personal_data/<uuid:user_id>', methods=('PATCH',))
-@perm_required(permission='change_personal_data')
+@perm_required('personal_data')
 def change_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
@@ -217,7 +217,7 @@ def change_personal_data(user_id):
 
 
 @blueprint.route('/delete_personal_data/<uuid:user_id>', methods=('DELETE',))
-@perm_required(permission='delete_personal_data')
+@perm_required('personal_data')
 def delete_personal_data(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
