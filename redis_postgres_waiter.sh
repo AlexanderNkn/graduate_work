@@ -11,7 +11,7 @@ then
     echo "Redis db started"
 fi
 
-if [ "$POSTGRES_NAME" = "auth_database" || "$POSTGRES_NAME" = "auth_database_test"]
+if [ "$POSTGRES_NAME" = "auth_database" ]
 then
     echo "Waiting for Postgres db..."
 

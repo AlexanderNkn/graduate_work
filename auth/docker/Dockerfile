@@ -5,15 +5,14 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/code
 
-COPY ["../../tests", "./tests"]
-COPY ["../../auth", "./auth"]
-COPY ["redis_postgres_waiter.sh", "requirements.txt", "./"]
+COPY . .
 
-RUN apt update && apt install -y \
+RUN apt update && apt install -y netcat \
     && pip install --no-cache-dir -r requirements.txt \
     && rm -rf /var/lib/apt/lists/* /tmp/* \
-    && chmod +x /usr/src/code/redis_postgres_waiter.sh
+    && chmod +x redis_postgres_waiter.sh
 
 ENTRYPOINT ["/usr/src/code/redis_postgres_waiter.sh"]
 
-CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "asgi:asgi_app", "--bind", "0.0.0.0:5000"]
+
+CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "auth.asgi:asgi_app", "--bind", "0.0.0.0:5000"]
