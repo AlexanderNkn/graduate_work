@@ -12,6 +12,39 @@ blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
 @blueprint.route('/role', methods=('GET', ))
 def get_role_list():
+    """
+    Endpoint to get all roles
+    ---
+    tags:
+      - ROLE_LIST
+    description: List of all available roles
+    responses:
+      200:
+        description: List of roles is available
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                $ref: '#/components/schemas/Role'
+              example:
+                - id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  code: admin
+                  description: unlimited access to all actions
+                - id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                  code: subscriber
+                  description: account without paying for registered users
+                - id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                  code: member
+                  description: account with payment options
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    """
     roles = Role.query.all()
     if roles is None:
         return make_response({
@@ -28,6 +61,48 @@ def get_role_list():
 @blueprint.route('/role', methods=('POST',))
 @jwt_required()
 def create_role():
+    """
+    Endpoint to create new role
+    ---
+    tags:
+      - CREATE_ROLE
+    description: Create new role
+    requestBody:
+      content:
+        application/json:
+          name: new role
+          description: new role data
+          schema:
+            $ref: '#/components/schemas/Role'
+          example:
+            code: admin
+            description: unlimited access to all actions
+    responses:
+      201:
+        description: List of roles is available
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+            example:
+              status: success
+              message: New role was created
+              role:
+                id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                code: admin
+                description: unlimited access to all actions
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+    security:
+    - jwt_auth:
+      - write:admin
+      - read:admin
+    """
     role_code = request.json.get('code')
     role_description = request.json.get('description')
     if not role_code or not role_description:
@@ -53,9 +128,48 @@ def create_role():
         }, HTTPStatus.CREATED)
 
 
-@blueprint.route('/role/<uuid:role_id>', methods=('GET', ))
+@blueprint.route('/role/<uuid:role_id>')
 @jwt_required()
 def get_role_by_id(role_id):
+    """
+    Get role detailes
+    ---
+    tags:
+    - ROLE_DETAILS
+    description: detailed info about role
+    parameters:
+    - name: role_id
+      in: path
+      required: true
+      description: Role uuid
+      schema:
+        type: string
+      example:
+        role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+    responses:
+      200:
+        description: info about role is available
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+            example:
+              status: success
+              message: info about role is available
+              role:
+                id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                code: admin
+                description: unlimited access to all actions
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    """
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -73,6 +187,55 @@ def get_role_by_id(role_id):
 @blueprint.route('/role/<uuid:role_id>', methods=('PATCH',))
 @jwt_required()
 def change_role(role_id):
+    """
+    Endpoint to change role
+    ---
+    tags:
+    - CHANGE_ROLE_DETAILS
+    description: change role info
+    requestBody:
+      content:
+        application/json:
+          name: change role
+          description: change role info
+          schema:
+            $ref: '#/components/schemas/Role'
+          example:
+            code: admin
+            description: unlimited access to all actions
+    parameters:
+    - name: role_id
+      in: path
+      required: true
+      description: Role uuid
+      schema:
+        type: string
+      example:
+        role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+    responses:
+      200:
+        description: info about role was changed successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+            example:
+              status: success
+              message: info about role was changed successfully
+              role:
+                id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                code: admin
+                description: unlimited access to all actions
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    """
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -95,6 +258,42 @@ def change_role(role_id):
 @blueprint.route('/role/<uuid:role_id>', methods=('DELETE',))
 @jwt_required()
 def delete_role(role_id):
+    """
+    Endpoint to delete role
+    ---
+    tags:
+    - DELETE_ROLE
+    description: delete role
+    parameters:
+    - name: role_id
+      in: path
+      required: true
+      description: Role uuid
+      schema:
+        type: string
+      example:
+        role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+    responses:
+      204:
+        description: role was deleted successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+            example:
+              status: success
+              message: role was deleted successfully
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    security:
+      - jwt_auth:
+        - write:admin
+        - read:admin
+    """
     role = Role.query.filter_by(id=role_id).first()
     if role is None:
         return make_response(
@@ -111,15 +310,139 @@ def delete_role(role_id):
         }, HTTPStatus.NO_CONTENT)
 
 
-@blueprint.route('/assign_roles', methods=('POST',))
+@blueprint.route('/assign-roles', methods=('POST',))
 @jwt_required()
 def assign_roles():
+    """
+    Endpoint to assign roles to user
+    ---
+    tags:
+      - ASSIGN_ROLES
+    description: Assign roles to user
+    requestBody:
+      content:
+        application/json:
+          name: roles for user
+          description: roles for user
+          schema:
+            $ref: '#/components/schemas/UserRoleRequest'
+          example:
+            user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+            role_ids: [a9c6e8da-f2bf-458a-978b-d2f50a031451, 7cf56926-054c-4522-ac6f-d9f5d0e9d18e]
+    responses:
+      201:
+        description: Roles were assigned successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+              properties:
+                user_roles:
+                  $ref: '#/components/schemas/UserRoleResponse'
+            example:
+              status: success
+              message: roles were assigned to user
+              user_roles:
+                - id: 4a73b964-af72-4801-aed9-113783561540
+                  user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+                  role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                - id: 0f55b9d8-f027-4766-9476-2b89e17c1854
+                  user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+                  role_id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        description: The specified resource was not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+            examples:
+              nouser:
+                value:
+                  status: error
+                  message: user not found
+              norole:
+                value:
+                  status: error
+                  message: role not found
+    security:
+    - jwt_auth:
+      - write:admin
+      - read:admin
+    """
     pass
 
 
-@blueprint.route('/check_permissions', methods=('POST',))
+@blueprint.route('/check-permissions', methods=('POST',))
 @jwt_required()
 def check_permissions():
+    """
+    Endpoint to check user permissions
+    ---
+    tags:
+      - CHECK_PERMISSIONS
+    description: check if user belongs to specified roles
+    requestBody:
+      content:
+        application/json:
+          name: user and possible roles
+          description: user and possible roles
+          schema:
+            $ref: '#/components/schemas/UserRoleRequest'
+          example:
+            user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+            role_ids: [a9c6e8da-f2bf-458a-978b-d2f50a031451, 7cf56926-054c-4522-ac6f-d9f5d0e9d18e]
+    responses:
+      200:
+        description: Roles were checked successfully
+        content:
+          application/json:
+            schema:
+              properties:
+              status:
+                type: string
+              message:
+                type: string
+              has_permissions:
+                type: boolean
+            examples:
+              approved:
+                value:
+                  status: success
+                  message: roles were checked successfully
+                  has_permissions: true
+              disapproved:
+                value:
+                  status: success
+                  message: roles were checked successfully
+                  has_permissions: false
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        description: The specified resource was not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+            examples:
+              nouser:
+                value:
+                  status: error
+                  message: user not found
+              norole:
+                value:
+                  status: error
+                  message: role not found
+    security:
+    - jwt_auth:
+      - write:admin
+      - read:admin
+    """
     user_id = uuid.UUID(request.json.get('user_id'))
     role_ids = [uuid.UUID(role_id) for role_id in request.json.get('role_ids')]
     user_role = UserRole.query.join(User).filter(User.id.in_(
