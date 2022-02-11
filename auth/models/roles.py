@@ -12,12 +12,6 @@ class Role(BaseModel):
     code = db.Column(db.VARCHAR(255), nullable=False, unique=True)
     description = db.Column(db.Text, default='')
 
-    _default_fields = [
-        'id',
-        'code',
-        'description',
-    ]
-
     def __repr__(self):
         return f'({self.code}) {self.description}'
 

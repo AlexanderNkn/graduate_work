@@ -3,7 +3,7 @@ from flasgger import Swagger
 from flask import Flask
 
 from core import config as default_config
-from extensions import db, jwt
+from extensions import db, jwt, ma
 
 __all__ = ('create_app',)
 
@@ -16,6 +16,7 @@ def create_app(config=None) -> Flask:
     configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
     configure_jwt(app, config=config.JWTSettings())
+    configure_ma(app)
     configure_swagger(app)
     configure_cli(app)
 
@@ -32,6 +33,10 @@ def configure_db(app, config) -> None:
 def configure_jwt(app, config) -> None:
     app.config.from_object(config)
     jwt.init_app(app)
+
+
+def configure_ma(app) -> None:
+    ma.init_app(app)
 
 
 def configure_swagger(app) -> None:

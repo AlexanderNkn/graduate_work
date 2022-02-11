@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required
 
 from extensions import db
 from models import Role, UserRole, User
+from schemas import role_schema
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 
@@ -54,7 +55,7 @@ def get_role_list():
     return make_response(
         {
             "status": "success",
-            "roles": [role.to_dict() for role in roles]
+            "roles": [role_schema.dump(role) for role in roles]
         }, HTTPStatus.OK)
 
 
@@ -180,7 +181,7 @@ def get_role_by_id(role_id):
     return make_response(
         {
             "status": "success",
-            "role": role.to_dict()
+            "role": role_schema.dump(role)
         }, HTTPStatus.OK)
 
 
@@ -251,7 +252,7 @@ def change_role(role_id):
         {
             "message": "role data was changed sucessfully",
             "status": "success",
-            "role": role.to_dict()
+            "role": role_schema.dump(role)
         }, HTTPStatus.OK)
 
 
