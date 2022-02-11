@@ -93,7 +93,7 @@ def test_delete_role_without_admin_permissions(create_role, client, roles_list, 
 
 def test_assign_roles(client, assigned_roles_to_user, headers_with_admin_access, session):
     response = client.post(
-        'api/v1/assign_roles',
+        'api/v1/assign-roles',
         json={
             'user_id': '7cd483e9-5888-40fd-813a-a382154bcfd2',
             'role_ids': [
@@ -108,7 +108,7 @@ def test_assign_roles(client, assigned_roles_to_user, headers_with_admin_access,
 
 def test_assign_roles_without_admin_permissions(client, headers_with_user_access, session):
     response = client.post(
-        'api/v1/assign_roles',
+        'api/v1/assign-roles',
         json={
             'user_id': '7cd483e9-5888-40fd-813a-a382154bcfd2',
             'role_ids': [
@@ -122,7 +122,7 @@ def test_assign_roles_without_admin_permissions(client, headers_with_user_access
 
 def test_check_permissions(client, headers_with_admin_access, session):
     response = client.post(
-        'api/v1/check_permissions',
+        'api/v1/check-permissions',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [
@@ -136,7 +136,7 @@ def test_check_permissions(client, headers_with_admin_access, session):
 
 def test_check_permissions_without_admin_permission(client, headers_with_user_access, session):
     response = client.post(
-        'api/v1/check_permissions',
+        'api/v1/check-permissions',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [

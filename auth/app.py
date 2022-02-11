@@ -35,7 +35,7 @@ def configure_jwt(app, config) -> None:
 
 
 def configure_swagger(app) -> None:
-    Swagger(app, config=default_config.SWAGGER_CONFIG, template_file='swagger_doc.yml')
+    Swagger(app, config=default_config.SWAGGER_CONFIG, template_file='definitions.yml')
 
 
 def configure_blueprints(app) -> None:

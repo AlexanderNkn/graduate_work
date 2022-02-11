@@ -132,7 +132,7 @@ def test_refresh_token(client, session, login_user):
     refresh_token = tokens['refresh_token']
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = client.post(
-        '/api/v1/auth/refresh_token',
+        '/api/v1/auth/refresh-token',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {refresh_token}'}
@@ -146,7 +146,7 @@ def test_refresh_token_incorrect(client, session, login_user):
     refresh_token = tokens['refresh_token'] + '345345'
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = client.post(
-        '/api/v1/auth/refresh_token',
+        '/api/v1/auth/refresh-token',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {refresh_token}'}
@@ -160,7 +160,7 @@ def test_change_password(client, session, login_user):
     access_token = tokens['access_token']
     body = json.dumps({'old_password': '234', 'new_password': '345'})
     response = client.patch(
-        f'/api/v1/auth/change_password/{user.id}',
+        f'/api/v1/auth/change-password/{user.id}',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {access_token}'}
@@ -174,7 +174,7 @@ def test_change_password_wrong_password(client, session, login_user):
     access_token = tokens['access_token']
     body = json.dumps({'old_password': '345', 'new_password': '456'})
     response = client.patch(
-        f'/api/v1/auth/change_password/{user.id}',
+        f'/api/v1/auth/change-password/{user.id}',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {access_token}'}
@@ -188,7 +188,7 @@ def test_change_password_nonexistent_user(client, session, login_user):
     access_token = tokens['access_token']
     body = json.dumps({'old_password': '345', 'new_password': '456'})
     response = client.patch(
-        '/api/v1/auth/change_password/789',
+        '/api/v1/auth/change-password/789',
         data=body,
         content_type='application/json',
         headers={'Authorization': f'Bearer {access_token}'}
