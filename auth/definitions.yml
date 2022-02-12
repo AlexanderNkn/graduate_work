@@ -4,9 +4,6 @@ info:
   title: 'Authentication service'
   version: '1.0'
 
-servers:
-  - url: /api/v1/
-
 paths:
   /auth/login:
   /auth/register:

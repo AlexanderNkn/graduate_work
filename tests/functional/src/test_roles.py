@@ -1,10 +1,12 @@
 from http import HTTPStatus
+from flask import jsonify
+import uuid
 
 import pytest
 
 from auth.models import Role
 
-from ..testdata.roles import assigned_roles_to_user, role_by_id_expected, roles_list
+from ..testdata.roles import role_by_id_expected, roles_list
 
 
 @pytest.fixture
@@ -94,31 +96,34 @@ def test_delete_role_without_admin_permissions(create_role, client, roles_list, 
     assert response.status_code == HTTPStatus.FORBIDDEN
 
 
-def test_assign_roles(client, assigned_roles_to_user, headers_with_admin_access, session):
+def test_assign_roles(create_role, client, roles_list, login_user, session):
+    create_role(roles_list)
+    user, tokens = login_user('user1', '234')
+    role_ids = [uuid.UUID(key['id']) for key in roles_list]
+    access_token = tokens['access_token']
     response = client.post(
         'api/v1/assign-roles',
         json={
-            'user_id': '7cd483e9-5888-40fd-813a-a382154bcfd2',
-            'role_ids': [
-                'a9c6e8da-f2bf-458a-978b-d2f50a031451',
-                '7cf56926-054c-4522-ac6f-d9f5d0e9d18e'],
-            },
-        headers=headers_with_admin_access
+            'user_id': user.id,
+            'role_ids': role_ids
+        },
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json.get('user_role') == assigned_roles_to_user
 
 
-def test_assign_roles_without_admin_permissions(client, headers_with_user_access, session):
+def test_assign_roles_without_admin_permissions(create_role, client, roles_list, login_user, session):
+    create_role(roles_list)
+    user, tokens = login_user('user1', '234', is_superuser=False)
+    role_ids = [uuid.UUID(key['id']) for key in roles_list]
+    access_token = tokens['access_token']
     response = client.post(
         'api/v1/assign-roles',
         json={
-            'user_id': '7cd483e9-5888-40fd-813a-a382154bcfd2',
-            'role_ids': [
-                'a9c6e8da-f2bf-458a-978b-d2f50a031451',
-                '7cf56926-054c-4522-ac6f-d9f5d0e9d18e'],
-            },
-        headers=headers_with_user_access
+            'user_id': user.id,
+            'role_ids': role_ids
+        },
+        headers={'Authorization': f'Bearer {access_token}'}
     )
     assert response.status_code == HTTPStatus.FORBIDDEN
 

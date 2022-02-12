@@ -5,7 +5,7 @@ from flask import Blueprint, make_response, request
 
 from extensions import db
 from models import Role, UserRole, User
-from schemas import role_schema
+from schemas import role_schema, user_role_schema
 from utils.common import permission_required
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
@@ -312,7 +312,7 @@ def delete_role(role_id):
         }, HTTPStatus.NO_CONTENT)
 
 
-@blueprint.route('/assign_roles', methods=('POST',))
+@blueprint.route('/assign-roles', methods=('POST',))
 @permission_required('roles')
 def assign_roles():
     """
@@ -375,10 +375,21 @@ def assign_roles():
       - write:admin
       - read:admin
     """
-    pass
+    user_id = request.json.get('user_id')
+    role_ids = request.json.get('role_ids')
+    user_role_list = [UserRole(user_id=user_id, role_id=id) for id in role_ids]
+    db.session.bulk_save_objects(user_role_list)
+    db.session.commit()
+    return make_response(
+      {
+          'message': 'roles were assigned to user',
+          'status': 'success',
+          'user_roles': [user_role_schema.dump(user_role) for user_role in user_role_list]
+      }, HTTPStatus.CREATED)
 
 
-@blueprint.route('/check_permissions', methods=('POST',))
+
+@blueprint.route('/check-permissions', methods=('POST',))
 @permission_required('roles')
 def check_permissions():
     """
