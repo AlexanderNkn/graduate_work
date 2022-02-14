@@ -1,20 +1,88 @@
-# Проектная работа 7 спринта
+# Проектная работа 6 и 7 спринтов
+Задачи по обоим спринтам можно посмотреть в /tasks
 
-Упростите регистрацию и аутентификацию пользователей в Auth-сервисе, добавив вход через социальные сервисы. Список сервисов выбирайте исходя из целевой аудитории онлайн-кинотеатра — подумайте, какими социальными сервисами они пользуются. Например, использовать [OAuth от Github](https://docs.github.com/en/free-pro-team@latest/developers/apps/authorizing-oauth-apps){target="_blank"} — не самая удачная идея. Ваши пользователи не разработчики и вряд ли имеют аккаунт на Github. А вот добавить Twitter, Facebook, VK, Google, Yandex или Mail будет хорошей идеей.
+## Ссылка на репозиторий с проектом:
+https://github.com/AlexanderNkn/Auth_sprint_2
 
-Вам не нужно делать фронтенд в этой задаче и реализовывать собственный сервер OAuth. Нужно реализовать протокол со стороны потребителя.
+## Описание
+Это API для аутентификации пользователей
 
-Информация по OAuth у разных поставщиков данных: 
+## Установка
+- склонируйте проект с реппозитория GitHub
+    ```
+    git clone https://github.com/AlexanderNkn/Auth_sprint_2.git
+    ```
+- соберите образ
+    ```
+    docker-compose build --no-cache
+    ```
+- запустите проект
+    ```
+    docker-compose up -d
+    ```
 
-- [Twitter](https://developer.twitter.com/en/docs/authentication/overview){target="_blank"},
-- [Facebook](https://developers.facebook.com/docs/facebook-login/){target="_blank"},
-- [VK](https://vk.com/dev/access_token){target="_blank"},
-- [Google](https://developers.google.com/identity/protocols/oauth2){target="_blank"},
-- [Yandex](https://yandex.ru/dev/oauth/?turbo=true){target="_blank"},
-- [Mail](https://api.mail.ru/docs/guides/oauth/){target="_blank"}.
+## Тестирование
+### В контейнере
+- тесты запускаются автоматически при старте контейнера. Для перезапуска выполните
+    ```
+    docker-compose start test_auth
+    ```
 
-## Дополнительное задание
+### Дополнительные возможности
+- просмотр логов
+    ```
+    docker-compose logs -f
+    ```
+- очистка базы данных из консоли
+    ```
+    flask recreate-database
+    ```
+- создание суперпользователя из консоли
+    ```
+    flask create-superuser name password
+    ```
 
-Реализуйте возможность открепить аккаунт в соцсети от личного кабинета. 
+## Использование
+### Документация доступна по адресу
+-    http://localhost/api/openapi
 
-Решение залейте в репозиторий текущего спринта и отправьте на ревью.
+### Примеры запросов
+- логин пользователя
+    ```
+    /api/v1/auth/login
+    ```
+    ```
+    curl -X POST "http://localhost/api/v1/auth/login" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"password\":12345,\"username\":\"yandex\"}"
+
+    401	Error: Unauthorized
+
+    {
+      "message": "user is not exist",
+      "status": "error"
+    }
+    ```
+- изменить роль пользователя
+    ```
+    /api/v1/role/<uuid:user_id>
+    ```
+    ```
+    curl -X PATCH "http://localhost/api/v1/role/<uuid:role_id>" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"code\":\"admin\",\"description\":\"unlimited access to all actions\"}"
+
+    200	info about role was changed successfully
+
+    Media type
+    
+    application/json
+    Controls Accept header.
+    Example Value
+    Schema
+    {
+      "message": "info about role was changed successfully",
+      "role": {
+        "code": "admin",
+        "description": "unlimited access to all actions",
+        "id": "a9c6e8da-f2bf-458a-978b-d2f50a031451"
+      },
+      "status": "success"
+    }
+    ```
