@@ -3,6 +3,8 @@ from datetime import timedelta
 
 from pydantic import BaseSettings, Field
 
+SECRET_KEY_TEST = os.getenv('SECRET_KEY_TEST', 'super-secret')
+
 REDIS_HOST_TEST = os.getenv('REDIS_HOST_TEST', '127.0.0.1')
 REDIS_PORT_TEST = int(os.getenv('REDIS_PORT_TEST', 6389))
 
@@ -22,12 +24,21 @@ JWT_ACCESS_TOKEN_EXPIRES_TEST = timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKE
 JWT_REFRESH_TOKEN_EXPIRES_TEST = timedelta(minutes=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES_TEST', 20)))
 JWT_ERROR_MESSAGE_KEY_TEST = os.getenv('JWT_ERROR_MESSAGE_KEY_TEST', 'message')
 
+GOOGLE_CLIENT_ID_TEST = os.getenv('GOOGLE_CLIENT_ID_TEST', 'client_id')
+GOOGLE_CLIENT_SECRET_TEST = os.getenv('GOOGLE_CLIENT_SECRET_TEST', 'client_secret')
+
 
 class JWTSettings(BaseSettings):
     JWT_SECRET_KEY: str = Field(JWT_SECRET_KEY_TEST)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = Field(JWT_ACCESS_TOKEN_EXPIRES_TEST)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = Field(JWT_REFRESH_TOKEN_EXPIRES_TEST)
     JWT_ERROR_MESSAGE_KEY: str = Field(JWT_ERROR_MESSAGE_KEY_TEST)
+
+
+class OAuthGoogleSettings(BaseSettings):
+    GOOGLE_CLIENT_ID: str = Field(GOOGLE_CLIENT_ID_TEST)
+    GOOGLE_CLIENT_SECRET: str = Field(GOOGLE_CLIENT_SECRET_TEST)
+    SECRET_KEY: str = Field(SECRET_KEY_TEST)
 
 
 class PostgresSettings(BaseSettings):
