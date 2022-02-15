@@ -1,0 +1,18 @@
+from typing import Callable
+from flask import json, Flask
+from werkzeug.exceptions import InternalServerError
+
+
+def register_500_error(app: Flask, sentry_event: Callable):
+    @app.errorhandler(InternalServerError)
+    def handle_exception(e):
+        """Return JSON with sentry task id."""
+        response = e.get_response()
+        response.data = json.dumps({
+            'status': 'success',
+            'message': 'Something went wrong with server',
+            'sentry': sentry_event(),
+        })
+        response.content_type = "application/json"
+        return response
+    return handle_exception

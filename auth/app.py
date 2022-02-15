@@ -1,6 +1,8 @@
 import click
 from flasgger import Swagger
 from flask import Flask
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from core import config as default_config
 from extensions import db, jwt, ma
@@ -10,6 +12,11 @@ __all__ = ('create_app',)
 
 def create_app(config=None) -> Flask:
     """Create a Flask app."""
+    sentry_sdk.init(
+        dsn=default_config.SENTRY_DSN,
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,
+    )
     app = Flask(__name__, instance_relative_config=True)
 
     config = config or default_config
@@ -19,6 +26,7 @@ def create_app(config=None) -> Flask:
     configure_ma(app)
     configure_swagger(app)
     configure_cli(app)
+    configure_errors(app, event=sentry_sdk.last_event_id)
 
     return app
 
@@ -70,3 +78,8 @@ def configure_cli(app):
             user_role = UserRole(user_id=user.id, role_id=admin_role.id)
             db.session.add(user_role)
         db.session.commit()
+
+
+def configure_errors(app, event):
+    from error_handlers import register_500_error
+    register_500_error(app, sentry_event=event)

@@ -18,6 +18,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./envs/.db.env
+    ports:
+      - 5433:5432
   redis:
     container_name: redis
     image: redis:6.2-alpine

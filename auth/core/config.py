@@ -48,6 +48,8 @@ JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIR
 JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2)))
 JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
+SENTRY_DSN = os.getenv('SENTRY_DSN', '')
+
 
 class JWTSettings(BaseSettings):
     JWT_SECRET_KEY: str = Field(JWT_SECRET_KEY)
