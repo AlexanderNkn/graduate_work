@@ -36,6 +36,13 @@ def configure_jwt(app, config) -> None:
     app.config.from_object(config)
     jwt.init_app(app)
 
+    # Callback function to check if a JWT exists in the redis blocklist
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        token_in_redis = redis_db.jwt_redis_blocklist().get(jti)
+        return token_in_redis is not None
+
 
 def configure_ma(app) -> None:
     ma.init_app(app)

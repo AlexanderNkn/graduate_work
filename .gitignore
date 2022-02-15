@@ -56,3 +56,6 @@ doc.html
 
 # mypy
 .mypy_cache
+
+
+client_secret.json
