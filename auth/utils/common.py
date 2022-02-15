@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
 
 from extensions import db
-from models import Permission, RolePermissions, UserRole, User
+from models import Permission, RolePermissions, User, UserRole
 
 
 def get_user_id_by_username(username):
@@ -16,6 +16,20 @@ def get_user_id_by_username(username):
         raise ValueError('User not exists', username)
 
     return user.id
+
+
+def get_user_by_username(username):
+    user = User.query.filter_by(username=username).first()
+    return user
+
+
+def generate_password():
+    import string
+    import secrets
+
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for i in range(8))
+    return password
 
 
 def get_user_permissions(user_id):

@@ -27,6 +27,7 @@ SWAGGER_CONFIG = {
 }
 
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'auth')
+SECRET_KEY = os.getenv('SECRET_KEY', 'super-secret')
 
 REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6389))
@@ -48,12 +49,21 @@ JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIR
 JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2)))
 JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'client_id')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'client_secret')
+
 
 class JWTSettings(BaseSettings):
     JWT_SECRET_KEY: str = Field(JWT_SECRET_KEY)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = Field(JWT_ACCESS_TOKEN_EXPIRES)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = Field(JWT_REFRESH_TOKEN_EXPIRES)
     JWT_ERROR_MESSAGE_KEY: str = Field(JWT_ERROR_MESSAGE_KEY)
+
+
+class OAuthGoogleSettings(BaseSettings):
+    GOOGLE_CLIENT_ID: str = Field(GOOGLE_CLIENT_ID)
+    GOOGLE_CLIENT_SECRET: str = Field(GOOGLE_CLIENT_SECRET)
+    SECRET_KEY: str = Field(SECRET_KEY)
 
 
 class PostgresSettings(BaseSettings):
