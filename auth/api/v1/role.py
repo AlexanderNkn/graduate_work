@@ -72,8 +72,6 @@ def create_role():
     requestBody:
       content:
         application/json:
-          name: new role
-          description: new role data
           schema:
             $ref: '#/components/schemas/Role'
           example:
@@ -198,8 +196,6 @@ def change_role(role_id):
     requestBody:
       content:
         application/json:
-          name: change role
-          description: change role info
           schema:
             $ref: '#/components/schemas/Role'
           example:
@@ -324,8 +320,6 @@ def assign_roles():
     requestBody:
       content:
         application/json:
-          name: roles for user
-          description: roles for user
           schema:
             $ref: '#/components/schemas/UserRoleRequest'
           example:
@@ -401,8 +395,6 @@ def check_permissions():
     requestBody:
       content:
         application/json:
-          name: user and possible roles
-          description: user and possible roles
           schema:
             $ref: '#/components/schemas/UserRoleRequest'
           example:
@@ -415,12 +407,12 @@ def check_permissions():
           application/json:
             schema:
               properties:
-              status:
-                type: string
-              message:
-                type: string
-              has_permissions:
-                type: boolean
+                status:
+                  type: string
+                message:
+                  type: string
+                has_permissions:
+                  type: boolean
             examples:
               approved:
                 value:

@@ -1,0 +1,826 @@
+components:
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          example:
+            message: permission denied
+            status: error
+          schema:
+            $ref: '#/components/schemas/Response'
+      description: Access is not allowed
+    NotFound:
+      content:
+        application/json:
+          example:
+            message: resource not found
+            status: error
+          schema:
+            $ref: '#/components/schemas/Response'
+      description: The specified resource was not found
+    Unauthorized:
+      content:
+        application/json:
+          examples:
+            expired:
+              value:
+                message: token expired
+                status: error
+            notvalid:
+              value:
+                message: token is not valid
+                status: error
+          schema:
+            $ref: '#/components/schemas/Response'
+      description: Unauthorized
+  schemas:
+    Credentials:
+      properties:
+        password:
+          type: string
+          writeOnly: true
+        username:
+          type: string
+          writeOnly: true
+      required:
+        - username
+        - password
+      title: Credentials
+      type: object
+    Passwords:
+      properties:
+        new_password:
+          type: string
+          writeOnly: true
+        old_password:
+          type: string
+          writeOnly: true
+      required:
+        - old_password
+        - new_password
+      title: Passwords
+      type: object
+    Response:
+      properties:
+        message:
+          title: response message
+          type: string
+        status:
+          title: response status
+          type: string
+      title: Response
+      type: object
+    Role:
+      properties:
+        code:
+          title: role name
+          type: string
+        description:
+          title: role detailed description
+          type: string
+        id:
+          title: role uuid
+          type: string
+      required:
+        - code
+        - description
+      title: Role
+    Token:
+      properties:
+        access_token:
+          title: access token
+          type: string
+        refresh_token:
+          title: refresh token
+          type: string
+      title: Token
+      type: object
+    UserData:
+      properties:
+        birth_date:
+          title: birth date
+          type: string
+        city:
+          title: city
+          type: string
+        email:
+          title: email
+          type: string
+        first_name:
+          title: first name
+          type: string
+        last_name:
+          title: last name
+          type: string
+        phone:
+          title: phone
+          type: string
+      title: UserData
+      type: object
+    UserDevice:
+      properties:
+        created_at:
+          title: created date
+          type: string
+        ip:
+          title: ip address
+          type: string
+        user_agent:
+          title: browser user-agent
+          type: string
+      title: UserDevice
+      type: object
+    UserLogin:
+      properties:
+        device:
+          $ref: '#/components/schemas/UserDevice'
+        login_date:
+          title: login date
+          type: string
+      title: UserLogin
+      type: object
+    UserLoginHistory:
+      items:
+        $ref: '#/components/schemas/UserLogin'
+        type: object
+      title: UserLoginHistory
+      type: array
+    UserRole:
+      properties:
+        id:
+          title: user_role uuid
+          type: string
+        role_id:
+          title: role uuid
+          type: string
+        user_id:
+          title: user uuid
+          type: string
+      title: UserRole
+    UserRoleRequest:
+      properties:
+        role_ids:
+          items:
+            title: role uuids
+            type: string
+          type: array
+        user_id:
+          title: user uuid
+          type: string
+      title: UserRoleRequest
+    UserRoleResponse:
+      items:
+        $ref: '#/components/schemas/UserRole'
+        type: object
+      title: UserRoleResponse
+      type: array
+  securitySchemes:
+    jwt_auth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  title: Authentication service
+  version: '2.0'
+openapi: 3.0.2
+paths:
+  /api/v1/assign-roles:
+    post:
+      description: Assign roles to user
+      requestBody:
+        content:
+          application/json:
+            example:
+              role_ids:
+                - a9c6e8da-f2bf-458a-978b-d2f50a031451
+                - 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+              user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                message: roles were assigned to user
+                status: success
+                user_roles:
+                  - id: 4a73b964-af72-4801-aed9-113783561540
+                    role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                    user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+                  - id: 0f55b9d8-f027-4766-9476-2b89e17c1854
+                    role_id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                    user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  user_roles:
+                    $ref: '#/components/schemas/UserRoleResponse'
+          description: Roles were assigned successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          content:
+            application/json:
+              examples:
+                norole:
+                  value:
+                    message: role not found
+                    status: error
+                nouser:
+                  value:
+                    message: user not found
+                    status: error
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: The specified resource was not found
+      security:
+        - jwt_auth:
+            - write:admin
+            - read:admin
+      summary: Endpoint to assign roles to user
+      tags:
+        - ASSIGN_ROLES
+  /api/v1/auth/add-personal-data/{user_id}:
+    post:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
+              city: Cambridge
+              email: matt@damon.com
+              first_name: Matt
+              last_name: Damon
+              phone: 71234567
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                message: user personal was data added successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was added successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint for user to add personal data
+      tags:
+        - ADD_PERSONAL_DATA
+  /api/v1/auth/change-password/{user_id}:
+    patch:
+      description: Change user password
+      parameters:
+        - description: User id to change history
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              new_password: 678910
+              old_password: 12345
+            schema:
+              $ref: '#/components/schemas/Passwords'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: password changed successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: Password changed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint to change forgotten password
+      tags:
+        - CHANGE_PASSWORD
+  /api/v1/auth/change-personal-data/{user_id}:
+    patch:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
+              city: Cambridge
+              email: matt@damon.com
+              first_name: Matt
+              last_name: Damon
+              phone: 71234567
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: user personal data was changed successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was changed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint for user to change data
+      tags:
+        - CHANGE_PERSONAL_DATA
+  /api/v1/auth/delete-personal-data/{user_id}:
+    delete:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              example:
+                message: user personal data was deleted successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint to delete user personal data
+      tags:
+        - DELETE_PERSONAL_DATA
+  /api/v1/auth/login:
+    post:
+      description: Get JWT tokens after login
+      requestBody:
+        content:
+          application/json:
+            example:
+              password: 12345
+              username: yandex
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: JWT tokens were generated successfully
+                status: success
+                tokens:
+                  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  tokens:
+                    $ref: '#/components/schemas/Token'
+          description: A pair of access/refresh tokens
+        '401':
+          content:
+            application/json:
+              example:
+                message: username or password are not correct
+                status: error
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: Unauthorized access
+      summary: Endpoint for user login
+      tags:
+        - LOGIN
+  /api/v1/auth/login-history/{user_id}:
+    get:
+      description: info about user login
+      parameters:
+        - description: User id to view login history
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                history:
+                  - device:
+                      created_at: Mon, 15 Feb 2021 00:00:00 GMT
+                      ip: 89.100.100.100
+                      user_agent: >-
+                        Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                        AppleWebKit/537.36 (KHTML, like Gecko)
+                        Chrome/97.0.4692.99 Safari/537.36
+                    login_date: Sun, 06 Feb 2022 00:00:00 GMT
+                  - device:
+                      created_at: Mon, 15 Feb 2021 00:00:00 GMT
+                      ip: 89.100.100.100
+                      user_agent: >-
+                        Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                        AppleWebKit/537.36 (KHTML, like Gecko)
+                        Chrome/97.0.4692.99 Safari/537.36
+                    login_date: Fri, 04 Feb 2022 00:00:00 GMT
+                message: user login history is available
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  history:
+                    $ref: '#/components/schemas/UserLoginHistory'
+          description: User login history is available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endoint to get history of user logouts
+      tags:
+        - LOGIN_HISTORY
+  /api/v1/auth/logout:
+    post:
+      description: User logout
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: User logout successfull
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: Logout successfull
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+      summary: Endpoint to logout user
+      tags:
+        - LOGOUT
+  /api/v1/auth/refresh-token:
+    post:
+      description: Refresh expired tokens
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: New tokens were generated
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: New tokens were generated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+      summary: Endoint to refresh expired tokens
+      tags:
+        - REFRESH_TOKEN
+  /api/v1/auth/register:
+    post:
+      description: Create new user account
+      requestBody:
+        content:
+          application/json:
+            example:
+              password: 12345
+              username: yandex
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: New account was registered successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: Successfull registration
+        '400':
+          content:
+            application/json:
+              example:
+                message: The username is already in use
+                status: error
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: Registration failed
+      summary: Endpoint to register new account
+      tags:
+        - REGISTRATION
+  /api/v1/check-permissions:
+    post:
+      description: check if user belongs to specified roles
+      requestBody:
+        content:
+          application/json:
+            example:
+              role_ids:
+                - a9c6e8da-f2bf-458a-978b-d2f50a031451
+                - 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+              user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                approved:
+                  value:
+                    has_permissions: true
+                    message: roles were checked successfully
+                    status: success
+                disapproved:
+                  value:
+                    has_permissions: false
+                    message: roles were checked successfully
+                    status: success
+              schema:
+                properties:
+                  has_permissions:
+                    type: boolean
+                  message:
+                    type: string
+                  status:
+                    type: string
+          description: Roles were checked successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          content:
+            application/json:
+              examples:
+                norole:
+                  value:
+                    message: role not found
+                    status: error
+                nouser:
+                  value:
+                    message: user not found
+                    status: error
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: The specified resource was not found
+      security:
+        - jwt_auth:
+            - write:admin
+            - read:admin
+      summary: Endpoint to check user permissions
+      tags:
+        - CHECK_PERMISSIONS
+  /api/v1/role:
+    get:
+      description: List of all available roles
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                example:
+                  - code: admin
+                    description: unlimited access to all actions
+                    id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  - code: subscriber
+                    description: account without paying for registered users
+                    id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                  - code: member
+                    description: account with payment options
+                    id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                items:
+                  $ref: '#/components/schemas/Role'
+                  type: object
+                type: array
+          description: List of roles is available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Endpoint to get all roles
+      tags:
+        - ROLE_LIST
+    post:
+      description: Create new role
+      requestBody:
+        content:
+          application/json:
+            example:
+              code: admin
+              description: unlimited access to all actions
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                message: New role was created
+                role:
+                  code: admin
+                  description: unlimited access to all actions
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role:
+                    $ref: '#/components/schemas/Role'
+          description: List of roles is available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - jwt_auth:
+            - write:admin
+            - read:admin
+      summary: Endpoint to create new role
+      tags:
+        - CREATE_ROLE
+  /api/v1/role/{role_id}:
+    delete:
+      description: delete role
+      parameters:
+        - description: Role uuid
+          example:
+            role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+          in: path
+          name: role_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              example:
+                message: role was deleted successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: role was deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin
+            - read:admin
+      summary: Endpoint to delete role
+      tags:
+        - DELETE_ROLE
+    get:
+      description: detailed info about role
+      parameters:
+        - description: Role uuid
+          example:
+            role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+          in: path
+          name: role_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: info about role is available
+                role:
+                  code: admin
+                  description: unlimited access to all actions
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role:
+                    $ref: '#/components/schemas/Role'
+          description: info about role is available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Get role detailes
+      tags:
+        - ROLE_DETAILS
+    patch:
+      description: change role info
+      parameters:
+        - description: Role uuid
+          example:
+            role_id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+          in: path
+          name: role_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              code: admin
+              description: unlimited access to all actions
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: info about role was changed successfully
+                role:
+                  code: admin
+                  description: unlimited access to all actions
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+                properties:
+                  role:
+                    $ref: '#/components/schemas/Role'
+          description: info about role was changed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Endpoint to change role
+      tags:
+        - CHANGE_ROLE_DETAILS

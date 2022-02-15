@@ -33,8 +33,6 @@ def register():
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: username/password for registration
           schema:
             $ref: '#/components/schemas/Credentials'
           example:
@@ -96,8 +94,6 @@ def login():
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: username/password to get jwt tokens
           schema:
             $ref: '#/components/schemas/Credentials'
           example:
@@ -117,8 +113,8 @@ def login():
               status: success
               message: JWT tokens were generated successfully
               tokens:
-                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIHZlcnkgc21hcnQhIn0.GZvDoQdT9ldwmlPOrZWrpiaHas0DiFmZlytr1dhaxi4
-                refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIGF3ZXNvbWUhIn0.PhRXjIVL1yUhAND4uiE-p6V2rXHQ0drCj9156thJAJg
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
       401:
         description: Unauthorized access
         content:
@@ -251,11 +247,16 @@ def change_password(user_id):
     tags:
     - CHANGE_PASSWORD
     description: Change user password
+    parameters:
+    - description: User id to change history
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: password to change
           schema:
             $ref: '#/components/schemas/Passwords'
           example:
@@ -339,8 +340,6 @@ def add_personal_data(user_id):
     requestBody:
       content:
         application/json:
-          name: user personal data
-          description: user personal data
           schema:
             $ref: '#/components/schemas/UserData'
           example:
@@ -412,8 +411,6 @@ def change_personal_data(user_id):
     requestBody:
       content:
         application/json:
-          name: user personal data
-          description: user personal data
           schema:
             $ref: '#/components/schemas/UserData'
           example:

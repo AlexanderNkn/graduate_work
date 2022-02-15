@@ -2,20 +2,7 @@ openapi: 3.0.2
 
 info:
   title: 'Authentication service'
-  version: '1.0'
-
-paths:
-  /auth/login:
-  /auth/register:
-  /auth/logout:
-  /auth/refresh-token:
-  /auth/change-password:
-  /personal-data/<uuid:user_id>:
-  /login-history/<uuid:user_id>:
-  /role:
-  /role/<uuid:role_id>:
-  /assign-roles:
-  /check-permissions:
+  version: '2.0'
 
 components:
   responses:
@@ -77,8 +64,8 @@ components:
           type: string
           writeOnly: true
       required:
-        - username
-        - password
+        - old_password
+        - new_password
     Token:
       title: Token
       type: object
@@ -194,8 +181,8 @@ components:
         type: object
         $ref: '#/components/schemas/UserRole'
 
-securitySchemes:
-  jwt_auth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
+  securitySchemes:
+    jwt_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
