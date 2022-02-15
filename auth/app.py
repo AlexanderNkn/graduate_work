@@ -3,6 +3,7 @@ from flasgger import Swagger
 from flask import Flask
 
 from core import config as default_config
+from databases import redis_db
 from extensions import db, jwt, ma
 
 __all__ = ('create_app',)
@@ -19,6 +20,7 @@ def create_app(config=None) -> Flask:
     configure_ma(app)
     configure_swagger(app)
     configure_cli(app)
+    configure_redis(config=config.RedisSettings())
 
     return app
 
@@ -41,6 +43,10 @@ def configure_ma(app) -> None:
 
 def configure_swagger(app) -> None:
     Swagger(app, config=default_config.SWAGGER_CONFIG, template_file='definitions.yml')
+
+
+def configure_redis(config) -> None:
+    redis_db.redis = redis_db.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0, decode_responses=True)
 
 
 def configure_blueprints(app) -> None:

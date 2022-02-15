@@ -1,15 +1,24 @@
 from http import HTTPStatus
 
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, request, current_app
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
-from extensions import db
+from databases.redis_db import jwt_redis_blocklist
+from extensions import db, jwt
 from models import User, UserData
 from schemas import user_data_schema
 from utils.common import permission_required, get_tokens
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+
+
+# Callback function to check if a JWT exists in the redis blocklist
+@jwt.token_in_blocklist_loader
+def check_if_token_is_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    token_in_redis = jwt_redis_blocklist().get(jti)
+    return token_in_redis is not None
 
 
 def check_empty_user_password(username, password):
@@ -191,6 +200,8 @@ def logout():
       - write:admin,subscriber,member
     """
     response = make_response({"message": "logout successful"})
+    jti = get_jwt()["jti"]
+    jwt_redis_blocklist().set(jti, "", ex=current_app.config['JWT_ACCESS_TOKEN_EXPIRES'])
     return response
 
 

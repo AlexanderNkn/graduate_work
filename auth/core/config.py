@@ -66,3 +66,5 @@ class PostgresSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
     REDIS_URI: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')
+    REDIS_HOST: str = Field(REDIS_HOST)
+    REDIS_PORT: int = Field(REDIS_PORT)
