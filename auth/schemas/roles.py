@@ -1,4 +1,4 @@
-from models.roles import Role, UserRole
+from models import Role, UserRole
 from extensions import ma
 
 

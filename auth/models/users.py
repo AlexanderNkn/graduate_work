@@ -1,11 +1,19 @@
 import datetime
+import uuid
 
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
 from models.base import BaseModel
+
+
+class UserRole(BaseModel):
+    __tablename__ = 'users_roles'
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
+    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
 
 
 class User(BaseModel):
@@ -16,6 +24,8 @@ class User(BaseModel):
     is_superuser = db.Column(db.BOOLEAN(), default=False)
     data_joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.now())
     terminate_date = db.Column(db.TIMESTAMP())
+
+    roles = db.relationship('Role', secondary=UserRole.__tablename__, lazy=True)
 
     def __repr__(self):
         return f'{self.username}'

@@ -11,13 +11,6 @@ class Permission(BaseModel):
         return f'({self.code}) {self.description}'
 
 
-class RolePermissions(BaseModel):
-    __tablename__ = 'roles_permissions'
-
-    role_id = db.Column(db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
-    perm_id = db.Column(db.ForeignKey('permissions.id', ondelete='CASCADE'), nullable=False)
-
-
 def create_permissions():
     permissions = [
         'users',
