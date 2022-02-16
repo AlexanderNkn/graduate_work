@@ -1,4 +1,3 @@
-import uuid
 from http import HTTPStatus
 
 from flask import Blueprint, make_response, request
@@ -388,15 +387,14 @@ def assign_roles():
       }, HTTPStatus.CREATED)
 
 
-
-@blueprint.route('/check-permissions', methods=('POST',))
+@blueprint.route('/check-roles', methods=('POST',))
 @permission_required('roles')
-def check_permissions():
+def check_roles():
     """
-    Endpoint to check user permissions
+    Endpoint to check user roles
     ---
     tags:
-      - CHECK_PERMISSIONS
+      - CHECK_ROLES
     description: check if user belongs to specified roles
     requestBody:
       content:
@@ -419,19 +417,19 @@ def check_permissions():
                 type: string
               message:
                 type: string
-              has_permissions:
+              has_roles:
                 type: boolean
             examples:
               approved:
                 value:
                   status: success
                   message: roles were checked successfully
-                  has_permissions: true
+                  has_roles: true
               disapproved:
                 value:
                   status: success
                   message: roles were checked successfully
-                  has_permissions: false
+                  has_roles: false
       401:
         $ref: '#/components/responses/Unauthorized'
       403:
@@ -456,19 +454,19 @@ def check_permissions():
       - write:admin
       - read:admin
     """
-    user_id = uuid.UUID(request.json.get('user_id'))
-    role_ids = [uuid.UUID(role_id) for role_id in request.json.get('role_ids')]
-    user_role = UserRole.query.join(User).filter(User.id.in_(
-        [user_id])).join(Role).filter(Role.id.in_(role_ids)).first()
+    user_id = request.json.get('user_id')
+    role_ids = request.json.get('role_ids')
+    user_role = UserRole.query.filter_by(user_id=user_id).filter(UserRole.role_id.in_(role_ids)).first()
     if user_role is None:
         make_response(
             {
                 "message": "user is not found or hasn't any roles",
-                "status": "success"
+                "status": "success",
+                "has_roles": False
             }, HTTPStatus.NOT_FOUND)
     return make_response(
         {
-            "message": "permissions checked",
+            "message": "roles checked",
             "status": "success",
-            "has_permissions": True
+            "has_roles": True
         }, HTTPStatus.OK)
