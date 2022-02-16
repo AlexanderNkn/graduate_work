@@ -15,7 +15,7 @@ class Role(BaseModel):
     code = db.Column(db.VARCHAR(255), nullable=False, unique=True)
     description = db.Column(db.Text, default='')
 
-    permissions = db.relationship('Permission', secondary=RolePermissions.__table__, lazy='dynamic')
+    permissions = db.relationship('Permission', secondary=RolePermissions.__table__, lazy=True)
 
     def __repr__(self):
         return f'({self.code}) {self.description}'

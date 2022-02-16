@@ -70,3 +70,29 @@ def configure_cli(app):
             user_role = UserRole(user_id=user.id, role_id=admin_role.id)
             db.session.add(user_role)
         db.session.commit()
+
+    @app.cli.command('load-init-data')
+    def load_init_data():
+        from init_data import PERMISSIONS, ROLES
+        from models import Permission, Role
+
+        objects = []
+
+        for permission_info in PERMISSIONS:
+            permission = Permission.query.filter_by(code=permission_info['code']).first()
+            if not permission:
+                permission = Permission(**permission_info)
+                objects.append(permission)
+
+        for role_info in ROLES:
+            permissions = role_info.pop('permissions', [])
+            role = Role.query.filter_by(code=role_info['code']).first()
+            if not role:
+                role = Role(**role_info)
+                for permission in permissions:
+                    role.permissions.append(Permission.query.filter_by(code=permission).first())
+                role.permissions = [permission for permission in role.permissions if permission]
+                objects.append(role)
+
+        db.session.add_all(objects)
+        db.session.commit()
