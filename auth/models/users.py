@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -51,10 +51,28 @@ class UserData(BaseModel):
 class UserDevice(BaseModel):
     __tablename__ = 'users_device'
 
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     ip = db.Column(INET())
     device_key = db.Column(db.TEXT())
     user_agent = db.Column(db.TEXT())
 
     def __repr__(self):
         return f'{self.ip} {self.user_agent}'
+
+
+class UserSignIn(BaseModel):
+    __tablename__ = 'users_sign_in'
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    logined_by = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    user_agent = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<UserSignIn {self.user_id}:{self.logined_by}>'
+
+    @staticmethod
+    def add_user_sign_in(user, user_agent, logined_by=None):
+        # from flask import request
+        # request.headers.get('User-Agent')
+        # request.user_agent
+        pass
