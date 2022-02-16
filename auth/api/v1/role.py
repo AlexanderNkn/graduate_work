@@ -5,7 +5,7 @@ from flask import Blueprint, make_response, request
 from extensions import db
 from models import Role, UserRole, User
 from schemas import role_schema, user_role_schema
-from utils.common import permission_required
+from utils.permissions import permission_required
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
 

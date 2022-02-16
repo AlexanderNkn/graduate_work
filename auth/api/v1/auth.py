@@ -6,7 +6,8 @@ from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 from extensions import db
 from models import User, UserData
 from schemas import user_data_schema
-from utils.common import permission_required, get_tokens
+from utils.common import get_tokens
+from utils.permissions import permission_required
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
