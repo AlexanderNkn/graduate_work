@@ -1,10 +1,10 @@
-from models.roles import Role
+from models.users import UserData
 from extensions import ma
 
 
 class UserDataSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Role
+        model = UserData
 
 
 user_data_schema = UserDataSchema()
