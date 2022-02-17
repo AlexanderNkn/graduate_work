@@ -64,6 +64,7 @@ class PostgresSettings(BaseSettings):
         f'@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_NAME}', description='url for auth service'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = True
+    SQLALCHEMY_ENGINE_OPTIONS: dict = {'pool_pre_ping': True, 'pool_recycle': 300, }
 
 
 class RedisSettings(BaseSettings):

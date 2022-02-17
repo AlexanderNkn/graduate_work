@@ -382,7 +382,6 @@ def assign_roles():
       }, HTTPStatus.CREATED)
 
 
-
 @blueprint.route('/check-permissions', methods=('POST',))
 @permission_required('roles')
 def check_permissions():

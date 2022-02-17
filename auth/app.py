@@ -1,8 +1,10 @@
+import backoff
 import click
+import sentry_sdk
 from flasgger import Swagger
 from flask import Flask
-import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sqlalchemy.exc import OperationalError
 
 from core import config as default_config
 from extensions import db, jwt, ma
@@ -31,6 +33,7 @@ def create_app(config=None) -> Flask:
     return app
 
 
+@backoff.on_exception(backoff.expo, OperationalError, max_time=300)
 def configure_db(app, config) -> None:
     app.config.from_object(config)
     db.init_app(app)
