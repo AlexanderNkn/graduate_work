@@ -539,7 +539,6 @@ def check_permission():
           schema:
             $ref: '#/components/schemas/UserRoleRequest'
           example:
-            user_id: 7cd483e9-5888-40fd-813a-a382154bcfd2
             permission: 'users'
     responses:
       200:
@@ -567,8 +566,6 @@ def check_permission():
                   has_permission: true
       401:
         $ref: '#/components/responses/Unauthorized'
-      403:
-        $ref: '#/components/responses/Forbidden'
       404:
         description: The specified resource was not found
         content:
