@@ -9,6 +9,15 @@ components:
           schema:
             $ref: '#/components/schemas/Response'
       description: Access is not allowed
+    InternalError:
+      content:
+        application/json:
+          example:
+            message: resource not found
+            status: error
+          schema:
+            $ref: '#/components/schemas/Response500'
+      description: Server internal error
     NotFound:
       content:
         application/json:
@@ -69,6 +78,19 @@ components:
           title: response status
           type: string
       title: Response
+      type: object
+    Response500:
+      properties:
+        message:
+          title: response message
+          type: string
+        sentry:
+          title: sentry task id
+          type: string
+        status:
+          title: response status
+          type: string
+      title: Response500
       type: object
     Role:
       properties:

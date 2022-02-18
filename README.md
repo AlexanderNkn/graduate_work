@@ -42,10 +42,27 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     flask create-superuser name password
     ```
 
-## Использование
-### Документация доступна по адресу
--    http://localhost/api/openapi
+## Документация 
+### Документация расположена в отдельном контейнере. Openapi-server был сгенерен с помощью swagger-codegen.
+- Доступна по адресу
+    ```
+    http://localhost/ui
+    ```
+- В json формате
+    ```
+    http://localhost/openapi.json
+    ```
+### Примечание
+- для создания openapi-server использовался api-spec.yaml
+    ```
+    java -jar swagger-codegen-cli.jar generate -i api-spec.yml -l python-flask -o openapi-server
+    ```
+- на сервисе auth доступна локальная копия документации по адресу
+    ```
+    http://localhost/api/openapi
+    ```
 
+## Использование
 ### Примеры запросов
 - логин пользователя
     ```

@@ -1035,6 +1035,19 @@ components:
       example:
         message: message
         status: status
+    Response500:
+      title: Response500
+      type: object
+      properties:
+        message:
+          title: response message
+          type: string
+        sentry:
+          title: sentry task id
+          type: string
+        status:
+          title: response status
+          type: string
     Role:
       title: Role
       required:
@@ -1158,6 +1171,15 @@ components:
             $ref: '#/components/schemas/Response'
           example:
             message: permission denied
+            status: error
+    InternalError:
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response500'
+          example:
+            message: resource not found
             status: error
     NotFound:
       description: The specified resource was not found

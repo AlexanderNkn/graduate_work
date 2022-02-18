@@ -7,6 +7,7 @@ from swagger_server.models.credentials import Credentials
 from swagger_server.models.inline_response200 import InlineResponse200
 from swagger_server.models.passwords import Passwords
 from swagger_server.models.response import Response
+from swagger_server.models.response500 import Response500
 from swagger_server.models.role import Role
 from swagger_server.models.token import Token
 from swagger_server.models.user_data import UserData

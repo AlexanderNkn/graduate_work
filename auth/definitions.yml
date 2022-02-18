@@ -30,6 +30,15 @@ components:
               value:
                 status: error
                 message: token is not valid
+    InternalError:
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response500'
+          example:
+            status: error
+            message: resource not found
     Forbidden:
       description: Access is not allowed
       content:
@@ -86,6 +95,20 @@ components:
         message:
           type: string
           title: response message
+    Response500:
+      title: Response500
+      type: object
+      properties:
+        status:
+          type: string
+          title: response status
+        message:
+          type: string
+          title: response message
+        sentry:
+          type: string
+          title: sentry task id
+
     UserData:
       title: UserData
       type: object
