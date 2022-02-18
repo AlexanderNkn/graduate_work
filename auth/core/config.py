@@ -8,6 +8,33 @@ from core.logger import LOGGING
 
 logging_config.dictConfig(LOGGING)
 
+
+PROJECT_NAME = os.getenv('PROJECT_NAME', 'auth')
+
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6389))
+
+POSTGRES_HOST = os.getenv('POSTGRES_HOST', '127.0.0.1')
+POSTGRES_PORT = int(os.getenv('POSTGRES_PORT', 5433))
+POSTGRES_NAME = os.getenv('POSTGRES_NAME', 'auth_database')
+POSTGRES_USER = os.getenv('POSTGRES_USER', 'auth')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 1234)
+POSTGRES_OPTIONS = os.getenv('POSTGRES_OPTIONS', '-c search_path=users')
+
+FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
+FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
+BASE_URL = os.getenv('BASE_URL', '/api/v1')
+
+JAEGER_REPORTING_HOST = os.getenv('JAEGER_REPORTING_HOST', '127.0.0.1')
+JAEGER_REPORTING_PORT = int(os.getenv('JAEGER_REPORTING_PORT', 6831))
+
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
+JWT_ACCESS_TOKEN_EXPIRES = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 1800)  # 30 min
+JWT_REFRESH_TOKEN_EXPIRES = os.getenv('JWT_REFRESH_TOKEN_EXPIRES_SECONDS', 432000)  # 5 days
+JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
+
+SENTRY_DSN = os.getenv('SENTRY_DSN', '')
+
 SWAGGER_CONFIG = {
     "headers": [
     ],
@@ -26,29 +53,17 @@ SWAGGER_CONFIG = {
     "url_prefix": "/api",
 }
 
-PROJECT_NAME = os.getenv('PROJECT_NAME', 'auth')
-
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6389))
-
-POSTGRES_HOST = os.getenv('POSTGRES_HOST', '127.0.0.1')
-POSTGRES_PORT = int(os.getenv('POSTGRES_PORT', 5433))
-POSTGRES_NAME = os.getenv('POSTGRES_NAME', 'auth_database')
-POSTGRES_USER = os.getenv('POSTGRES_USER', 'auth')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 1234)
-POSTGRES_OPTIONS = os.getenv('POSTGRES_OPTIONS', '-c search_path=users')
-
-FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
-FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
-BASE_URL = os.getenv('BASE_URL', '/api/v1')
-
-
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
-JWT_ACCESS_TOKEN_EXPIRES = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 1800)  # 30 min
-JWT_REFRESH_TOKEN_EXPIRES = os.getenv('JWT_REFRESH_TOKEN_EXPIRES_SECONDS', 432000)  # 5 days
-JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
-
-SENTRY_DSN = os.getenv('SENTRY_DSN', '')
+JAEGER_CONFIG = {
+    'sampler': {
+        'type': 'const',
+        'param': 1,
+    },
+    'local_agent': {
+        'reporting_host': JAEGER_REPORTING_HOST,
+        'reporting_port': JAEGER_REPORTING_PORT,
+    },
+    'logging': True,
+}
 
 
 class JWTSettings(BaseSettings):

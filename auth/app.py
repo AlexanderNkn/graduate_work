@@ -2,7 +2,9 @@ import backoff
 import click
 import sentry_sdk
 from flasgger import Swagger
-from flask import Flask
+from flask import Flask, request
+from flask_opentracing import FlaskTracer
+from jaeger_client import Config
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
@@ -22,6 +24,7 @@ def create_app(config=None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     config = config or default_config
+    configure_before_request(app)
     configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
     configure_jwt(app, config=config.JWTSettings())
@@ -29,6 +32,7 @@ def create_app(config=None) -> Flask:
     configure_swagger(app)
     configure_cli(app)
     configure_errors(app, event=sentry_sdk.last_event_id)
+    configure_jaeger(app)
 
     return app
 
@@ -83,6 +87,31 @@ def configure_cli(app):
         db.session.commit()
 
 
-def configure_errors(app, event):
+def configure_errors(app, event) -> None:
     from error_handlers import register_500_error
     register_500_error(app, sentry_event=event)
+
+
+def configure_before_request(app) -> None:
+
+    @app.before_request
+    def before_request():
+        if not request.headers.get('X-Request-Id'):
+            raise RuntimeError('request id is requred')
+
+
+def configure_jaeger(app) -> None:
+
+    def setup_jaeger():
+        config = Config(
+            config=default_config.JAEGER_CONFIG,
+            service_name='auth',
+            validate=True,
+        )
+        tracer = config.initialize_tracer()
+        if tracer is None:
+            Config._initialized = False
+            tracer = config.initialize_tracer()
+        return tracer
+
+    FlaskTracer(tracer=setup_jaeger, app=app)
