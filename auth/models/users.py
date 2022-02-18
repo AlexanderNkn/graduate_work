@@ -1,5 +1,6 @@
 import datetime
 
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,10 +10,64 @@ from extensions import db
 from models.base import BaseModel
 
 
+def create_partition_users(target, connection, **kw) -> None:
+    """ creating partition by users"""
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_h0" 
+            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_h1"
+            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_h2" 
+            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_h3" 
+            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_h4" 
+            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+
+
+def create_partition_user_sign_in(target, connection, **kw) -> None:
+    """ creating partition by users_sign_in """
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h0" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h1"
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 1)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h2" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 2)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h3" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 3)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h4" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 4)"""
+    )
+
+
 class User(BaseModel):
     __tablename__ = 'users'
-
-    username = db.Column(db.VARCHAR(255), nullable=False, unique=True)
+    __table_args__ = (
+        UniqueConstraint('id', 'username'),
+        {
+            'postgresql_partition_by': 'HASH (username)',
+            'listeners': [('after_create', create_partition_users)],
+        }
+    )
+    username = db.Column(db.VARCHAR(255), nullable=False, unique=True, primary_key=True)
     pwd_hash = db.Column(db.VARCHAR(255))
     is_superuser = db.Column(db.BOOLEAN(), default=False)
     data_joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.now())
@@ -63,8 +118,17 @@ class UserDevice(BaseModel):
 
 class UserSignIn(BaseModel):
     __tablename__ = 'users_sign_in'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_id'),
+        {
+            'postgresql_partition_by': 'HASH(user_id)',
+            'listeners': [('after_create', create_partition_user_sign_in)],
+        }
+    )
 
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'),
+                        nullable=False, primary_key=True)
     logined_by = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_agent = db.Column(db.Text)
 
