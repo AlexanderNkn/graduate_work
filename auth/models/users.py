@@ -10,30 +10,6 @@ from extensions import db
 from models.base import BaseModel
 
 
-def create_partition_users(target, connection, **kw) -> None:
-    """ creating partition by users"""
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_h0" 
-            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_h1"
-            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_h2" 
-            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_h3" 
-            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_h4" 
-            PARTITION OF users FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
-    )
-
-
 def create_partition_user_sign_in(target, connection, **kw) -> None:
     """ creating partition by users_sign_in """
     connection.execute(
@@ -60,14 +36,8 @@ def create_partition_user_sign_in(target, connection, **kw) -> None:
 
 class User(BaseModel):
     __tablename__ = 'users'
-    __table_args__ = (
-        UniqueConstraint('id', 'username'),
-        {
-            'postgresql_partition_by': 'HASH (username)',
-            'listeners': [('after_create', create_partition_users)],
-        }
-    )
-    username = db.Column(db.VARCHAR(255), nullable=False, unique=True, primary_key=True)
+
+    username = db.Column(db.VARCHAR(255), nullable=False, unique=True)
     pwd_hash = db.Column(db.VARCHAR(255))
     is_superuser = db.Column(db.BOOLEAN(), default=False)
     data_joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.now())
@@ -125,7 +95,6 @@ class UserSignIn(BaseModel):
             'listeners': [('after_create', create_partition_user_sign_in)],
         }
     )
-
 
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'),
                         nullable=False, primary_key=True)

@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
 from models import User, UserData, UserSignIn
-from schemas import user_data_schema
+from schemas import user_data_schema, users_sign_in_schema
 from utils.common import permission_required, get_tokens
 
 
@@ -507,16 +507,12 @@ def get_login_history(user_id):
               status: success
               message: user login history is available
               history:
-                - login_date: 2022-02-06
-                  device:
-                    ip: 89.100.100.100
-                    user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
-                    created_at: 2021-02-15
-                - login_date: 2022-02-04
-                  device:
-                    ip: 89.100.100.100
-                    user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
-                    created_at: 2021-02-15
+                - user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
+                  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
+                  logined_by: 2022-02-18T16:17:01.089822
+                - user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
+                  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36
+                  logined_by: 2022-02-14T16:05:16.298483
       401:
         $ref: '#/components/responses/Unauthorized'
       403:
@@ -528,7 +524,18 @@ def get_login_history(user_id):
       - write:admin,subscriber,member
       - read:admin,subscriber,member
     """
-    pass
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 10))
+
+    user_sign_ins = UserSignIn.query.filter_by(user_id=user_id).\
+        order_by(UserSignIn.logined_by.desc()).paginate(page, per_page, error_out=False)
+    return make_response(
+        {
+            "history": users_sign_in_schema.dump(user_sign_ins.items),
+            "message": "user login history is available",
+            "status": "success",
+        },
+        HTTPStatus.OK)
 
 
 @blueprint.route('/delete-personal-data/<uuid:user_id>', methods=('DELETE',))
