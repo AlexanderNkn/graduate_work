@@ -2,6 +2,7 @@ import datetime
 
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
@@ -67,12 +68,20 @@ class UserSignIn(BaseModel):
     logined_by = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_agent = db.Column(db.Text)
 
+    user = db.relationship(User, lazy=True, uselist=False)
+
     def __repr__(self):
         return f'<UserSignIn {self.user_id}:{self.logined_by}>'
 
-    @staticmethod
-    def add_user_sign_in(user, user_agent, logined_by=None):
+    @classmethod
+    def add_user_sign_in(cls, user, user_agent, logined_by=None):
         # from flask import request
         # request.headers.get('User-Agent')
         # request.user_agent
-        pass
+
+        user_sign_in = UserSignIn(user_agent=str(user_agent), logined_by=logined_by, user=user)
+        db.session.add(user_sign_in)
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()

@@ -4,7 +4,7 @@ from flask import Blueprint, make_response, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
-from models import User, UserData
+from models import User, UserData, UserSignIn
 from schemas import user_data_schema
 from utils.common import permission_required, get_tokens
 
@@ -161,6 +161,8 @@ def login():
                 "refresh_token": refresh_token
               }
         }, HTTPStatus.OK)
+
+    UserSignIn.add_user_sign_in(user, request.user_agent)
 
     return response
 
