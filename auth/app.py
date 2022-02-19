@@ -3,6 +3,7 @@ from flasgger import Swagger
 from flask import Flask
 
 from core import config as default_config
+from databases import redis_db
 from extensions import db, jwt, ma
 
 __all__ = ('create_app',)
@@ -19,6 +20,7 @@ def create_app(config=None) -> Flask:
     configure_ma(app)
     configure_swagger(app)
     configure_cli(app)
+    configure_redis(config=config.RedisSettings())
 
     return app
 
@@ -33,6 +35,13 @@ def configure_db(app, config) -> None:
 def configure_jwt(app, config) -> None:
     app.config.from_object(config)
     jwt.init_app(app)
+
+    # Callback function to check if a JWT exists in the redis blocklist
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        token_in_redis = redis_db.jwt_redis_blocklist().get(jti)
+        return token_in_redis is not None
 
     from flask import jsonify
 
@@ -63,6 +72,10 @@ def configure_ma(app) -> None:
 
 def configure_swagger(app) -> None:
     Swagger(app, config=default_config.SWAGGER_CONFIG, template_file='definitions.yml')
+
+
+def configure_redis(config) -> None:
+    redis_db.redis = redis_db.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0, decode_responses=True)
 
 
 def configure_blueprints(app) -> None:

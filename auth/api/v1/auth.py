@@ -5,6 +5,7 @@ from http import HTTPStatus
 from flask import Blueprint, make_response, request, current_app
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
+from databases.redis_db import jwt_redis_blocklist
 from extensions import db
 from models import User, UserData, UserSignIn
 from schemas import user_data_schema, users_sign_in_schema
@@ -131,8 +132,8 @@ def login():
               status: error
               message: username or password are not correct
     """
-    username = request.json.get('username')
-    password = request.json.get('password')
+    username = request.json and request.json.get('username')
+    password = request.json and request.json.get('password')
 
     response = check_empty_user_password(username, password)
     if response:
@@ -195,6 +196,8 @@ def logout():
       - write:admin,subscriber,member
     """
     response = make_response({"message": "logout successful"})
+    jti = get_jwt()["jti"]
+    jwt_redis_blocklist().set(jti, "", ex=current_app.config['JWT_ACCESS_TOKEN_EXPIRES'])
     return response
 
 

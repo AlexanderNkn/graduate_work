@@ -56,3 +56,9 @@ doc.html
 
 # mypy
 .mypy_cache
+
+# swagger jar tool
+swagger-codegen-cli.jar
+
+# for authentication via google account
+client_secret.json

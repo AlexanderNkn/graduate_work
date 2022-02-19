@@ -18,8 +18,8 @@ FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
 BASE_URL = os.getenv('BASE_URL', '/api/v1')
 
 JWT_SECRET_KEY_TEST = os.getenv('JWT_SECRET_KEY_TEST', 'super-secret')
-JWT_ACCESS_TOKEN_EXPIRES_TEST = timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES_TEST', 5)))
-JWT_REFRESH_TOKEN_EXPIRES_TEST = timedelta(minutes=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES_TEST', 20)))
+JWT_ACCESS_TOKEN_EXPIRES_TEST = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_TEST_SECONDS', 300)  # 5 min
+JWT_REFRESH_TOKEN_EXPIRES_TEST = os.getenv('JWT_REFRESH_TOKEN_EXPIRES_TEST_SECONDS', 1200)  # 20 min
 JWT_ERROR_MESSAGE_KEY_TEST = os.getenv('JWT_ERROR_MESSAGE_KEY_TEST', 'message')
 
 
@@ -40,3 +40,5 @@ class PostgresSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
     REDIS_URI: str = Field(f'redis://{REDIS_HOST_TEST}:{REDIS_PORT_TEST}')
+    REDIS_HOST: str = Field(REDIS_HOST_TEST)
+    REDIS_PORT: int = Field(REDIS_PORT_TEST)

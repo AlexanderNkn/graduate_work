@@ -44,8 +44,8 @@ BASE_URL = os.getenv('BASE_URL', '/api/v1')
 
 
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 1)))
-JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2)))
+JWT_ACCESS_TOKEN_EXPIRES = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 1800)  # 30 min
+JWT_REFRESH_TOKEN_EXPIRES = os.getenv('JWT_REFRESH_TOKEN_EXPIRES_SECONDS', 432000)  # 5 days
 JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
 
@@ -66,3 +66,5 @@ class PostgresSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
     REDIS_URI: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')
+    REDIS_HOST: str = Field(REDIS_HOST)
+    REDIS_PORT: int = Field(REDIS_PORT)
