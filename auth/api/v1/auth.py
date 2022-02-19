@@ -535,61 +535,6 @@ def change_personal_data(user_id):
         }, HTTPStatus.OK)
 
 
-@blueprint.route('/personal-data/<uuid:user_id>', methods=('DELETE',))
-@permission_required('personal_data')
-def delete_personal_data(user_id):
-    """
-    Endpoint to delete user personal data
-    ---
-    tags:
-    - DELETE_PERSONAL_DATA
-    description: Additional info about user
-    parameters:
-    - name: user_id
-      in: path
-      required: true
-      description: User id to add/change/delete personal data
-      schema:
-        type: string
-    responses:
-      204:
-        description: User data was deleted successfully
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Response'
-            example:
-              status: success
-              message: user personal data was deleted successfully
-      401:
-        $ref: '#/components/responses/Unauthorized'
-      403:
-        $ref: '#/components/responses/Forbidden'
-      404:
-        $ref: '#/components/responses/NotFound'
-    security:
-    - jwt_auth:
-      - write:admin,subscriber,member
-      - read:admin,subscriber,member
-    """
-    user = User.query.filter_by(id=user_id).first()
-    if user is None:
-        return make_response(
-            {
-                "message": "user not found",
-                "status": "error"
-            }, HTTPStatus.UNAUTHORIZED)
-
-    UserData.query.filter_by(user_id=user_id).delete()
-    db.session.commit()
-
-    return make_response(
-        {
-            "message": "user personal data was deleted successfully",
-            "status": "success"
-        }, HTTPStatus.OK)
-
-
 @blueprint.route('/login-history/<uuid:user_id>')
 @permission_required('personal_data')
 def get_login_history(user_id):
@@ -649,3 +594,58 @@ def get_login_history(user_id):
             "status": "success",
         },
         HTTPStatus.OK)
+
+
+@blueprint.route('/personal-data/<uuid:user_id>', methods=('DELETE',))
+@permission_required('personal_data')
+def delete_personal_data(user_id):
+    """
+    Endpoint to delete user personal data
+    ---
+    tags:
+    - DELETE_PERSONAL_DATA
+    description: Additional info about user
+    parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: User id to add/change/delete personal data
+      schema:
+        type: string
+    responses:
+      204:
+        description: User data was deleted successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+            example:
+              status: success
+              message: user personal data was deleted successfully
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    security:
+    - jwt_auth:
+      - write:admin,subscriber,member
+      - read:admin,subscriber,member
+    """
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return make_response(
+            {
+                "message": "user not found",
+                "status": "error"
+            }, HTTPStatus.UNAUTHORIZED)
+
+    UserData.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
+
+    return make_response(
+        {
+            "message": "user personal data was deleted successfully",
+            "status": "success"
+        }, HTTPStatus.OK)
