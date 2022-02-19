@@ -5,6 +5,7 @@ from flasgger import Swagger
 from flask import Flask, request
 from flask_opentracing import FlaskTracer
 from jaeger_client import Config
+from opentracing import global_tracer
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
@@ -108,10 +109,9 @@ def configure_jaeger(app) -> None:
             service_name='auth',
             validate=True,
         )
-        tracer = config.initialize_tracer()
-        if tracer is None:
-            Config._initialized = False
-            tracer = config.initialize_tracer()
+        # Jaeger tracer is a global object unlike flask instance created via create_app().
+        # Once initialized it should be invoked using global_tracer() when create flask app next time.
+        tracer = config.initialize_tracer() or global_tracer()
         return tracer
 
     FlaskTracer(tracer=setup_jaeger, app=app)
