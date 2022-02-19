@@ -15,7 +15,7 @@ paths:
   /role:
   /role/<uuid:role_id>:
   /assign-roles:
-  /check-permissions:
+  /check-roles:
 
 components:
   responses:

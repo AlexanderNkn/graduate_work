@@ -128,9 +128,9 @@ def test_assign_roles_without_admin_permissions(create_role, client, roles_list,
     assert response.status_code == HTTPStatus.FORBIDDEN
 
 
-def test_check_permissions(client, headers_with_admin_access, session):
+def test_check_roles(client, headers_with_admin_access, session):
     response = client.post(
-        'api/v1/check-permissions',
+        'api/v1/check-roles',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [
@@ -139,12 +139,12 @@ def test_check_permissions(client, headers_with_admin_access, session):
         },
         headers=headers_with_admin_access)
     assert response.status_code == HTTPStatus.OK
-    assert response.json.get('has_permissions') is True
+    assert response.json.get('has_roles') is True
 
 
-def test_check_permissions_without_admin_permission(client, headers_with_user_access, session):
+def test_check_roles_without_admin_permission(client, headers_with_user_access, session):
     response = client.post(
-        'api/v1/check-permissions',
+        'api/v1/check-roles',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [

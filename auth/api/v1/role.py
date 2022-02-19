@@ -1,14 +1,63 @@
-import uuid
 from http import HTTPStatus
 
 from flask import Blueprint, make_response, request
+from flask_jwt_extended import jwt_required
 
 from extensions import db
-from models import Role, UserRole, User
-from schemas import role_schema, user_role_schema
-from utils.common import permission_required
+from models import Role, UserRole, Permission
+from schemas import role_schema, user_role_schema, permission_schema
+from utils.permissions import permission_required, has_permission
 
 blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
+
+
+@blueprint.route('/permission', methods=('GET', ))
+@permission_required('roles')
+def get_permission_list():
+    """
+    Endpoint to get all permissions
+    ---
+    tags:
+      - PERMISSION_LIST
+    description: List of all available permissions
+    responses:
+      200:
+        description: List of permissions is available
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                $ref: '#/components/schemas/Permission'
+              example:
+                - id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  code: admin
+                  description: unlimited access to all actions
+                - id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                  code: subscriber
+                  description: account without paying for registered users
+                - id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                  code: member
+                  description: account with payment options
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      403:
+        $ref: '#/components/responses/Forbidden'
+      404:
+        $ref: '#/components/responses/NotFound'
+    """
+    permissions = Permission.query.all()
+    if permissions is None:
+        return make_response({
+            "message": "Permission list is empty",
+            "status": "success",
+        }, HTTPStatus.NO_CONTENT)
+    return make_response(
+        {
+            "status": "success",
+            "permissions": [permission_schema.dump(permission) for permission in permissions]
+        }, HTTPStatus.OK)
 
 
 @blueprint.route('/role', methods=('GET', ))
@@ -388,15 +437,14 @@ def assign_roles():
       }, HTTPStatus.CREATED)
 
 
-
-@blueprint.route('/check-permissions', methods=('POST',))
+@blueprint.route('/check-roles', methods=('POST',))
 @permission_required('roles')
-def check_permissions():
+def check_roles():
     """
-    Endpoint to check user permissions
+    Endpoint to check user roles
     ---
     tags:
-      - CHECK_PERMISSIONS
+      - CHECK_ROLES
     description: check if user belongs to specified roles
     requestBody:
       content:
@@ -419,19 +467,19 @@ def check_permissions():
                 type: string
               message:
                 type: string
-              has_permissions:
+              has_roles:
                 type: boolean
             examples:
               approved:
                 value:
                   status: success
                   message: roles were checked successfully
-                  has_permissions: true
+                  has_roles: true
               disapproved:
                 value:
                   status: success
                   message: roles were checked successfully
-                  has_permissions: false
+                  has_roles: false
       401:
         $ref: '#/components/responses/Unauthorized'
       403:
@@ -456,19 +504,90 @@ def check_permissions():
       - write:admin
       - read:admin
     """
-    user_id = uuid.UUID(request.json.get('user_id'))
-    role_ids = [uuid.UUID(role_id) for role_id in request.json.get('role_ids')]
-    user_role = UserRole.query.join(User).filter(User.id.in_(
-        [user_id])).join(Role).filter(Role.id.in_(role_ids)).first()
+    user_id = request.json.get('user_id')
+    role_ids = request.json.get('role_ids')
+    user_role = UserRole.query.filter_by(user_id=user_id).filter(UserRole.role_id.in_(role_ids)).first()
     if user_role is None:
         make_response(
             {
                 "message": "user is not found or hasn't any roles",
-                "status": "success"
+                "status": "success",
+                "has_roles": False
             }, HTTPStatus.NOT_FOUND)
+    return make_response(
+        {
+            "message": "roles checked",
+            "status": "success",
+            "has_roles": True
+        }, HTTPStatus.OK)
+
+
+@blueprint.route('/check-permission', methods=('POST',))
+@jwt_required()
+def check_permission():
+    """
+    Endpoint to check user permissions
+    ---
+    tags:
+      - CHECK_PERMISSION
+    description: check if user belongs to specified permission
+    requestBody:
+      content:
+        application/json:
+          name: user and checking permission
+          description: user and checking permission
+          schema:
+            $ref: '#/components/schemas/UserRoleRequest'
+          example:
+            permission: 'users'
+    responses:
+      200:
+        description: Permission was checked successfully
+        content:
+          application/json:
+            schema:
+              properties:
+              status:
+                type: string
+              message:
+                type: string
+              has_permission:
+                type: boolean
+            examples:
+              approved:
+                value:
+                  status: success
+                  message: permission was checked successfully
+                  has_permission: true
+              disapproved:
+                value:
+                  status: success
+                  message: permission was checked successfully
+                  has_permission: true
+      401:
+        $ref: '#/components/responses/Unauthorized'
+      404:
+        description: The specified resource was not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+            examples:
+              nouser:
+                value:
+                  status: error
+                  message: user not found
+              nopermission:
+                value:
+                  status: error
+                  message: permission not found
+    """
+    # user_id = request.json.get('user_id')
+    permission = request.json.get('permission')
+
     return make_response(
         {
             "message": "permissions checked",
             "status": "success",
-            "has_permissions": True
+            "has_permission": has_permission(None, permission)
         }, HTTPStatus.OK)

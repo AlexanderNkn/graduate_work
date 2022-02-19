@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import INET, UUID
@@ -8,6 +9,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
 from models.base import BaseModel
+
+
+class UserRole(BaseModel):
+    __tablename__ = 'users_roles'
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
+    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
 
 
 def create_partition_user_sign_in(target, connection, **kw) -> None:
@@ -43,6 +51,8 @@ class User(BaseModel):
     data_joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.now())
     terminate_date = db.Column(db.TIMESTAMP())
 
+    roles = db.relationship('Role', secondary=UserRole.__tablename__, lazy=True)
+
     def __repr__(self):
         return f'{self.username}'
 
@@ -63,6 +73,8 @@ class UserData(BaseModel):
     __tablename__ = 'users_data'
 
     user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship(User, backref=db.backref('users_datas', lazy=True))
+
     first_name = db.Column(db.TEXT())
     last_name = db.Column(db.TEXT())
     email = db.Column(db.TEXT())
@@ -84,6 +96,21 @@ class UserDevice(BaseModel):
 
     def __repr__(self):
         return f'{self.ip} {self.user_agent}'
+
+
+class SocialAccount(BaseModel):
+    __tablename__ = 'social_account'
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship(User, backref=db.backref('social_accounts', lazy=True))
+
+    social_id = db.Column(db.Text, nullable=False)
+    social_name = db.Column(db.Text, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('social_id', 'social_name', name='social_pk'),)
+
+    def __repr__(self):
+        return f'<SocialAccount {self.social_name}:{self.user_id}>'
 
 
 class UserSignIn(BaseModel):

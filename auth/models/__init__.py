@@ -1,3 +1,3 @@
-from models.permissions import Permission, RolePermissions  # noqa
-from models.roles import Role, UserRole  # noqa
-from models.users import User, UserData, UserSignIn  # noqa
+from models.permissions import Permission  # noqa
+from models.roles import Role, RolePermissions  # noqa
+from models.users import SocialAccount, User, UserData, UserRole, UserSignIn  # noqa
