@@ -7,11 +7,13 @@ from extensions import db
 from models import User, UserData
 from schemas import user_data_schema
 from utils.common import permission_required, get_tokens
+from utils.jaeger import trace
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
+@trace
 def check_empty_user_password(username, password):
     if not username or not password:
         return make_response(

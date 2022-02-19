@@ -8,8 +8,10 @@ from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
 
 from extensions import db
 from models import Permission, RolePermissions, UserRole, User
+from utils.jaeger import trace
 
 
+@trace
 def get_user_id_by_username(username):
     user = User.query.filter_by(username=username).first()
     if user is not None:
@@ -18,6 +20,7 @@ def get_user_id_by_username(username):
     return user.id
 
 
+@trace
 def get_user_permissions(user_id):
     permissions = db.session.query(
         Permission
@@ -32,6 +35,7 @@ def get_user_permissions(user_id):
     return permissions
 
 
+@trace
 def get_tokens(user_id, token=None):
 
     if token is None:
@@ -56,6 +60,7 @@ def get_tokens(user_id, token=None):
     return access_token, refresh_token
 
 
+@trace
 def permission_required(permission):
     """
     Проверяем наличие у пользователя права на доступ к ресурсу. Это возможно в одном из случаев:

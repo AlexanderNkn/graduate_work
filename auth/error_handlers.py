@@ -16,7 +16,7 @@ def register_500_error(app: Flask, sentry_event: Callable):
         rollback_transaction()
         response = error.get_response()
         response.data = json.dumps({
-            'status': 'success',
+            'status': 'error',
             'message': 'Something went wrong with server',
             'sentry': sentry_event(),
         })
