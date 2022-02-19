@@ -4,7 +4,7 @@ from flask import Flask
 
 from core import config as default_config
 from databases import redis_db
-from extensions import db, jwt, ma
+from extensions import db, jwt, ma, oauth
 
 __all__ = ('create_app',)
 
@@ -18,6 +18,7 @@ def create_app(config=None) -> Flask:
     configure_db(app, config=config.PostgresSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_ma(app)
+    configure_oauth(app, config=config.OAuthGoogleSettings())
     configure_swagger(app)
     configure_cli(app)
     configure_redis(config=config.RedisSettings())
@@ -46,6 +47,20 @@ def configure_jwt(app, config) -> None:
 
 def configure_ma(app) -> None:
     ma.init_app(app)
+
+
+def configure_oauth(app, config) -> None:
+    app.config.from_object(config)
+
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        server_metadata_url=CONF_URL,
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
 
 
 def configure_swagger(app) -> None:

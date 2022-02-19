@@ -1,13 +1,15 @@
+import uuid
 from http import HTTPStatus
 
-from flask import Blueprint, make_response, request, current_app
+from flask import Blueprint, make_response, request, current_app, url_for
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from databases.redis_db import jwt_redis_blocklist
-from extensions import db
-from models import User, UserData
+from extensions import db, oauth
+from models import SocialAccount, User, UserData
 from schemas import user_data_schema
-from utils.common import permission_required, get_tokens
+
+from utils.common import generate_password, get_tokens, permission_required
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
@@ -21,6 +23,44 @@ def check_empty_user_password(username, password):
                 "status": "error"
             }, HTTPStatus.BAD_REQUEST)
     return
+
+
+@blueprint.route('/login_google')
+def login_google():
+    redirect_uri = url_for('auth.auth_google', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri, access_type='offline')
+
+
+@blueprint.route('/auth_google')
+def auth_google():
+    token = oauth.google.authorize_access_token()
+    # user = token.get('userinfo')
+    # oauth.google.get('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', token=token)
+    user = oauth.google.parse_id_token(token)
+    user_email = user['email']
+
+    social_account = SocialAccount.query.filter_by(social_id=user_email, social_name='google').first()
+    if social_account is None:
+        user = User(username=str(uuid.uuid4()), password=generate_password())
+        social_account = SocialAccount(user=user, social_id=user_email, social_name='google')
+        # db.session.add(user)
+        db.session.add(social_account)
+        db.session.commit()
+
+    user_id = social_account.user_id
+
+    access_token, refresh_token = get_tokens(user_id)
+    response = make_response(
+        {
+            "message": "JWT tokens were generated successfully",
+            "status": "success",
+            "tokens": {
+                "access_token": access_token,
+                "refresh_token": refresh_token
+            }
+        }, HTTPStatus.OK)
+
+    return response
 
 
 @blueprint.route('/register', methods=('POST',))
@@ -118,8 +158,8 @@ def login():
               status: success
               message: JWT tokens were generated successfully
               tokens:
-                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIHZlcnkgc21hcnQhIn0.GZvDoQdT9ldwmlPOrZWrpiaHas0DiFmZlytr1dhaxi4
-                refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOiJZb3UgYXJlIGF3ZXNvbWUhIn0.PhRXjIVL1yUhAND4uiE-p6V2rXHQ0drCj9156thJAJg
+                access_token: jwt_access_token
+                refresh_token: jwt_refresh_token
       401:
         description: Unauthorized access
         content:

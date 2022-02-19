@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -37,12 +37,23 @@ class UserData(BaseModel):
     __tablename__ = 'users_data'
 
     user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship(User, backref=db.backref('users_datas', lazy=True))
+
     first_name = db.Column(db.TEXT())
     last_name = db.Column(db.TEXT())
     email = db.Column(db.TEXT())
     birth_date = db.Column(db.TIMESTAMP())
     phone = db.Column(db.TEXT())
     city = db.Column(db.TEXT())
+
+    _default_fields = [
+        "first_name",
+        "last_name",
+        "email",
+        "birth_date",
+        "phone",
+        "city",
+    ]
 
     def __repr__(self):
         return f'{self.first_name} {self.last_name}'
@@ -51,10 +62,25 @@ class UserData(BaseModel):
 class UserDevice(BaseModel):
     __tablename__ = 'users_device'
 
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     ip = db.Column(INET())
     device_key = db.Column(db.TEXT())
     user_agent = db.Column(db.TEXT())
 
     def __repr__(self):
         return f'{self.ip} {self.user_agent}'
+
+
+class SocialAccount(BaseModel):
+    __tablename__ = 'social_account'
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship(User, backref=db.backref('social_accounts', lazy=True))
+
+    social_id = db.Column(db.Text, nullable=False)
+    social_name = db.Column(db.Text, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('social_id', 'social_name', name='social_pk'),)
+
+    def __repr__(self):
+        return f'<SocialAccount {self.social_name}:{self.user_id}>'
