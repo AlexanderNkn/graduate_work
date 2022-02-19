@@ -35,6 +35,8 @@ JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
 SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 
+REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 5))
+
 SWAGGER_CONFIG = {
     "headers": [
     ],
