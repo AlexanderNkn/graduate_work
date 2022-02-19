@@ -9,7 +9,8 @@ from extensions import db, oauth
 from models import SocialAccount, User, UserData
 from schemas import user_data_schema
 
-from utils.common import generate_password, get_tokens, permission_required
+from utils.common import generate_password, get_tokens
+from utils.permissions import permission_required
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
@@ -332,8 +333,8 @@ def change_password(user_id):
                 "message": "resource not found",
                 "status": "error"
             }, HTTPStatus.NOT_FOUND)
-    old_password = request.json.get('old_password')
-    new_password = request.json.get('new_password')
+    old_password = request.json.get('old_password', '')
+    new_password = request.json.get('new_password', '')
 
     if not user.check_password(old_password):
         return make_response(
@@ -341,6 +342,10 @@ def change_password(user_id):
                 "message": "username/password are not valid",
                 "status": "error"
             }, HTTPStatus.UNAUTHORIZED)
+
+    response = check_empty_user_password(user_id, new_password)
+    if response:
+        return response
 
     user.password = new_password
     db.session.add(user)
