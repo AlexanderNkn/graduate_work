@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, request, current_app
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
+from databases.redis_db import jwt_redis_blocklist
 from extensions import db
 from models import User, UserData
 from schemas import user_data_schema
@@ -191,6 +192,8 @@ def logout():
       - write:admin,subscriber,member
     """
     response = make_response({"message": "logout successful"})
+    jti = get_jwt()["jti"]
+    jwt_redis_blocklist().set(jti, "", ex=current_app.config['JWT_ACCESS_TOKEN_EXPIRES'])
     return response
 
 
