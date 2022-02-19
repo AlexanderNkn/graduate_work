@@ -107,12 +107,20 @@ class UserSignIn(BaseModel):
         return f'<UserSignIn {self.user_id}:{self.logined_by}>'
 
     @classmethod
-    def add_user_sign_in(cls, user, user_agent, logined_by=None):
+    def add_user_sign_in(cls, user_agent, logined_by=None, user=None, user_id=None):
         # from flask import request
         # request.headers.get('User-Agent')
         # request.user_agent
 
-        user_sign_in = UserSignIn(user_agent=str(user_agent), logined_by=logined_by, user=user)
+        user_sign_in_data = {
+            'user_agent': str(user_agent),
+            'logined_by': logined_by,
+            'user_id': user_id,
+        }
+        if user:
+            user_sign_in_data['user'] = user
+
+        user_sign_in = UserSignIn(**user_sign_in_data)
         db.session.add(user_sign_in)
         try:
             db.session.commit()

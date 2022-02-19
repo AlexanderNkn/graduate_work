@@ -1,6 +1,8 @@
+from calendar import timegm
+from datetime import datetime, timezone
 from http import HTTPStatus
 
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, request, current_app
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
@@ -162,7 +164,7 @@ def login():
               }
         }, HTTPStatus.OK)
 
-    UserSignIn.add_user_sign_in(user, request.user_agent)
+    UserSignIn.add_user_sign_in(request.user_agent, user=user)
 
     return response
 
@@ -232,6 +234,12 @@ def refresh_token():
                     "message": "user is not exist",
                     "status": "error"
                 }, HTTPStatus.UNAUTHORIZED)
+
+    now = timegm(datetime.now(tz=timezone.utc).utctimetuple())
+    access_expired = token['iat'] + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'].total_seconds()
+
+    if access_expired < now:
+        UserSignIn.add_user_sign_in(request.user_agent, user_id=user_id)
 
     return make_response(
         {
