@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/code
 
-COPY ["../../fast_api", "redis_elastic_waiter.sh", "./"]
+COPY ["requirements.txt", "docker/redis_elastic_waiter.sh", "./"]
 
 RUN apt update && apt install -y netcat gcc \
     && pip install --no-cache-dir -r requirements.txt \
@@ -13,5 +13,7 @@ RUN apt update && apt install -y netcat gcc \
     && chmod +x /usr/src/code/redis_elastic_waiter.sh
 
 ENTRYPOINT ["/usr/src/code/redis_elastic_waiter.sh"]
+
+COPY ["src", "./"]
 
 CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]

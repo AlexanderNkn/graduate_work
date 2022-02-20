@@ -5,10 +5,10 @@ services:
     container_name: film_search
     image: film_search:v2.0
     build:
-      context: .
-      dockerfile: fast_api/docker/Dockerfile
+      context: fast_api
+      dockerfile: docker/Dockerfile
     env_file:
-      - ./envs/.fastapi.env
+      - fast_api/envs/.fastapi.env
     depends_on:
       - es
       - redis
@@ -40,10 +40,10 @@ services:
     container_name: test_fastapi
     image: test_fastapi:v1.0
     build:
-      context: .
-      dockerfile: tests/docker/Dockerfile
+      context: fast_api/tests
+      dockerfile: docker/Dockerfile
     env_file:
-      - ./envs/.fastapi.env
+      - fast_api/envs/.fastapi.env
     depends_on:
       - es
       - redis
