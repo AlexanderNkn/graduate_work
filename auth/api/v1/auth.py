@@ -3,29 +3,16 @@ from calendar import timegm
 from datetime import datetime, timezone
 from http import HTTPStatus
 
-from flask import Blueprint, make_response, request, current_app, url_for
+from flask import Blueprint, current_app, make_response, request, url_for
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db, jwt_redis_blocklist, oauth
 from models import SocialAccount, User, UserData, UserSignIn
 from schemas import user_data_schema, users_sign_in_schema
-
-from utils.common import generate_password, get_tokens
-from utils.jaeger import trace
+from utils.common import check_empty_user_password, generate_password, get_tokens
 from utils.permissions import permission_required
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
-
-
-@trace
-def check_empty_user_password(username, password):
-    if not username or not password:
-        return make_response(
-            {
-                "message": "username/password is empty",
-                "status": "error"
-            }, HTTPStatus.BAD_REQUEST)
-    return
 
 
 @blueprint.route('/login_google')
@@ -37,8 +24,6 @@ def login_google():
 @blueprint.route('/auth_google')
 def auth_google():
     token = oauth.google.authorize_access_token()
-    # user = token.get('userinfo')
-    # oauth.google.get('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', token=token)
     user = oauth.google.parse_id_token(token)
     user_email = user['email']
 

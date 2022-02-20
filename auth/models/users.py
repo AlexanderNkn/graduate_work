@@ -21,7 +21,7 @@ class UserRole(BaseModel):
 def create_partition_user_sign_in(target, connection, **kw) -> None:
     """ creating partition by users_sign_in """
     connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_sign_in_h0" 
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h0"
             PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
     )
     connection.execute(
@@ -29,15 +29,15 @@ def create_partition_user_sign_in(target, connection, **kw) -> None:
             PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 1)"""
     )
     connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_sign_in_h2" 
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h2"
             PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 2)"""
     )
     connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_sign_in_h3" 
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h3"
             PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 3)"""
     )
     connection.execute(
-        """CREATE TABLE IF NOT EXISTS "users_sign_in_h4" 
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h4"
             PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 4)"""
     )
 
@@ -135,9 +135,6 @@ class UserSignIn(BaseModel):
 
     @classmethod
     def add_user_sign_in(cls, user_agent, logined_by=None, user=None, user_id=None):
-        # from flask import request
-        # request.headers.get('User-Agent')
-        # request.user_agent
 
         user_sign_in_data = {
             'user_agent': str(user_agent),

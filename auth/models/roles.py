@@ -19,4 +19,3 @@ class Role(BaseModel):
 
     def __repr__(self):
         return f'({self.code}) {self.description}'
-

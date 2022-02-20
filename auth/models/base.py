@@ -14,4 +14,4 @@ class BaseModel(db.Model):
     updated_at = db.Column(db.TIMESTAMP, nullable=False, default=datetime.datetime.now(), onupdate=datetime.datetime.now())  # noqa
 
     def __repr__(self):
-        return "<{0.__class__.__name__}(id={0.id!r})>".format(self)
+        return f'<{type(self).__name__}(id={self.id})>'

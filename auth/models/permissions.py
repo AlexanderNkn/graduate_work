@@ -9,4 +9,3 @@ class Permission(BaseModel):
 
     def __repr__(self):
         return f'{self.code}'
-

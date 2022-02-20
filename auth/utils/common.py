@@ -1,3 +1,6 @@
+from http import HTTPStatus
+
+from flask import make_response
 from flask_jwt_extended import create_access_token, create_refresh_token
 
 from extensions import db
@@ -5,18 +8,14 @@ from models import Permission, RolePermissions, User, UserRole
 from utils.jaeger import trace
 
 
-@trace
-def get_user_id_by_username(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        raise ValueError('User not exists', username)
-
-    return user.id
-
-
-def get_user_by_username(username):
-    user = User.query.filter_by(username=username).first()
-    return user
+def check_empty_user_password(username, password):
+    if not username or not password:
+        return make_response(
+            {
+                "message": "username/password is empty",
+                "status": "error"
+            }, HTTPStatus.BAD_REQUEST)
+    return
 
 
 def generate_password():

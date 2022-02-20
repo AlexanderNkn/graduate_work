@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from flask import jsonify
 import uuid
 
 import pytest

@@ -574,7 +574,6 @@ def check_permission():
                   status: error
                   message: permission not found
     """
-    # user_id = request.json.get('user_id')
     permission = request.json.get('permission')
 
     return make_response(
