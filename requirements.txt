@@ -13,3 +13,5 @@ sentry-sdk[flask]==1.5.5
 backoff==1.11.1
 jaeger-client==4.8.0
 Flask-OpenTracing==1.1.0
+Flask-Caching==1.10.1
+redis==4.1.4

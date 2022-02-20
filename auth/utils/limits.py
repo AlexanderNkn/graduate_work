@@ -1,13 +1,10 @@
 import datetime
 from hashlib import sha1
 
-import redis
 from flask import request
 from werkzeug.exceptions import TooManyRequests
 
-from core.config import REDIS_HOST, REDIS_PORT
-
-redis_conn = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+from extensions import cache
 
 
 def check_request_id() -> None:
@@ -21,13 +18,17 @@ def check_rate_limit(limit: int) -> None:
     ip = request.remote_addr
     user_agent = request.user_agent.string
     user_identity = sha1((ip + user_agent).encode()).hexdigest()
-
-    pipe = redis_conn.pipeline()
     now = datetime.datetime.now()
     key = f'{user_identity}:{now.minute}'
-    pipe.incr(key, 1)
-    pipe.expire(key, 59)
-    result = pipe.execute()
-    request_number = result[0]
+
+    # explicit call redis backend to have possibility to use inc() method
+    redis_cache = cache.cache
+    request_number = redis_cache.get(key)
+    if request_number is None:
+        redis_cache.set(key=key, value=1, timeout=59)
+        request_number = 1
+    # increment key at once to get actual request_number on next request
+    redis_cache.inc(key)
+
     if request_number > limit:
         raise TooManyRequests

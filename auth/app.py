@@ -10,7 +10,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
 from core import config as default_config
-from extensions import db, jwt, ma
+from extensions import cache, db, jwt, ma
 
 __all__ = ('create_app',)
 
@@ -24,15 +24,16 @@ def create_app(config=default_config) -> Flask:
     )
     app = Flask(__name__, instance_relative_config=True)
 
-    configure_before_request(app, config)
     configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
+    configure_cache(app, config=config.RedisSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_ma(app)
     configure_swagger(app, config=config.SWAGGER_CONFIG)
     configure_cli(app)
     configure_errors(app, event=sentry_sdk.last_event_id)
     configure_jaeger(app, jaeger_config=config.JAEGER_CONFIG)
+    configure_before_request(app, config)
 
     return app
 
@@ -43,6 +44,11 @@ def configure_db(app, config) -> None:
     db.init_app(app)
     app.app_context().push()
     db.create_all()
+
+
+def configure_cache(app, config) -> None:
+    app.config.from_object(config)
+    cache.init_app(app)
 
 
 def configure_jwt(app, config) -> None:

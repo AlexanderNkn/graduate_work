@@ -35,7 +35,7 @@ JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
 SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 
-REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 5))
+REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 30))
 
 SWAGGER_CONFIG = {
     "headers": [
@@ -85,4 +85,5 @@ class PostgresSettings(BaseSettings):
 
 
 class RedisSettings(BaseSettings):
-    REDIS_URI: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')
+    CACHE_TYPE: str = Field('RedisCache')
+    CACHE_REDIS_URL: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')
