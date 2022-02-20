@@ -10,8 +10,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
 from core import config as default_config
-from databases import redis_db
-from extensions import cache, db, jwt, ma, oauth
+from extensions import cache, db, jwt, jwt_redis_blocklist, ma, oauth
 
 __all__ = ('create_app',)
 
@@ -33,7 +32,6 @@ def create_app(config=default_config) -> Flask:
     configure_oauth(app, config=config.OAuthGoogleSettings())
     configure_swagger(app, config=config.SWAGGER_CONFIG)
     configure_cli(app)
-    configure_redis(config=config.RedisSettings())
     configure_errors(app, event=sentry_sdk.last_event_id)
     configure_jaeger(app, jaeger_config=config.JAEGER_CONFIG)
     configure_before_request(app, config)
@@ -62,7 +60,7 @@ def configure_jwt(app, config) -> None:
     @jwt.token_in_blocklist_loader
     def check_if_token_is_revoked(jwt_header, jwt_payload):
         jti = jwt_payload["jti"]
-        token_in_redis = redis_db.jwt_redis_blocklist().get(jti)
+        token_in_redis = jwt_redis_blocklist.get(jti)
         return token_in_redis is not None
 
     from flask import jsonify
@@ -108,10 +106,6 @@ def configure_oauth(app, config) -> None:
 
 def configure_swagger(app, config) -> None:
     Swagger(app, config=config, template_file='definitions.yml')
-
-
-def configure_redis(config) -> None:
-    redis_db.redis = redis_db.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0, decode_responses=True)
 
 
 def configure_blueprints(app) -> None:
@@ -168,6 +162,7 @@ def configure_cli(app):
         db.session.add_all(objects)
         db.session.commit()
 
+
 def configure_errors(app, event) -> None:
     from error_handlers import register_500_error, register_429_error
     register_500_error(app, sentry_event=event)
@@ -197,4 +192,3 @@ def configure_jaeger(app, jaeger_config) -> None:
         return tracer
 
     FlaskTracer(tracer=setup_jaeger, app=app)
-

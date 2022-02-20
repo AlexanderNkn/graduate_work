@@ -9,3 +9,6 @@ db = SQLAlchemy()
 ma = Marshmallow()
 oauth = OAuth()
 cache = Cache()
+
+# cache alias for flask-jwt-extended
+jwt_redis_blocklist = cache

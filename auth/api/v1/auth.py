@@ -6,8 +6,7 @@ from http import HTTPStatus
 from flask import Blueprint, make_response, request, current_app, url_for
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
-from databases.redis_db import jwt_redis_blocklist
-from extensions import db, oauth
+from extensions import db, jwt_redis_blocklist, oauth
 from models import SocialAccount, User, UserData, UserSignIn
 from schemas import user_data_schema, users_sign_in_schema
 
@@ -236,9 +235,13 @@ def logout():
     - jwt_auth:
       - write:admin,subscriber,member
     """
-    response = make_response({"message": "logout successful"})
-    jti = get_jwt()["jti"]
-    jwt_redis_blocklist().set(jti, "", ex=current_app.config['JWT_ACCESS_TOKEN_EXPIRES'])
+    jti = get_jwt()['jti']
+    jwt_redis_blocklist.set(jti, '', timeout=current_app.config['JWT_ACCESS_TOKEN_EXPIRES'])
+    response = make_response(
+        {
+          'status': 'success',
+          'message': 'User logout successfull',
+        }, HTTPStatus.OK)
     return response
 
 
