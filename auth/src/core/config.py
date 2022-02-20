@@ -24,7 +24,7 @@ POSTGRES_OPTIONS = os.getenv('POSTGRES_OPTIONS', '-c search_path=users')
 
 FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
 FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
-BASE_URL = os.getenv('BASE_URL', '/api/v1')
+BASE_URL = os.getenv('BASE_URL', '/auth-api/v1')
 
 JAEGER_REPORTING_HOST = os.getenv('JAEGER_REPORTING_HOST', '127.0.0.1')
 JAEGER_REPORTING_PORT = int(os.getenv('JAEGER_REPORTING_PORT', 6831))
@@ -56,7 +56,7 @@ SWAGGER_CONFIG = {
     "static_url_path": "/flasgger_static",
     "swagger_ui": True,
     "specs_route": "/openapi/",
-    "url_prefix": "/api",
+    "url_prefix": "/auth-api",
 }
 
 JAEGER_CONFIG = {

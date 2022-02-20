@@ -20,7 +20,7 @@ class TestLOGINController(BaseTestCase):
         """
         body = Credentials()
         response = self.client.open(
-            '/api/v1/auth/login',
+            '/auth-api/v1/auth/login',
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

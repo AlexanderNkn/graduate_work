@@ -19,7 +19,7 @@ class TestPERMISSIONLISTController(BaseTestCase):
         Endpoint to get all permissions
         """
         response = self.client.open(
-            '/api/v1/permission',
+            '/auth-api/v1/permission',
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

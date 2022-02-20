@@ -20,7 +20,7 @@ class TestASSIGNROLESController(BaseTestCase):
         """
         body = UserRoleRequest()
         response = self.client.open(
-            '/api/v1/assign-roles',
+            '/auth-api/v1/assign-roles',
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

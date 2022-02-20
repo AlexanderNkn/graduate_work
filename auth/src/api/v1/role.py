@@ -8,7 +8,7 @@ from models import Role, UserRole, Permission
 from schemas import role_schema, user_role_schema, permission_schema
 from utils.permissions import permission_required, has_permission
 
-blueprint = Blueprint('role', __name__, url_prefix='/api/v1')
+blueprint = Blueprint('role', __name__, url_prefix='/auth-api/v1')
 
 
 @blueprint.route('/permission', methods=('GET', ))

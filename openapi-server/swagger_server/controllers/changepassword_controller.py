@@ -6,7 +6,7 @@ from swagger_server.models.response import Response  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_auth_change_password_user_id_patch(user_id, body=None):  # noqa: E501
+def auth_api_v1_auth_change_password_user_id_patch(user_id, body=None):  # noqa: E501
     """Endpoint to change forgotten password
 
     Change user password # noqa: E501

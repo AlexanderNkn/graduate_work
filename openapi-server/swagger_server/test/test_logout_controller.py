@@ -18,7 +18,7 @@ class TestLOGOUTController(BaseTestCase):
         Endpoint to logout user
         """
         response = self.client.open(
-            '/api/v1/auth/logout',
+            '/auth-api/v1/auth/logout',
             method='POST')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

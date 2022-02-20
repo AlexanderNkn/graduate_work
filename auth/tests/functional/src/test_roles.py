@@ -27,7 +27,7 @@ def create_role(session):
 def test_get_role_list(create_role, headers_with_admin_access, client, roles_list, session):
     create_role(roles_list)
     response = client.get(
-        'api/v1/role',
+        'auth-api/v1/role',
         headers=headers_with_admin_access,
         )
     assert response.status_code == HTTPStatus.OK
@@ -36,7 +36,7 @@ def test_get_role_list(create_role, headers_with_admin_access, client, roles_lis
 
 def test_create_role(client, headers_with_admin_access, session):
     response = client.post(
-        'api/v1/role',
+        'auth-api/v1/role',
         json={'code': 'test_role', 'description': 'for test'},
         headers=headers_with_admin_access
     )
@@ -45,7 +45,7 @@ def test_create_role(client, headers_with_admin_access, session):
 
 def test_create_role_without_admin_permission(client, headers_with_user_access, session):
     response = client.post(
-        'api/v1/role',
+        'auth-api/v1/role',
         json={'code': 'test_role', 'description': 'for test'},
         headers=headers_with_user_access)
     assert response.status_code == HTTPStatus.FORBIDDEN
@@ -54,7 +54,7 @@ def test_create_role_without_admin_permission(client, headers_with_user_access, 
 def test_get_role_by_id(create_role, client, roles_list, headers_with_admin_access, role_by_id_expected, session):
     create_role(roles_list)
     response = client.get(
-        'api/v1/role/a9c6e8da-f2bf-458a-978b-d2f50a031451',
+        'auth-api/v1/role/a9c6e8da-f2bf-458a-978b-d2f50a031451',
         headers=headers_with_admin_access,
     )
     assert response.status_code == HTTPStatus.OK
@@ -62,14 +62,14 @@ def test_get_role_by_id(create_role, client, roles_list, headers_with_admin_acce
 
 
 def test_get_non_existing_role_by_id(client, session):
-    response = client.get('api/v1/role/444433332222')
+    response = client.get('auth-api/v1/role/444433332222')
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 def test_chage_role_details(create_role, client, roles_list, headers_with_admin_access, role_by_id_expected, session):
     create_role(roles_list)
     response = client.patch(
-        'api/v1/role/a9c6e8da-f2bf-458a-978b-d2f50a031451',
+        'auth-api/v1/role/a9c6e8da-f2bf-458a-978b-d2f50a031451',
         json={'code': 'admin', 'description': 'unlimited access to all actions'},
         headers=headers_with_admin_access,
     )
@@ -80,7 +80,7 @@ def test_chage_role_details(create_role, client, roles_list, headers_with_admin_
 def test_delete_role(create_role, client, roles_list, headers_with_admin_access, session):
     create_role(roles_list)
     response = client.delete(
-        'api/v1/role/7cf56926-054c-4522-ac6f-d9f5d0e9d18e',
+        'auth-api/v1/role/7cf56926-054c-4522-ac6f-d9f5d0e9d18e',
         headers=headers_with_admin_access
     )
     assert response.status_code == HTTPStatus.NO_CONTENT
@@ -89,7 +89,7 @@ def test_delete_role(create_role, client, roles_list, headers_with_admin_access,
 def test_delete_role_without_admin_permissions(create_role, client, roles_list, headers_with_user_access, session):
     create_role(roles_list)
     response = client.delete(
-        'api/v1/role/7cf56926-054c-4522-ac6f-d9f5d0e9d18e',
+        'auth-api/v1/role/7cf56926-054c-4522-ac6f-d9f5d0e9d18e',
         headers=headers_with_user_access
     )
     assert response.status_code == HTTPStatus.FORBIDDEN
@@ -101,7 +101,7 @@ def test_assign_roles(create_role, client, roles_list, login_user, session):
     role_ids = [uuid.UUID(key['id']) for key in roles_list]
     access_token = tokens['access_token']
     response = client.post(
-        'api/v1/assign-roles',
+        'auth-api/v1/assign-roles',
         json={
             'user_id': user.id,
             'role_ids': role_ids
@@ -117,7 +117,7 @@ def test_assign_roles_without_admin_permissions(create_role, client, roles_list,
     role_ids = [uuid.UUID(key['id']) for key in roles_list]
     access_token = tokens['access_token']
     response = client.post(
-        'api/v1/assign-roles',
+        'auth-api/v1/assign-roles',
         json={
             'user_id': user.id,
             'role_ids': role_ids
@@ -129,7 +129,7 @@ def test_assign_roles_without_admin_permissions(create_role, client, roles_list,
 
 def test_check_roles(client, headers_with_admin_access, session):
     response = client.post(
-        'api/v1/check-roles',
+        'auth-api/v1/check-roles',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [
@@ -143,7 +143,7 @@ def test_check_roles(client, headers_with_admin_access, session):
 
 def test_check_roles_without_admin_permission(client, headers_with_user_access, session):
     response = client.post(
-        'api/v1/check-roles',
+        'auth-api/v1/check-roles',
         json={
             "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
             "role_ids": [

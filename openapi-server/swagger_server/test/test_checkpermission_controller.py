@@ -21,7 +21,7 @@ class TestCHECKPERMISSIONController(BaseTestCase):
         """
         body = UserRoleRequest()
         response = self.client.open(
-            '/api/v1/check-permission',
+            '/auth-api/v1/check-permission',
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

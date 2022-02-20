@@ -20,7 +20,7 @@ class TestCHANGEROLEDETAILSController(BaseTestCase):
         """
         body = Role()
         response = self.client.open(
-            '/api/v1/role/{role_id}'.format(role_id='role_id_example'),
+            '/auth-api/v1/role/{role_id}'.format(role_id='role_id_example'),
             method='PATCH',
             data=json.dumps(body),
             content_type='application/json')

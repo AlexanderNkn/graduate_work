@@ -18,7 +18,7 @@ class TestREFRESHTOKENController(BaseTestCase):
         Endoint to refresh expired tokens
         """
         response = self.client.open(
-            '/api/v1/auth/refresh-token',
+            '/auth-api/v1/auth/refresh-token',
             method='POST')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

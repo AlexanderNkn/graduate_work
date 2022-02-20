@@ -17,7 +17,7 @@ POSTGRES_OPTIONS_TEST = os.getenv('POSTGRES_OPTIONS_TEST', '-c search_path=users
 
 FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
 FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
-BASE_URL = os.getenv('BASE_URL', '/api/v1')
+BASE_URL = os.getenv('BASE_URL', '/auth-api/v1')
 
 JWT_SECRET_KEY_TEST = os.getenv('JWT_SECRET_KEY_TEST', 'super-secret')
 JWT_ACCESS_TOKEN_EXPIRES_TEST = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_TEST_SECONDS', 300)  # 5 min

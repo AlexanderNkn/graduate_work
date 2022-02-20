@@ -5,13 +5,13 @@ info:
 servers:
 - url: /
 paths:
-  /api/v1/assign-roles:
+  /auth-api/v1/assign-roles:
     post:
       tags:
       - ASSIGN_ROLES
       summary: Endpoint to assign roles to user
       description: Assign roles to user
-      operationId: api_v1_assign_roles_post
+      operationId: auth_api_v1_assign_roles_post
       requestBody:
         content:
           application/json:
@@ -83,13 +83,13 @@ paths:
         - write:admin
         - read:admin
       x-openapi-router-controller: swagger_server.controllers.assignroles_controller
-  /api/v1/auth/change-password/{user_id}:
+  /auth-api/v1/auth/change-password/{user_id}:
     patch:
       tags:
       - CHANGE_PASSWORD
       summary: Endpoint to change forgotten password
       description: Change user password
-      operationId: api_v1_auth_change_password_user_id_patch
+      operationId: auth_api_v1_auth_change_password_user_id_patch
       parameters:
       - name: user_id
         in: path
@@ -155,13 +155,13 @@ paths:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.changepassword_controller
-  /api/v1/auth/login:
+  /auth-api/v1/auth/login:
     post:
       tags:
       - LOGIN
       summary: Endpoint for user login
       description: Get JWT tokens after login
-      operationId: api_v1_auth_login_post
+      operationId: auth_api_v1_auth_login_post
       requestBody:
         content:
           application/json:
@@ -193,13 +193,13 @@ paths:
                 message: username or password are not correct
                 status: error
       x-openapi-router-controller: swagger_server.controllers.login_controller
-  /api/v1/auth/login-history/{user_id}:
+  /auth-api/v1/auth/login-history/{user_id}:
     get:
       tags:
       - LOGIN_HISTORY
       summary: Endpoint to get history of user logouts
       description: info about user login
-      operationId: api_v1_auth_login_history_user_id_get
+      operationId: auth_api_v1_auth_login_history_user_id_get
       parameters:
       - name: user_id
         in: path
@@ -266,13 +266,13 @@ paths:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.loginhistory_controller
-  /api/v1/auth/logout:
+  /auth-api/v1/auth/logout:
     post:
       tags:
       - LOGOUT
       summary: Endpoint to logout user
       description: User logout
-      operationId: api_v1_auth_logout_post
+      operationId: auth_api_v1_auth_logout_post
       responses:
         "200":
           description: Logout successfull
@@ -302,13 +302,13 @@ paths:
       - jwt_auth:
         - "write:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.logout_controller
-  /api/v1/auth/personal-data/{user_id}:
+  /auth-api/v1/auth/personal-data/{user_id}:
     post:
       tags:
       - ADD_PERSONAL_DATA
       summary: Endpoint for user to add personal data
       description: Additional info about user
-      operationId: api_v1_auth_personal_data_user_id_post
+      operationId: auth_api_v1_auth_personal_data_user_id_post
       parameters:
       - name: user_id
         in: path
@@ -383,7 +383,7 @@ paths:
       - DELETE_PERSONAL_DATA
       summary: Endpoint to delete user personal data
       description: Additional info about user
-      operationId: api_v1_auth_personal_data_user_id_delete
+      operationId: auth_api_v1_auth_personal_data_user_id_delete
       parameters:
       - name: user_id
         in: path
@@ -446,7 +446,7 @@ paths:
       - CHANGE_PERSONAL_DATA
       summary: Endpoint for user to change data
       description: Additional info about user
-      operationId: api_v1_auth_personal_data_user_id_patch
+      operationId: auth_api_v1_auth_personal_data_user_id_patch
       parameters:
       - name: user_id
         in: path
@@ -516,13 +516,13 @@ paths:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.changepersonaldata_controller
-  /api/v1/auth/refresh-token:
+  /auth-api/v1/auth/refresh-token:
     post:
       tags:
       - REFRESH_TOKEN
       summary: Endoint to refresh expired tokens
       description: Refresh expired tokens
-      operationId: api_v1_auth_refresh_token_post
+      operationId: auth_api_v1_auth_refresh_token_post
       responses:
         "200":
           description: New tokens were generated
@@ -552,13 +552,13 @@ paths:
       - jwt_auth:
         - "write:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.refreshtoken_controller
-  /api/v1/auth/register:
+  /auth-api/v1/auth/register:
     post:
       tags:
       - REGISTRATION
       summary: Endpoint to register new account
       description: Create new user account
-      operationId: api_v1_auth_register_post
+      operationId: auth_api_v1_auth_register_post
       requestBody:
         content:
           application/json:
@@ -587,13 +587,13 @@ paths:
                 message: The username is already in use
                 status: error
       x-openapi-router-controller: swagger_server.controllers.registration_controller
-  /api/v1/check-permission:
+  /auth-api/v1/check-permission:
     post:
       tags:
       - CHECK_PERMISSION
       summary: Endpoint to check user permissions
       description: check if user belongs to specified permission
-      operationId: api_v1_check_permission_post
+      operationId: auth_api_v1_check_permission_post
       requestBody:
         content:
           application/json:
@@ -650,13 +650,13 @@ paths:
                     message: user not found
                     status: error
       x-openapi-router-controller: swagger_server.controllers.checkpermission_controller
-  /api/v1/check-roles:
+  /auth-api/v1/check-roles:
     post:
       tags:
       - CHECK_ROLES
       summary: Endpoint to check user roles
       description: check if user belongs to specified roles
-      operationId: api_v1_check_roles_post
+      operationId: auth_api_v1_check_roles_post
       requestBody:
         content:
           application/json:
@@ -729,13 +729,13 @@ paths:
         - write:admin
         - read:admin
       x-openapi-router-controller: swagger_server.controllers.checkroles_controller
-  /api/v1/permission:
+  /auth-api/v1/permission:
     get:
       tags:
       - PERMISSION_LIST
       summary: Endpoint to get all permissions
       description: List of all available permissions
-      operationId: api_v1_permission_get
+      operationId: auth_api_v1_permission_get
       responses:
         "200":
           description: List of permissions is available
@@ -790,13 +790,13 @@ paths:
                 message: resource not found
                 status: error
       x-openapi-router-controller: swagger_server.controllers.permissionlist_controller
-  /api/v1/role:
+  /auth-api/v1/role:
     get:
       tags:
       - ROLE_LIST
       summary: Endpoint to get all roles
       description: List of all available roles
-      operationId: api_v1_role_get
+      operationId: auth_api_v1_role_get
       responses:
         "200":
           description: List of roles is available
@@ -856,7 +856,7 @@ paths:
       - CREATE_ROLE
       summary: Endpoint to create new role
       description: Create new role
-      operationId: api_v1_role_post
+      operationId: auth_api_v1_role_post
       requestBody:
         content:
           application/json:
@@ -908,13 +908,13 @@ paths:
         - write:admin
         - read:admin
       x-openapi-router-controller: swagger_server.controllers.createrole_controller
-  /api/v1/role/{role_id}:
+  /auth-api/v1/role/{role_id}:
     get:
       tags:
       - ROLE_DETAILS
       summary: Get role detailes
       description: detailed info about role
-      operationId: api_v1_role_role_id_get
+      operationId: auth_api_v1_role_role_id_get
       parameters:
       - name: role_id
         in: path
@@ -979,7 +979,7 @@ paths:
       - DELETE_ROLE
       summary: Endpoint to delete role
       description: delete role
-      operationId: api_v1_role_role_id_delete
+      operationId: auth_api_v1_role_role_id_delete
       parameters:
       - name: role_id
         in: path
@@ -1044,7 +1044,7 @@ paths:
       - CHANGE_ROLE_DETAILS
       summary: Endpoint to change role
       description: change role info
-      operationId: api_v1_role_role_id_patch
+      operationId: auth_api_v1_role_role_id_patch
       parameters:
       - name: role_id
         in: path

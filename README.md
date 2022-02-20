@@ -39,10 +39,10 @@ https://github.com/AlexanderNkn/Auth_sprint_2
 ### Примеры запросов
 - логин пользователя
     ```
-    /api/v1/auth/login
+    /auth-api/v1/auth/login
     ```
     ```
-    curl -X POST "http://localhost/api/v1/auth/login" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"password\":12345,\"username\":\"yandex\"}"
+    curl -X POST "http://localhost/auth-api/v1/auth/login" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"password\":12345,\"username\":\"yandex\"}"
 
     401	Error: Unauthorized
 
@@ -53,10 +53,10 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     ```
 - изменить роль пользователя
     ```
-    /api/v1/role/<uuid:user_id>
+    /auth-api/v1/role/<uuid:user_id>
     ```
     ```
-    curl -X PATCH "http://localhost/api/v1/role/<uuid:role_id>" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"code\":\"admin\",\"description\":\"unlimited access to all actions\"}"
+    curl -X PATCH "http://localhost/auth-api/v1/role/<uuid:role_id>" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"code\":\"admin\",\"description\":\"unlimited access to all actions\"}"
 
     200	info about role was changed successfully
 
@@ -141,5 +141,5 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     ```
 - на сервисе auth доступна локальная копия документации по адресу
     ```
-    http://localhost/api/openapi
+    http://localhost/auth-api/openapi
     ```

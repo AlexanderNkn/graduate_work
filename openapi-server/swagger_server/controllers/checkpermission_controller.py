@@ -7,7 +7,7 @@ from swagger_server.models.user_role_request import UserRoleRequest  # noqa: E50
 from swagger_server import util
 
 
-def api_v1_check_permission_post(body=None):  # noqa: E501
+def auth_api_v1_check_permission_post(body=None):  # noqa: E501
     """Endpoint to check user permissions
 
     check if user belongs to specified permission # noqa: E501

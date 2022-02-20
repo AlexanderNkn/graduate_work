@@ -224,7 +224,7 @@ info:
   version: '2.0'
 openapi: 3.0.2
 paths:
-  /api/v1/assign-roles:
+  /auth-api/v1/assign-roles:
     post:
       description: Assign roles to user
       requestBody:
@@ -283,7 +283,7 @@ paths:
       summary: Endpoint to assign roles to user
       tags:
         - ASSIGN_ROLES
-  /api/v1/auth/change-password/{user_id}:
+  /auth-api/v1/auth/change-password/{user_id}:
     patch:
       description: Change user password
       parameters:
@@ -324,7 +324,7 @@ paths:
       summary: Endpoint to change forgotten password
       tags:
         - CHANGE_PASSWORD
-  /api/v1/auth/login:
+  /auth-api/v1/auth/login:
     post:
       description: Get JWT tokens after login
       requestBody:
@@ -363,7 +363,7 @@ paths:
       summary: Endpoint for user login
       tags:
         - LOGIN
-  /api/v1/auth/login-history/{user_id}:
+  /auth-api/v1/auth/login-history/{user_id}:
     get:
       description: info about user login
       parameters:
@@ -412,7 +412,7 @@ paths:
       summary: Endpoint to get history of user logouts
       tags:
         - LOGIN_HISTORY
-  /api/v1/auth/logout:
+  /auth-api/v1/auth/logout:
     post:
       description: User logout
       responses:
@@ -433,7 +433,7 @@ paths:
       summary: Endpoint to logout user
       tags:
         - LOGOUT
-  /api/v1/auth/personal-data/{user_id}:
+  /auth-api/v1/auth/personal-data/{user_id}:
     delete:
       description: Additional info about user
       parameters:
@@ -554,7 +554,7 @@ paths:
       summary: Endpoint for user to add personal data
       tags:
         - ADD_PERSONAL_DATA
-  /api/v1/auth/refresh-token:
+  /auth-api/v1/auth/refresh-token:
     post:
       description: Refresh expired tokens
       responses:
@@ -575,7 +575,7 @@ paths:
       summary: Endoint to refresh expired tokens
       tags:
         - REFRESH_TOKEN
-  /api/v1/auth/register:
+  /auth-api/v1/auth/register:
     post:
       description: Create new user account
       requestBody:
@@ -608,7 +608,7 @@ paths:
       summary: Endpoint to register new account
       tags:
         - REGISTRATION
-  /api/v1/check-permission:
+  /auth-api/v1/check-permission:
     post:
       description: check if user belongs to specified permission
       requestBody:
@@ -662,7 +662,7 @@ paths:
       summary: Endpoint to check user permissions
       tags:
         - CHECK_PERMISSION
-  /api/v1/check-roles:
+  /auth-api/v1/check-roles:
     post:
       description: check if user belongs to specified roles
       requestBody:
@@ -725,7 +725,7 @@ paths:
       summary: Endpoint to check user roles
       tags:
         - CHECK_ROLES
-  /api/v1/permission:
+  /auth-api/v1/permission:
     get:
       description: List of all available permissions
       responses:
@@ -757,7 +757,7 @@ paths:
       summary: Endpoint to get all permissions
       tags:
         - PERMISSION_LIST
-  /api/v1/role:
+  /auth-api/v1/role:
     get:
       description: List of all available roles
       responses:
@@ -827,7 +827,7 @@ paths:
       summary: Endpoint to create new role
       tags:
         - CREATE_ROLE
-  /api/v1/role/{role_id}:
+  /auth-api/v1/role/{role_id}:
     delete:
       description: delete role
       parameters:

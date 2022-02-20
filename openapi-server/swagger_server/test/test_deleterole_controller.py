@@ -18,7 +18,7 @@ class TestDELETEROLEController(BaseTestCase):
         Endpoint to delete role
         """
         response = self.client.open(
-            '/api/v1/role/{role_id}'.format(role_id='role_id_example'),
+            '/auth-api/v1/role/{role_id}'.format(role_id='role_id_example'),
             method='DELETE')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

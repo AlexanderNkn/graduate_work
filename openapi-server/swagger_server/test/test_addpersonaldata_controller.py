@@ -20,7 +20,7 @@ class TestADDPERSONALDATAController(BaseTestCase):
         """
         body = UserData()
         response = self.client.open(
-            '/api/v1/auth/add-personal-data/{user_id}'.format(user_id='user_id_example'),
+            '/auth-api/v1/auth/add-personal-data/{user_id}'.format(user_id='user_id_example'),
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

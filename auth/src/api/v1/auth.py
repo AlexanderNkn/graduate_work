@@ -12,7 +12,7 @@ from schemas import user_data_schema, users_sign_in_schema
 from utils.common import check_empty_user_password, generate_password, get_tokens
 from utils.permissions import permission_required
 
-blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+blueprint = Blueprint('auth', __name__, url_prefix='/auth-api/v1/auth')
 
 
 @blueprint.route('/login_google')

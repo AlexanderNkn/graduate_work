@@ -68,7 +68,7 @@ def login_user(client, create_user):
         user = create_user(username, password, **kwargs)
         body = json.dumps({'username': username, 'password': password})
         response = client.post(
-            '/api/v1/auth/login',
+            '/auth-api/v1/auth/login',
             data=body,
             content_type='application/json',
         )
