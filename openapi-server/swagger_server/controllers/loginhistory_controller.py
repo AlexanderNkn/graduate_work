@@ -6,7 +6,7 @@ from swagger_server import util
 
 
 def api_v1_auth_login_history_user_id_get(user_id):  # noqa: E501
-    """Endoint to get history of user logouts
+    """Endpoint to get history of user logouts
 
     info about user login # noqa: E501
 

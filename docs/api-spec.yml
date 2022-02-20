@@ -69,6 +69,24 @@ components:
         - new_password
       title: Passwords
       type: object
+    Permission:
+      properties:
+        code:
+          title: permission name
+          type: string
+        description:
+          title: permission detailed description
+          type: string
+        id:
+          title: permission uuid
+          type: string
+      title: Permission
+    PermissionList:
+      items:
+        $ref: '#/components/schemas/Permission'
+        type: object
+      title: PermissionList
+      type: array
     Response:
       properties:
         message:
@@ -265,51 +283,6 @@ paths:
       summary: Endpoint to assign roles to user
       tags:
         - ASSIGN_ROLES
-  /api/v1/auth/add-personal-data/{user_id}:
-    post:
-      description: Additional info about user
-      parameters:
-        - description: User id to add/change/delete personal data
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
-              city: Cambridge
-              email: matt@damon.com
-              first_name: Matt
-              last_name: Damon
-              phone: 71234567
-            schema:
-              $ref: '#/components/schemas/UserData'
-      responses:
-        '201':
-          content:
-            application/json:
-              example:
-                message: user personal was data added successfully
-                status: success
-              schema:
-                $ref: '#/components/schemas/Response'
-          description: User data was added successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - jwt_auth:
-            - write:admin,subscriber,member
-            - read:admin,subscriber,member
-      summary: Endpoint for user to add personal data
-      tags:
-        - ADD_PERSONAL_DATA
   /api/v1/auth/change-password/{user_id}:
     patch:
       description: Change user password
@@ -351,84 +324,6 @@ paths:
       summary: Endpoint to change forgotten password
       tags:
         - CHANGE_PASSWORD
-  /api/v1/auth/change-personal-data/{user_id}:
-    patch:
-      description: Additional info about user
-      parameters:
-        - description: User id to add/change/delete personal data
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
-              city: Cambridge
-              email: matt@damon.com
-              first_name: Matt
-              last_name: Damon
-              phone: 71234567
-            schema:
-              $ref: '#/components/schemas/UserData'
-      responses:
-        '200':
-          content:
-            application/json:
-              example:
-                message: user personal data was changed successfully
-                status: success
-              schema:
-                $ref: '#/components/schemas/Response'
-          description: User data was changed successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - jwt_auth:
-            - write:admin,subscriber,member
-            - read:admin,subscriber,member
-      summary: Endpoint for user to change data
-      tags:
-        - CHANGE_PERSONAL_DATA
-  /api/v1/auth/delete-personal-data/{user_id}:
-    delete:
-      description: Additional info about user
-      parameters:
-        - description: User id to add/change/delete personal data
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          content:
-            application/json:
-              example:
-                message: user personal data was deleted successfully
-                status: success
-              schema:
-                $ref: '#/components/schemas/Response'
-          description: User data was deleted successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - jwt_auth:
-            - write:admin,subscriber,member
-            - read:admin,subscriber,member
-      summary: Endpoint to delete user personal data
-      tags:
-        - DELETE_PERSONAL_DATA
   /api/v1/auth/login:
     post:
       description: Get JWT tokens after login
@@ -484,22 +379,18 @@ paths:
             application/json:
               example:
                 history:
-                  - device:
-                      created_at: Mon, 15 Feb 2021 00:00:00 GMT
-                      ip: 89.100.100.100
-                      user_agent: >-
-                        Mozilla/5.0 (Windows NT 10.0; Win64; x64)
-                        AppleWebKit/537.36 (KHTML, like Gecko)
-                        Chrome/97.0.4692.99 Safari/537.36
-                    login_date: Sun, 06 Feb 2022 00:00:00 GMT
-                  - device:
-                      created_at: Mon, 15 Feb 2021 00:00:00 GMT
-                      ip: 89.100.100.100
-                      user_agent: >-
-                        Mozilla/5.0 (Windows NT 10.0; Win64; x64)
-                        AppleWebKit/537.36 (KHTML, like Gecko)
-                        Chrome/97.0.4692.99 Safari/537.36
-                    login_date: Fri, 04 Feb 2022 00:00:00 GMT
+                  - logined_by: Fri, 18 Feb 2022 16:17:01 GMT
+                    user_agent: >-
+                      Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                      AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99
+                      Safari/537.36
+                    user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
+                  - logined_by: Mon, 14 Feb 2022 16:05:16 GMT
+                    user_agent: >-
+                      Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                      AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99
+                      Safari/537.36
+                    user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
                 message: user login history is available
                 status: success
               schema:
@@ -518,7 +409,7 @@ paths:
         - jwt_auth:
             - write:admin,subscriber,member
             - read:admin,subscriber,member
-      summary: Endoint to get history of user logouts
+      summary: Endpoint to get history of user logouts
       tags:
         - LOGIN_HISTORY
   /api/v1/auth/logout:
@@ -542,6 +433,127 @@ paths:
       summary: Endpoint to logout user
       tags:
         - LOGOUT
+  /api/v1/auth/personal-data/{user_id}:
+    delete:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              example:
+                message: user personal data was deleted successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint to delete user personal data
+      tags:
+        - DELETE_PERSONAL_DATA
+    patch:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
+              city: Cambridge
+              email: matt@damon.com
+              first_name: Matt
+              last_name: Damon
+              phone: 71234567
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                message: user personal data was changed successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was changed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint for user to change data
+      tags:
+        - CHANGE_PERSONAL_DATA
+    post:
+      description: Additional info about user
+      parameters:
+        - description: User id to add/change/delete personal data
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              birth_date: Thu, 08 Oct 1970 00:00:00 GMT
+              city: Cambridge
+              email: matt@damon.com
+              first_name: Matt
+              last_name: Damon
+              phone: 71234567
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                message: user personal was data added successfully
+                status: success
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: User data was added successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - jwt_auth:
+            - write:admin,subscriber,member
+            - read:admin,subscriber,member
+      summary: Endpoint for user to add personal data
+      tags:
+        - ADD_PERSONAL_DATA
   /api/v1/auth/refresh-token:
     post:
       description: Refresh expired tokens
@@ -596,7 +608,61 @@ paths:
       summary: Endpoint to register new account
       tags:
         - REGISTRATION
-  /api/v1/check-permissions:
+  /api/v1/check-permission:
+    post:
+      description: check if user belongs to specified permission
+      requestBody:
+        content:
+          application/json:
+            example:
+              permission: users
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                approved:
+                  value:
+                    has_permission: true
+                    message: permission was checked successfully
+                    status: success
+                disapproved:
+                  value:
+                    has_permission: true
+                    message: permission was checked successfully
+                    status: success
+              schema:
+                properties:
+                  has_permission:
+                    type: boolean
+                  message:
+                    type: string
+                  status:
+                    type: string
+          description: Permission was checked successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          content:
+            application/json:
+              examples:
+                nopermission:
+                  value:
+                    message: permission not found
+                    status: error
+                nouser:
+                  value:
+                    message: user not found
+                    status: error
+              schema:
+                $ref: '#/components/schemas/Response'
+          description: The specified resource was not found
+      summary: Endpoint to check user permissions
+      tags:
+        - CHECK_PERMISSION
+  /api/v1/check-roles:
     post:
       description: check if user belongs to specified roles
       requestBody:
@@ -616,17 +682,17 @@ paths:
               examples:
                 approved:
                   value:
-                    has_permissions: true
+                    has_roles: true
                     message: roles were checked successfully
                     status: success
                 disapproved:
                   value:
-                    has_permissions: false
+                    has_roles: false
                     message: roles were checked successfully
                     status: success
               schema:
                 properties:
-                  has_permissions:
+                  has_roles:
                     type: boolean
                   message:
                     type: string
@@ -656,9 +722,41 @@ paths:
         - jwt_auth:
             - write:admin
             - read:admin
-      summary: Endpoint to check user permissions
+      summary: Endpoint to check user roles
       tags:
-        - CHECK_PERMISSIONS
+        - CHECK_ROLES
+  /api/v1/permission:
+    get:
+      description: List of all available permissions
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                example:
+                  - code: admin
+                    description: unlimited access to all actions
+                    id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                  - code: subscriber
+                    description: account without paying for registered users
+                    id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                  - code: member
+                    description: account with payment options
+                    id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                items:
+                  $ref: '#/components/schemas/Permission'
+                  type: object
+                type: array
+          description: List of permissions is available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Endpoint to get all permissions
+      tags:
+        - PERMISSION_LIST
   /api/v1/role:
     get:
       description: List of all available roles

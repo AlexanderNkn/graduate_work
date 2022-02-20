@@ -6,7 +6,7 @@ from swagger_server.models.user_data import UserData  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_auth_change_personal_data_user_id_patch(user_id, body=None):  # noqa: E501
+def api_v1_auth_personal_data_user_id_patch(user_id, body=None):  # noqa: E501
     """Endpoint for user to change data
 
     Additional info about user # noqa: E501

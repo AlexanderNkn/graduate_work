@@ -108,7 +108,6 @@ components:
         sentry:
           type: string
           title: sentry task id
-
     UserData:
       title: UserData
       type: object
@@ -203,7 +202,24 @@ components:
       items:
         type: object
         $ref: '#/components/schemas/UserRole'
-
+    Permission:
+      title: Permission
+      properties:
+        id:
+          type: string
+          title: permission uuid
+        code:
+          type: string
+          title: permission name
+        description:
+          type: string
+          title: permission detailed description
+    PermissionList:
+      title: PermissionList
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/Permission'
   securitySchemes:
     jwt_auth:
       type: http

@@ -455,12 +455,12 @@ def check_roles():
           application/json:
             schema:
               properties:
-              status:
-                type: string
-              message:
-                type: string
-              has_roles:
-                type: boolean
+                status:
+                  type: string
+                message:
+                  type: string
+                has_roles:
+                  type: boolean
             examples:
               approved:
                 value:
@@ -526,8 +526,6 @@ def check_permission():
     requestBody:
       content:
         application/json:
-          name: user and checking permission
-          description: user and checking permission
           schema:
             $ref: '#/components/schemas/UserRoleRequest'
           example:
@@ -539,12 +537,12 @@ def check_permission():
           application/json:
             schema:
               properties:
-              status:
-                type: string
-              message:
-                type: string
-              has_permission:
-                type: boolean
+                status:
+                  type: string
+                message:
+                  type: string
+                has_permission:
+                  type: boolean
             examples:
               approved:
                 value:

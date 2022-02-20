@@ -137,7 +137,7 @@ https://github.com/AlexanderNkn/Auth_sprint_2
 ### Примечание
 - для создания openapi-server использовался api-spec.yaml
     ```
-    java -jar swagger-codegen-cli.jar generate -i api-spec.yml -l python-flask -o openapi-server
+    java -jar swagger-codegen-cli.jar generate -i docs/api-spec.yml -l python-flask -o openapi-server
     ```
 - на сервисе auth доступна локальная копия документации по адресу
     ```
