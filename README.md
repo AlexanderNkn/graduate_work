@@ -28,24 +28,7 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     docker-compose start test_auth
     ```
 
-### Дополнительные возможности
-- просмотр логов
-    ```
-    docker-compose logs -f
-    ```
-- очистка базы данных из консоли
-    ```
-    flask recreate-database
-    ```
-- создание суперпользователя из консоли
-    ```
-    flask create-superuser name password
-    ```
-
 ## Использование
-### Документация доступна по адресу
--    http://localhost/api/openapi
-
 ### Примеры запросов
 - логин пользователя
     ```
@@ -86,3 +69,72 @@ https://github.com/AlexanderNkn/Auth_sprint_2
       "status": "success"
     }
     ```
+
+## Дополнительные возможности
+- просмотр логов
+    ```
+    docker-compose logs -f
+    ```
+- очистка базы данных из консоли
+    ```
+    flask recreate-database
+    ```
+- создание суперпользователя из консоли
+    ```
+    flask create-superuser name password
+    ```
+### Отслеживание ошибок в Sentry
+В переменные окружения добавьте SENTRY_DSN с вашим значением dsn. Документация sentry https://docs.sentry.io/.
+
+При возникновении ошибки Internal Server Error в стандартный ответ добавлен sentry id
+
+    ```
+    {
+     "message": "Something went wrong with server",
+     "sentry": "0a10d6671fc6442f98225ac42eae223f",
+     "status": "error"
+    }
+    ```
+### Распределенная трассировка
+- Распределенная трассировка реализована с помощью библиотек jaeger-client и Flask-Opentracing.
+    Статистика доступна по адресу
+    ```
+    http://localhost:16686/ui
+    ```
+- По умолчанию трассировка проводится для эндпойнтов. Если нужно собирать статистику по внутренним методам, к этим методам нужно добавить декоратор @trace
+    Пример использования:
+    ```
+    @trace
+    def check_empty_user_password(username, password):
+        if not username or not password:
+            return make_response(
+                {
+                    "message": "username/password is empty",
+                    "status": "error"
+                }, HTTPStatus.BAD_REQUEST)
+        return
+    ```
+    Собранная статистика:
+    ![Screenshot](docs/images/jaeger_statistic_example.png)
+
+## Документация 
+### Документация расположена в отдельном контейнере. Openapi-server был сгенерен с помощью swagger-codegen.
+- Доступна по адресу
+    ```
+    http://localhost/ui
+    ```
+- В json формате
+    ```
+    http://localhost/openapi.json
+    ```
+### Примечание
+- для создания openapi-server использовался api-spec.yaml
+    ```
+    java -jar swagger-codegen-cli.jar generate -i api-spec.yml -l python-flask -o openapi-server
+    ```
+- на сервисе auth доступна локальная копия документации по адресу
+    ```
+    http://localhost/api/openapi
+    ```
+
+

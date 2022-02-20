@@ -2,20 +2,7 @@ openapi: 3.0.2
 
 info:
   title: 'Authentication service'
-  version: '1.0'
-
-paths:
-  /auth/login:
-  /auth/register:
-  /auth/logout:
-  /auth/refresh-token:
-  /auth/change-password:
-  /personal-data/<uuid:user_id>:
-  /login-history/<uuid:user_id>:
-  /role:
-  /role/<uuid:role_id>:
-  /assign-roles:
-  /check-roles:
+  version: '2.0'
 
 components:
   responses:
@@ -43,6 +30,15 @@ components:
               value:
                 status: error
                 message: token is not valid
+    InternalError:
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Response500'
+          example:
+            status: error
+            message: resource not found
     Forbidden:
       description: Access is not allowed
       content:
@@ -77,8 +73,8 @@ components:
           type: string
           writeOnly: true
       required:
-        - username
-        - password
+        - old_password
+        - new_password
     Token:
       title: Token
       type: object
@@ -99,6 +95,20 @@ components:
         message:
           type: string
           title: response message
+    Response500:
+      title: Response500
+      type: object
+      properties:
+        status:
+          type: string
+          title: response status
+        message:
+          type: string
+          title: response message
+        sentry:
+          type: string
+          title: sentry task id
+
     UserData:
       title: UserData
       type: object
@@ -194,8 +204,8 @@ components:
         type: object
         $ref: '#/components/schemas/UserRole'
 
-securitySchemes:
-  jwt_auth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
+  securitySchemes:
+    jwt_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -12,11 +12,13 @@ from models import SocialAccount, User, UserData, UserSignIn
 from schemas import user_data_schema, users_sign_in_schema
 
 from utils.common import generate_password, get_tokens
+from utils.jaeger import trace
 from utils.permissions import permission_required
 
 blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
+@trace
 def check_empty_user_password(username, password):
     if not username or not password:
         return make_response(
@@ -79,8 +81,6 @@ def register():
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: username/password for registration
           schema:
             $ref: '#/components/schemas/Credentials'
           example:
@@ -142,8 +142,6 @@ def login():
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: username/password to get jwt tokens
           schema:
             $ref: '#/components/schemas/Credentials'
           example:
@@ -163,8 +161,8 @@ def login():
               status: success
               message: JWT tokens were generated successfully
               tokens:
-                access_token: jwt_access_token
-                refresh_token: jwt_refresh_token
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
       401:
         description: Unauthorized access
         content:
@@ -307,11 +305,16 @@ def change_password(user_id):
     tags:
     - CHANGE_PASSWORD
     description: Change user password
+    parameters:
+    - description: User id to change history
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
-          name: credentials
-          description: password to change
           schema:
             $ref: '#/components/schemas/Passwords'
           example:
@@ -399,8 +402,6 @@ def add_personal_data(user_id):
     requestBody:
       content:
         application/json:
-          name: user personal data
-          description: user personal data
           schema:
             $ref: '#/components/schemas/UserData'
           example:
@@ -472,8 +473,6 @@ def change_personal_data(user_id):
     requestBody:
       content:
         application/json:
-          name: user personal data
-          description: user personal data
           schema:
             $ref: '#/components/schemas/UserData'
           example:

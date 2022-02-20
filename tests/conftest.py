@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from flask.testing import FlaskClient
 
 import pytest
 
@@ -9,6 +10,15 @@ from auth.models import User
 from . import config
 
 
+class RequestIdClient(FlaskClient):
+    """Adds X-Request_Id in headers for all test requests.
+    This header is mandatory because of jaeger disrtribution tracing.
+    """
+    def open(self, *args, **kwargs):
+        kwargs.setdefault('headers', {}).update({'X-Request_Id': 12345})
+        return super().open(*args, **kwargs)
+
+
 @pytest.fixture
 def app():
     return create_app(config=config)
@@ -16,6 +26,7 @@ def app():
 
 @pytest.fixture
 def client(app):
+    app.test_client_class = RequestIdClient
     return app.test_client()
 
 

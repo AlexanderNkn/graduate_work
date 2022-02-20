@@ -8,23 +8,6 @@ from core.logger import LOGGING
 
 logging_config.dictConfig(LOGGING)
 
-SWAGGER_CONFIG = {
-    "headers": [
-    ],
-    "openapi": "3.0.2",
-    "specs": [
-        {
-            "endpoint": 'apispec_1',
-            "route": '/apispec_1.json',
-            "rule_filter": lambda rule: True,
-            "model_filter": lambda tag: True,
-        }
-    ],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/openapi/",
-    "url_prefix": "/api",
-}
 
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'auth')
 SECRET_KEY = os.getenv('SECRET_KEY', 'super-secret')
@@ -43,6 +26,8 @@ FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
 FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
 BASE_URL = os.getenv('BASE_URL', '/api/v1')
 
+JAEGER_REPORTING_HOST = os.getenv('JAEGER_REPORTING_HOST', '127.0.0.1')
+JAEGER_REPORTING_PORT = int(os.getenv('JAEGER_REPORTING_PORT', 6831))
 
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
 JWT_ACCESS_TOKEN_EXPIRES = os.getenv('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 1800)  # 30 min
@@ -51,6 +36,40 @@ JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'client_id')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'client_secret')
+
+SENTRY_DSN = os.getenv('SENTRY_DSN', '')
+
+REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 30))
+
+SWAGGER_CONFIG = {
+    "headers": [
+    ],
+    "openapi": "3.0.2",
+    "specs": [
+        {
+            "endpoint": 'apispec_1',
+            "route": '/apispec_1.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/openapi/",
+    "url_prefix": "/api",
+}
+
+JAEGER_CONFIG = {
+    'sampler': {
+        'type': 'const',
+        'param': 1,
+    },
+    'local_agent': {
+        'reporting_host': JAEGER_REPORTING_HOST,
+        'reporting_port': JAEGER_REPORTING_PORT,
+    },
+    'logging': True,
+}
 
 
 class JWTSettings(BaseSettings):
@@ -72,9 +91,12 @@ class PostgresSettings(BaseSettings):
         f'@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_NAME}', description='url for auth service'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = True
+    SQLALCHEMY_ENGINE_OPTIONS: dict = {'pool_pre_ping': True, 'pool_recycle': 300, }
 
 
 class RedisSettings(BaseSettings):
     REDIS_URI: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')
     REDIS_HOST: str = Field(REDIS_HOST)
     REDIS_PORT: int = Field(REDIS_PORT)
+    CACHE_TYPE: str = Field('RedisCache')
+    CACHE_REDIS_URL: str = Field(f'redis://{REDIS_HOST}:{REDIS_PORT}')

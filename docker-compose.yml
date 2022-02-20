@@ -43,6 +43,16 @@ services:
     depends_on:
       - db
       - redis
+  openapi:
+    container_name: openapi_server
+    image: openapi_server:v1.0
+    build:
+      context: openapi-server
+      dockerfile: Dockerfile
+  jaeger:
+    image: jaegertracing/all-in-one:1.31
+    ports:
+      - '16686:16686'
 volumes:
   postgres_data:
   redis_data:

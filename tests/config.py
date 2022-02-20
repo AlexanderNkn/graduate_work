@@ -26,6 +26,10 @@ JWT_ERROR_MESSAGE_KEY_TEST = os.getenv('JWT_ERROR_MESSAGE_KEY_TEST', 'message')
 
 GOOGLE_CLIENT_ID_TEST = os.getenv('GOOGLE_CLIENT_ID_TEST', 'client_id')
 GOOGLE_CLIENT_SECRET_TEST = os.getenv('GOOGLE_CLIENT_SECRET_TEST', 'client_secret')
+REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE_TEST', 10000))
+SENTRY_DSN = ''
+SWAGGER_CONFIG = {}
+JAEGER_CONFIG = {}
 
 
 class JWTSettings(BaseSettings):
@@ -53,3 +57,5 @@ class RedisSettings(BaseSettings):
     REDIS_URI: str = Field(f'redis://{REDIS_HOST_TEST}:{REDIS_PORT_TEST}')
     REDIS_HOST: str = Field(REDIS_HOST_TEST)
     REDIS_PORT: int = Field(REDIS_PORT_TEST)
+    CACHE_TYPE: str = Field('RedisCache')
+    CACHE_REDIS_URL: str = Field(f'redis://{REDIS_HOST_TEST}:{REDIS_PORT_TEST}')

@@ -2,8 +2,10 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 
 from extensions import db
 from models import Permission, RolePermissions, User, UserRole
+from utils.jaeger import trace
 
 
+@trace
 def get_user_id_by_username(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -26,6 +28,7 @@ def generate_password():
     return password
 
 
+@trace
 def get_user_permissions(user_id):
     permissions = db.session.query(
         Permission
@@ -40,6 +43,7 @@ def get_user_permissions(user_id):
     return permissions
 
 
+@trace
 def get_tokens(user_id, token=None):
 
     if token is None:
