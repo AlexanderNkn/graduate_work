@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: auth/docker/Dockerfile
     env_file:
-      - ./envs/.auth.env
+      - auth/envs/.auth.env
     depends_on:
       - db
       - redis
@@ -38,8 +38,8 @@ services:
     container_name: test_auth
     image: auth:v2.0
     env_file:
-      - ./envs/.auth.env
-    entrypoint: ["pytest", "tests/functional/src"]
+      - auth/envs/.auth.env
+    entrypoint: ['pytest', 'auth/tests/functional/src']
     depends_on:
       - db
       - redis

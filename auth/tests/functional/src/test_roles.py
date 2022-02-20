@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 
-from auth.models import Role
+from src.models import Role
 
 from ..testdata.roles import role_by_id_expected, roles_list
 

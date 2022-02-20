@@ -12,6 +12,10 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     ```
     git clone https://github.com/AlexanderNkn/Auth_sprint_2.git
     ```
+- переименуйте файл с переменными окружения для тестирования
+    ```
+    mv auth/envs/.auth.env.sample auth/envs/.auth.env
+    ```
 - соберите образ
     ```
     docker-compose build --no-cache
@@ -27,7 +31,10 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     ```
     docker-compose start test_auth
     ```
-
+### Локально
+    ```
+    pytest auth
+    ```
 ## Использование
 ### Примеры запросов
 - логин пользователя
@@ -136,5 +143,3 @@ https://github.com/AlexanderNkn/Auth_sprint_2
     ```
     http://localhost/api/openapi
     ```
-
-

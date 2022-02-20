@@ -4,8 +4,8 @@ from flask.testing import FlaskClient
 
 import pytest
 
-from auth.app import create_app, db
-from auth.models import User
+from src.app import create_app, db
+from src.models import User
 
 from . import config
 
