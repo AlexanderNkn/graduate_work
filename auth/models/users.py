@@ -1,8 +1,10 @@
 import datetime
 import uuid
 
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
@@ -14,6 +16,30 @@ class UserRole(BaseModel):
 
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
     role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
+
+
+def create_partition_user_sign_in(target, connection, **kw) -> None:
+    """ creating partition by users_sign_in """
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h0" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h1"
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 1)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h2" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 2)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h3" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 3)"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "users_sign_in_h4" 
+            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 4)"""
+    )
 
 
 class User(BaseModel):
@@ -85,3 +111,45 @@ class SocialAccount(BaseModel):
 
     def __repr__(self):
         return f'<SocialAccount {self.social_name}:{self.user_id}>'
+
+
+class UserSignIn(BaseModel):
+    __tablename__ = 'users_sign_in'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_id'),
+        {
+            'postgresql_partition_by': 'HASH(user_id)',
+            'listeners': [('after_create', create_partition_user_sign_in)],
+        }
+    )
+
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'),
+                        nullable=False, primary_key=True)
+    logined_by = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    user_agent = db.Column(db.Text)
+
+    user = db.relationship(User, lazy=True, uselist=False)
+
+    def __repr__(self):
+        return f'<UserSignIn {self.user_id}:{self.logined_by}>'
+
+    @classmethod
+    def add_user_sign_in(cls, user_agent, logined_by=None, user=None, user_id=None):
+        # from flask import request
+        # request.headers.get('User-Agent')
+        # request.user_agent
+
+        user_sign_in_data = {
+            'user_agent': str(user_agent),
+            'logined_by': logined_by,
+            'user_id': user_id,
+        }
+        if user:
+            user_sign_in_data['user'] = user
+
+        user_sign_in = UserSignIn(**user_sign_in_data)
+        db.session.add(user_sign_in)
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
