@@ -1,16 +1,20 @@
 import aiohttp
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+import pybreaker
 
 from core import config
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='', auto_error=config.ENABLE_AUTHORIZATION)
+db_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60)
 
 
 def get_token(token: str = Depends(oauth2_scheme)):
     return token
 
 
+# db_breaker is an implementation of Circuit Breaker algorithm
+@db_breaker(__pybreaker_call_async=True)
 async def make_request(permission: str, token: str):
     if not config.ENABLE_AUTHORIZATION:
         return
