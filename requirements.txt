@@ -1,2 +1,2 @@
--r fast_api/requirements.txt
--r fast_api/tests/requirements.txt
+-r movies_api/requirements.txt
+-r movies_api/tests/requirements.txt

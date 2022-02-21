@@ -5,7 +5,7 @@ services:
     container_name: film_search
     image: film_search:v2.0
     env_file:
-      - fast_api/envs/.fastapi.env
+      - movies_api/envs/.fastapi.env
     depends_on:
       - es
       - redis
@@ -41,7 +41,7 @@ services:
     container_name: test_fastapi
     image: test_fastapi:v1.0
     env_file:
-      - fast_api/envs/.fastapi.env
+      - movies_api/envs/.fastapi.env
     depends_on:
       - es
       - redis

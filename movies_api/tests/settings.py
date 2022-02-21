@@ -10,7 +10,7 @@ ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9210))
 
 FASTAPI_HOST = os.getenv('FASTAPI_HOST', 'http://127.0.0.1')
 FASTAPI_PORT = int(os.getenv('FASTAPI_PORT', 80))
-BASE_URL = os.getenv('BASE_URL', '/api/v1')
+BASE_URL = os.getenv('BASE_URL', '/movies-api/v1')
 
 
 class TestSettings(BaseSettings):

@@ -56,14 +56,14 @@ https://github.com/aximon/ETL
 
 ## Использование
 ### Документация доступна по адресу
--    http://localhost/api/openapi
+-    http://localhost/movies-api/openapi
 ### Примеры запросов
 - получить список фильмов по жанру
     ```
-    /api/v1/film?filter[genre]=<comedy-uuid>&sort=-imdb_rating&page[size]=50&page[number]=1
+    /movies-api/v1/film?filter[genre]=<comedy-uuid>&sort=-imdb_rating&page[size]=50&page[number]=1
     ```
     ```
-    GET /api/v1/film?filter[genre]=<uuid:UUID>&sort=-imdb_rating&page[size]=50&page[number]=1
+    GET /movies-api/v1/film?filter[genre]=<uuid:UUID>&sort=-imdb_rating&page[size]=50&page[number]=1
 
     [
         {
@@ -81,7 +81,7 @@ https://github.com/aximon/ETL
     ```
 - получить полную информацию по фильму
     ```
-    /api/v1/film/<uuid:UUID>/
+    /movies-api/v1/film/<uuid:UUID>/
     ```
     ```
     {
