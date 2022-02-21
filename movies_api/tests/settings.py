@@ -12,6 +12,10 @@ MOVIESAPI_HOST = os.getenv('MOVIESAPI_HOST', 'http://127.0.0.1')
 MOVIESAPI_PORT = int(os.getenv('MOVIESAPI_PORT', 80))
 BASE_URL = os.getenv('BASE_URL', '/movies-api/v1')
 
+AUTH_HOST = os.getenv('AUTH_HOST', 'http://auth')
+AUTH_PORT = int(os.getenv('AUTH_PORT', 80))
+AUTH_BASE_URL = os.getenv('AUTH_BASE_URL', '/auth-api/v1')
+
 
 class TestSettings(BaseSettings):
     elastic_url: str = Field(f'{ELASTIC_HOST}:{ELASTIC_PORT}')

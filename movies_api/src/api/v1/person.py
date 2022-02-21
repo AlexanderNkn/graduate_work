@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from core.messages import FILM_NOT_FOUND, PERSON_NOT_FOUND
+from dependencies.authentication import get_token, make_request
 from models.film import FilmShortResponse
 from models.person import PersonDetailedResponse
 from services.film import FilmService, get_film_service
@@ -10,6 +11,14 @@ from services.person import PersonService, get_person_service
 from services.utils import get_params
 
 router = APIRouter()
+
+
+async def check_person_list_permission(token=get_token()):
+    await make_request(permission='genre', token=token)
+
+
+async def check_person_detail_permission(token=get_token()):
+    await make_request(permission='genre', token=token)
 
 
 @router.get(
@@ -26,8 +35,11 @@ router = APIRouter()
     description='List of persons with full_name, roles and film_ids',
     response_description='List of persons with id',
 )
-async def persons_list(request: Request,
-                       person_service: PersonService = Depends(get_person_service)) -> list[PersonDetailedResponse]:
+async def persons_list(
+    request: Request,
+    person_service: PersonService = Depends(get_person_service),
+    allowed: bool = Depends(check_person_list_permission),
+) -> list[PersonDetailedResponse]:
     params = get_params(request)
     person_list = await person_service.get_by_params(**params)
     if not person_list:
@@ -50,10 +62,13 @@ async def persons_list(request: Request,
     response_description='List of films with id',
     tags=['film'],
 )
-async def person_film(person_id: str,
-                      request: Request,
-                      person_service: PersonService = Depends(get_person_service),
-                      film_service: FilmService = Depends(get_film_service)) -> list[FilmShortResponse]:
+async def person_film(
+    person_id: str,
+    request: Request,
+    person_service: PersonService = Depends(get_person_service),
+    film_service: FilmService = Depends(get_film_service),
+    allowed: bool = Depends(check_person_detail_permission),
+) -> list[FilmShortResponse]:
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=PERSON_NOT_FOUND)
@@ -80,8 +95,11 @@ async def person_film(person_id: str,
     description='Person details with full_name, roles and film_ids',
     response_description='Person with details by id',
 )
-async def person_details(person_id: str,
-                         person_service: PersonService = Depends(get_person_service)) -> PersonDetailedResponse:
+async def person_details(
+    person_id: str,
+    person_service: PersonService = Depends(get_person_service),
+    allowed: bool = Depends(check_person_detail_permission),
+) -> PersonDetailedResponse:
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=PERSON_NOT_FOUND)

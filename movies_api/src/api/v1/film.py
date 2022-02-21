@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from core.messages import FILM_NOT_FOUND
+from dependencies.authentication import get_token, make_request
 from models.film import FilmDetailedResponse, FilmShortResponse
 from models.genre import GenreShortResponse
 from models.person import PersonShortResponse
@@ -10,6 +11,14 @@ from services.film import FilmService, get_film_service
 from services.utils import get_params
 
 router = APIRouter()
+
+
+async def check_film_list_permission(token=get_token()):
+    await make_request(permission='film', token=token)
+
+
+async def check_film_detail_permission(token=get_token()):
+    await make_request(permission='film', token=token)
 
 
 @router.get(
@@ -26,8 +35,11 @@ router = APIRouter()
     description='List of films with title and imdb_rating, with sort, filter and pagination',
     response_description='List of films with id, title and rating',
 )
-async def films_list(request: Request, film_service: FilmService = Depends(get_film_service)
-                     ) -> list[FilmShortResponse]:
+async def films_list(
+    request: Request,
+    film_service: FilmService = Depends(get_film_service),
+    allowed: bool = Depends(check_film_list_permission),
+) -> list[FilmShortResponse]:
     params = get_params(request)
     film_list = await film_service.get_by_params(**params)
     if not film_list:
@@ -48,7 +60,11 @@ async def films_list(request: Request, film_service: FilmService = Depends(get_f
     description='Film details with title, imdb_rating, description, persons, genres',
     response_description='Film with details by id',
 )
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetailedResponse:
+async def film_details(
+    film_id: str,
+    film_service: FilmService = Depends(get_film_service),
+    allowed: bool = Depends(check_film_list_permission),
+) -> FilmDetailedResponse:
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=FILM_NOT_FOUND)
