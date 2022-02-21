@@ -4,9 +4,3 @@
 **/.vscode
 **/.git*
 **/.pytest_cache
-**/docker
-
-**/nginx
-**/tasks
-.gitignore
-docker-compose.yaml

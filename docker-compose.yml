@@ -18,9 +18,28 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./envs/.db.env
+  movies-api:
+    container_name: movies_search
+    image: movies_search:v3.0
+    build:
+      context: .
+      dockerfile: movies_api/docker/Dockerfile
+    env_file:
+      - movies_api/envs/.movies_api.env
+    depends_on:
+      - es
+      - redis
+  es:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - discovery.type=single-node
+    restart: always
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
   redis:
     container_name: redis
-    image: redis:6.2-alpine
+    image: redis:6.2.6-alpine
     restart: always
     volumes:
       - redis_data:/data
@@ -33,16 +52,8 @@ services:
     ports:
       - 80:80
     depends_on:
+      - movies_api
       - auth
-  tests:
-    container_name: test_auth
-    image: auth:v2.0
-    env_file:
-      - auth/envs/.auth.env
-    entrypoint: ['pytest', 'auth/tests/functional/src']
-    depends_on:
-      - db
-      - redis
   openapi:
     container_name: openapi_server
     image: openapi_server:v1.0
@@ -53,6 +64,27 @@ services:
     image: jaegertracing/all-in-one:1.31
     ports:
       - '16686:16686'
+  test_auth:
+    container_name: test_auth
+    image: auth:v2.0
+    env_file:
+      - auth/envs/.auth.env
+    entrypoint: ['pytest', 'auth/tests/functional/src']
+    depends_on:
+      - db
+      - redis
+  test-movies-api:
+    container_name: test_movies_api
+    image: test_movies_api:v1.0
+    build:
+      context: .
+      dockerfile: movies_api/tests/docker/Dockerfile
+    env_file:
+      - movies_api/envs/.movies_api.env
+    depends_on:
+      - es
+      - redis
 volumes:
   postgres_data:
   redis_data:
+  elastic_data:
