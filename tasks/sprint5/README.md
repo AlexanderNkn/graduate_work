@@ -16,7 +16,7 @@ https://github.com/aximon/ETL
     ```
 - переименуйте файл с переменными окружения для тестирования
     ```
-    mv envs/.fastapi.env.sample envs/.fastapi.env
+    mv envs/.movies_api.env.sample envs/.movies_api.env
     ```
 - соберите образ
     ```

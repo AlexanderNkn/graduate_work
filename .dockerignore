@@ -4,4 +4,3 @@
 **/.vscode
 **/.git*
 **/.pytest_cache
-**/docker

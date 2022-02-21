@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/code
 
-COPY ["requirements.txt", "docker/redis_elastic_waiter.sh", "./"]
+COPY ["movies_api/tests/requirements.txt", "movies_api/tests/docker/redis_elastic_waiter.sh", "./"]
 
 RUN apt update && apt install -y netcat gcc \
     && pip install --no-cache-dir -r requirements.txt \
@@ -14,6 +14,6 @@ RUN apt update && apt install -y netcat gcc \
 
 ENTRYPOINT ["/usr/src/code/redis_elastic_waiter.sh"]
 
-COPY . .
+COPY movies_api/tests .
 
 CMD ["pytest", "functional/src"]
