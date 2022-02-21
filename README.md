@@ -30,10 +30,12 @@ https://github.com/AlexanderNkn/Auth_sprint_2
 - тесты запускаются автоматически при старте контейнера. Для перезапуска выполните
     ```
     docker-compose start test_auth
+    docker-compose start test-movies-api
     ```
 ### Локально
     ```
     pytest auth
+    pytest movies_api
     ```
 ## Использование
 ### Примеры запросов

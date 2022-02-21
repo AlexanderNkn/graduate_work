@@ -16,7 +16,7 @@ then
     echo "Waiting for Postgres db..."
 
     while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-      sleep 0.1
+      sleep 1
     done
 
     echo "Postgres db started"

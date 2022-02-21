@@ -16,7 +16,7 @@ then
     echo "Waiting for Elasticsearch db..."
 
     while ! nc -z $ELASTIC_HOST_TEST $ELASTIC_PORT_TEST; do
-      sleep 0.1
+      sleep 1
     done
 
     echo "Elasticsearch db started"

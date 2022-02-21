@@ -12,12 +12,6 @@ services:
     depends_on:
       - db
       - redis
-  db:
-    image: postgres:13-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./envs/.db.env
   movies-api:
     container_name: movies_search
     image: movies_search:v3.0
@@ -29,6 +23,14 @@ services:
     depends_on:
       - es
       - redis
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./envs/.db.env
+    ports:
+      - 5433:5432
   es:
     container_name: elastic
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
