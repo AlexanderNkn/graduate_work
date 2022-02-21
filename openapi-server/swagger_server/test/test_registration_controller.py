@@ -20,7 +20,7 @@ class TestREGISTRATIONController(BaseTestCase):
         """
         body = Credentials()
         response = self.client.open(
-            '/api/v1/auth/register',
+            '/auth-api/v1/auth/register',
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

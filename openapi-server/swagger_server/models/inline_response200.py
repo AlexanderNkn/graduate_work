@@ -14,28 +14,28 @@ class InlineResponse200(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, has_permissions: bool=None, message: str=None, status: str=None):  # noqa: E501
+    def __init__(self, has_permission: bool=None, message: str=None, status: str=None):  # noqa: E501
         """InlineResponse200 - a model defined in Swagger
 
-        :param has_permissions: The has_permissions of this InlineResponse200.  # noqa: E501
-        :type has_permissions: bool
+        :param has_permission: The has_permission of this InlineResponse200.  # noqa: E501
+        :type has_permission: bool
         :param message: The message of this InlineResponse200.  # noqa: E501
         :type message: str
         :param status: The status of this InlineResponse200.  # noqa: E501
         :type status: str
         """
         self.swagger_types = {
-            'has_permissions': bool,
+            'has_permission': bool,
             'message': str,
             'status': str
         }
 
         self.attribute_map = {
-            'has_permissions': 'has_permissions',
+            'has_permission': 'has_permission',
             'message': 'message',
             'status': 'status'
         }
-        self._has_permissions = has_permissions
+        self._has_permission = has_permission
         self._message = message
         self._status = status
 
@@ -51,25 +51,25 @@ class InlineResponse200(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def has_permissions(self) -> bool:
-        """Gets the has_permissions of this InlineResponse200.
+    def has_permission(self) -> bool:
+        """Gets the has_permission of this InlineResponse200.
 
 
-        :return: The has_permissions of this InlineResponse200.
+        :return: The has_permission of this InlineResponse200.
         :rtype: bool
         """
-        return self._has_permissions
+        return self._has_permission
 
-    @has_permissions.setter
-    def has_permissions(self, has_permissions: bool):
-        """Sets the has_permissions of this InlineResponse200.
+    @has_permission.setter
+    def has_permission(self, has_permission: bool):
+        """Sets the has_permission of this InlineResponse200.
 
 
-        :param has_permissions: The has_permissions of this InlineResponse200.
-        :type has_permissions: bool
+        :param has_permission: The has_permission of this InlineResponse200.
+        :type has_permission: bool
         """
 
-        self._has_permissions = has_permissions
+        self._has_permission = has_permission
 
     @property
     def message(self) -> str:

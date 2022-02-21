@@ -20,7 +20,7 @@ class TestCREATEROLEController(BaseTestCase):
         """
         body = Role()
         response = self.client.open(
-            '/api/v1/role',
+            '/auth-api/v1/role',
             method='POST',
             data=json.dumps(body),
             content_type='application/json')

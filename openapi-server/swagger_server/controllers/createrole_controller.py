@@ -6,7 +6,7 @@ from swagger_server.models.role import Role  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_role_post(body=None):  # noqa: E501
+def auth_api_v1_role_post(body=None):  # noqa: E501
     """Endpoint to create new role
 
     Create new role # noqa: E501

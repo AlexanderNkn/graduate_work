@@ -5,7 +5,10 @@ from __future__ import absolute_import
 # import models into model package
 from swagger_server.models.credentials import Credentials
 from swagger_server.models.inline_response200 import InlineResponse200
+from swagger_server.models.inline_response2001 import InlineResponse2001
 from swagger_server.models.passwords import Passwords
+from swagger_server.models.permission import Permission
+from swagger_server.models.permission_list import PermissionList
 from swagger_server.models.response import Response
 from swagger_server.models.response500 import Response500
 from swagger_server.models.role import Role

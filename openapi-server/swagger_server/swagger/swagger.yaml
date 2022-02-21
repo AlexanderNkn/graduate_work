@@ -5,13 +5,13 @@ info:
 servers:
 - url: /
 paths:
-  /api/v1/assign-roles:
+  /auth-api/v1/assign-roles:
     post:
       tags:
       - ASSIGN_ROLES
       summary: Endpoint to assign roles to user
       description: Assign roles to user
-      operationId: api_v1_assign_roles_post
+      operationId: auth_api_v1_assign_roles_post
       requestBody:
         content:
           application/json:
@@ -83,13 +83,232 @@ paths:
         - write:admin
         - read:admin
       x-openapi-router-controller: swagger_server.controllers.assignroles_controller
-  /api/v1/auth/add-personal-data/{user_id}:
+  /auth-api/v1/auth/change-password/{user_id}:
+    patch:
+      tags:
+      - CHANGE_PASSWORD
+      summary: Endpoint to change forgotten password
+      description: Change user password
+      operationId: auth_api_v1_auth_change_password_user_id_patch
+      parameters:
+      - name: user_id
+        in: path
+        description: User id to change history
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Passwords'
+            example:
+              new_password: 678910
+              old_password: 12345
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: password changed successfully
+                status: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                expired:
+                  value:
+                    message: token expired
+                    status: error
+                notvalid:
+                  value:
+                    message: token is not valid
+                    status: error
+        "403":
+          description: Access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: permission denied
+                status: error
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: resource not found
+                status: error
+      security:
+      - jwt_auth:
+        - "write:admin,subscriber,member"
+        - "read:admin,subscriber,member"
+      x-openapi-router-controller: swagger_server.controllers.changepassword_controller
+  /auth-api/v1/auth/login:
+    post:
+      tags:
+      - LOGIN
+      summary: Endpoint for user login
+      description: Get JWT tokens after login
+      operationId: auth_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+            example:
+              password: 12345
+              username: yandex
+      responses:
+        "200":
+          description: A pair of access/refresh tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: JWT tokens were generated successfully
+                status: success
+                tokens:
+                  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        "401":
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: username or password are not correct
+                status: error
+      x-openapi-router-controller: swagger_server.controllers.login_controller
+  /auth-api/v1/auth/login-history/{user_id}:
+    get:
+      tags:
+      - LOGIN_HISTORY
+      summary: Endpoint to get history of user logouts
+      description: info about user login
+      operationId: auth_api_v1_auth_login_history_user_id_get
+      parameters:
+      - name: user_id
+        in: path
+        description: User id to view login history
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User login history is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                history:
+                - logined_by: "Fri, 18 Feb 2022 16:17:01 GMT"
+                  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
+                    \ (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+                  user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
+                - logined_by: "Mon, 14 Feb 2022 16:05:16 GMT"
+                  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
+                    \ (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+                  user_id: 29e124d6-b7d2-4a81-82d5-82d2dc3685ae
+                message: user login history is available
+                status: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                expired:
+                  value:
+                    message: token expired
+                    status: error
+                notvalid:
+                  value:
+                    message: token is not valid
+                    status: error
+        "403":
+          description: Access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: permission denied
+                status: error
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: resource not found
+                status: error
+      security:
+      - jwt_auth:
+        - "write:admin,subscriber,member"
+        - "read:admin,subscriber,member"
+      x-openapi-router-controller: swagger_server.controllers.loginhistory_controller
+  /auth-api/v1/auth/logout:
+    post:
+      tags:
+      - LOGOUT
+      summary: Endpoint to logout user
+      description: User logout
+      operationId: auth_api_v1_auth_logout_post
+      responses:
+        "200":
+          description: Logout successfull
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: User logout successfull
+                status: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                expired:
+                  value:
+                    message: token expired
+                    status: error
+                notvalid:
+                  value:
+                    message: token is not valid
+                    status: error
+      security:
+      - jwt_auth:
+        - "write:admin,subscriber,member"
+      x-openapi-router-controller: swagger_server.controllers.logout_controller
+  /auth-api/v1/auth/personal-data/{user_id}:
     post:
       tags:
       - ADD_PERSONAL_DATA
       summary: Endpoint for user to add personal data
       description: Additional info about user
-      operationId: api_v1_auth_add_personal_data_user_id_post
+      operationId: auth_api_v1_auth_personal_data_user_id_post
       parameters:
       - name: user_id
         in: path
@@ -159,39 +378,30 @@ paths:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.addpersonaldata_controller
-  /api/v1/auth/change-password/{user_id}:
-    patch:
+    delete:
       tags:
-      - CHANGE_PASSWORD
-      summary: Endpoint to change forgotten password
-      description: Change user password
-      operationId: api_v1_auth_change_password_user_id_patch
+      - DELETE_PERSONAL_DATA
+      summary: Endpoint to delete user personal data
+      description: Additional info about user
+      operationId: auth_api_v1_auth_personal_data_user_id_delete
       parameters:
       - name: user_id
         in: path
-        description: User id to change history
+        description: User id to add/change/delete personal data
         required: true
         style: simple
         explode: false
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Passwords'
-            example:
-              new_password: 678910
-              old_password: 12345
       responses:
-        "200":
-          description: Password changed successfully
+        "204":
+          description: User data was deleted successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: password changed successfully
+                message: user personal data was deleted successfully
                 status: success
         "401":
           description: Unauthorized
@@ -230,14 +440,13 @@ paths:
       - jwt_auth:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
-      x-openapi-router-controller: swagger_server.controllers.changepassword_controller
-  /api/v1/auth/change-personal-data/{user_id}:
+      x-openapi-router-controller: swagger_server.controllers.deletepersonaldata_controller
     patch:
       tags:
       - CHANGE_PERSONAL_DATA
       summary: Endpoint for user to change data
       description: Additional info about user
-      operationId: api_v1_auth_change_personal_data_user_id_patch
+      operationId: auth_api_v1_auth_personal_data_user_id_patch
       parameters:
       - name: user_id
         in: path
@@ -307,228 +516,13 @@ paths:
         - "write:admin,subscriber,member"
         - "read:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.changepersonaldata_controller
-  /api/v1/auth/delete-personal-data/{user_id}:
-    delete:
-      tags:
-      - DELETE_PERSONAL_DATA
-      summary: Endpoint to delete user personal data
-      description: Additional info about user
-      operationId: api_v1_auth_delete_personal_data_user_id_delete
-      parameters:
-      - name: user_id
-        in: path
-        description: User id to add/change/delete personal data
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "204":
-          description: User data was deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: user personal data was deleted successfully
-                status: success
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    message: token expired
-                    status: error
-                notvalid:
-                  value:
-                    message: token is not valid
-                    status: error
-        "403":
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: permission denied
-                status: error
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: resource not found
-                status: error
-      security:
-      - jwt_auth:
-        - "write:admin,subscriber,member"
-        - "read:admin,subscriber,member"
-      x-openapi-router-controller: swagger_server.controllers.deletepersonaldata_controller
-  /api/v1/auth/login:
-    post:
-      tags:
-      - LOGIN
-      summary: Endpoint for user login
-      description: Get JWT tokens after login
-      operationId: api_v1_auth_login_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Credentials'
-            example:
-              password: 12345
-              username: yandex
-      responses:
-        "200":
-          description: A pair of access/refresh tokens
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: JWT tokens were generated successfully
-                status: success
-                tokens:
-                  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-        "401":
-          description: Unauthorized access
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: username or password are not correct
-                status: error
-      x-openapi-router-controller: swagger_server.controllers.login_controller
-  /api/v1/auth/login-history/{user_id}:
-    get:
-      tags:
-      - LOGIN_HISTORY
-      summary: Endoint to get history of user logouts
-      description: info about user login
-      operationId: api_v1_auth_login_history_user_id_get
-      parameters:
-      - name: user_id
-        in: path
-        description: User id to view login history
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: User login history is available
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                history:
-                - device:
-                    created_at: "Mon, 15 Feb 2021 00:00:00 GMT"
-                    ip: 89.100.100.100
-                    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
-                      \ (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
-                  login_date: "Sun, 06 Feb 2022 00:00:00 GMT"
-                - device:
-                    created_at: "Mon, 15 Feb 2021 00:00:00 GMT"
-                    ip: 89.100.100.100
-                    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
-                      \ (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
-                  login_date: "Fri, 04 Feb 2022 00:00:00 GMT"
-                message: user login history is available
-                status: success
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    message: token expired
-                    status: error
-                notvalid:
-                  value:
-                    message: token is not valid
-                    status: error
-        "403":
-          description: Access is not allowed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: permission denied
-                status: error
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: resource not found
-                status: error
-      security:
-      - jwt_auth:
-        - "write:admin,subscriber,member"
-        - "read:admin,subscriber,member"
-      x-openapi-router-controller: swagger_server.controllers.loginhistory_controller
-  /api/v1/auth/logout:
-    post:
-      tags:
-      - LOGOUT
-      summary: Endpoint to logout user
-      description: User logout
-      operationId: api_v1_auth_logout_post
-      responses:
-        "200":
-          description: Logout successfull
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              example:
-                message: User logout successfull
-                status: success
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-              examples:
-                expired:
-                  value:
-                    message: token expired
-                    status: error
-                notvalid:
-                  value:
-                    message: token is not valid
-                    status: error
-      security:
-      - jwt_auth:
-        - "write:admin,subscriber,member"
-      x-openapi-router-controller: swagger_server.controllers.logout_controller
-  /api/v1/auth/refresh-token:
+  /auth-api/v1/auth/refresh-token:
     post:
       tags:
       - REFRESH_TOKEN
       summary: Endoint to refresh expired tokens
       description: Refresh expired tokens
-      operationId: api_v1_auth_refresh_token_post
+      operationId: auth_api_v1_auth_refresh_token_post
       responses:
         "200":
           description: New tokens were generated
@@ -558,13 +552,13 @@ paths:
       - jwt_auth:
         - "write:admin,subscriber,member"
       x-openapi-router-controller: swagger_server.controllers.refreshtoken_controller
-  /api/v1/auth/register:
+  /auth-api/v1/auth/register:
     post:
       tags:
       - REGISTRATION
       summary: Endpoint to register new account
       description: Create new user account
-      operationId: api_v1_auth_register_post
+      operationId: auth_api_v1_auth_register_post
       requestBody:
         content:
           application/json:
@@ -593,13 +587,76 @@ paths:
                 message: The username is already in use
                 status: error
       x-openapi-router-controller: swagger_server.controllers.registration_controller
-  /api/v1/check-permissions:
+  /auth-api/v1/check-permission:
     post:
       tags:
-      - CHECK_PERMISSIONS
+      - CHECK_PERMISSION
       summary: Endpoint to check user permissions
+      description: check if user belongs to specified permission
+      operationId: auth_api_v1_check_permission_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleRequest'
+            example:
+              permission: users
+      responses:
+        "200":
+          description: Permission was checked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              examples:
+                approved:
+                  value:
+                    has_permission: true
+                    message: permission was checked successfully
+                    status: success
+                disapproved:
+                  value:
+                    has_permission: true
+                    message: permission was checked successfully
+                    status: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                expired:
+                  value:
+                    message: token expired
+                    status: error
+                notvalid:
+                  value:
+                    message: token is not valid
+                    status: error
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                nopermission:
+                  value:
+                    message: permission not found
+                    status: error
+                nouser:
+                  value:
+                    message: user not found
+                    status: error
+      x-openapi-router-controller: swagger_server.controllers.checkpermission_controller
+  /auth-api/v1/check-roles:
+    post:
+      tags:
+      - CHECK_ROLES
+      summary: Endpoint to check user roles
       description: check if user belongs to specified roles
-      operationId: api_v1_check_permissions_post
+      operationId: auth_api_v1_check_roles_post
       requestBody:
         content:
           application/json:
@@ -616,16 +673,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
+                $ref: '#/components/schemas/inline_response_200_1'
               examples:
                 approved:
                   value:
-                    has_permissions: true
+                    has_roles: true
                     message: roles were checked successfully
                     status: success
                 disapproved:
                   value:
-                    has_permissions: false
+                    has_roles: false
                     message: roles were checked successfully
                     status: success
         "401":
@@ -671,14 +728,75 @@ paths:
       - jwt_auth:
         - write:admin
         - read:admin
-      x-openapi-router-controller: swagger_server.controllers.checkpermissions_controller
-  /api/v1/role:
+      x-openapi-router-controller: swagger_server.controllers.checkroles_controller
+  /auth-api/v1/permission:
+    get:
+      tags:
+      - PERMISSION_LIST
+      summary: Endpoint to get all permissions
+      description: List of all available permissions
+      operationId: auth_api_v1_permission_get
+      responses:
+        "200":
+          description: List of permissions is available
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - code: admin
+                  description: unlimited access to all actions
+                  id: a9c6e8da-f2bf-458a-978b-d2f50a031451
+                - code: subscriber
+                  description: account without paying for registered users
+                  id: 7cf56926-054c-4522-ac6f-d9f5d0e9d18e
+                - code: member
+                  description: account with payment options
+                  id: 7166fd5f-a4e4-45f0-952c-78d0297c7b03
+                items:
+                  $ref: '#/components/schemas/Permission'
+                x-content-type: application/json
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                expired:
+                  value:
+                    message: token expired
+                    status: error
+                notvalid:
+                  value:
+                    message: token is not valid
+                    status: error
+        "403":
+          description: Access is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: permission denied
+                status: error
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: resource not found
+                status: error
+      x-openapi-router-controller: swagger_server.controllers.permissionlist_controller
+  /auth-api/v1/role:
     get:
       tags:
       - ROLE_LIST
       summary: Endpoint to get all roles
       description: List of all available roles
-      operationId: api_v1_role_get
+      operationId: auth_api_v1_role_get
       responses:
         "200":
           description: List of roles is available
@@ -738,7 +856,7 @@ paths:
       - CREATE_ROLE
       summary: Endpoint to create new role
       description: Create new role
-      operationId: api_v1_role_post
+      operationId: auth_api_v1_role_post
       requestBody:
         content:
           application/json:
@@ -790,13 +908,13 @@ paths:
         - write:admin
         - read:admin
       x-openapi-router-controller: swagger_server.controllers.createrole_controller
-  /api/v1/role/{role_id}:
+  /auth-api/v1/role/{role_id}:
     get:
       tags:
       - ROLE_DETAILS
       summary: Get role detailes
       description: detailed info about role
-      operationId: api_v1_role_role_id_get
+      operationId: auth_api_v1_role_role_id_get
       parameters:
       - name: role_id
         in: path
@@ -861,7 +979,7 @@ paths:
       - DELETE_ROLE
       summary: Endpoint to delete role
       description: delete role
-      operationId: api_v1_role_role_id_delete
+      operationId: auth_api_v1_role_role_id_delete
       parameters:
       - name: role_id
         in: path
@@ -926,7 +1044,7 @@ paths:
       - CHANGE_ROLE_DETAILS
       summary: Endpoint to change role
       description: change role info
-      operationId: api_v1_role_role_id_patch
+      operationId: auth_api_v1_role_role_id_patch
       parameters:
       - name: role_id
         in: path
@@ -1022,6 +1140,23 @@ components:
         old_password:
           type: string
           writeOnly: true
+    Permission:
+      title: Permission
+      properties:
+        code:
+          title: permission name
+          type: string
+        description:
+          title: permission detailed description
+          type: string
+        id:
+          title: permission uuid
+          type: string
+    PermissionList:
+      title: PermissionList
+      type: array
+      items:
+        $ref: '#/components/schemas/Permission'
     Response:
       title: Response
       type: object
@@ -1152,14 +1287,26 @@ components:
         $ref: '#/components/schemas/UserRole'
     inline_response_200:
       properties:
-        has_permissions:
+        has_permission:
           type: boolean
         message:
           type: string
         status:
           type: string
       example:
-        has_permissions: true
+        has_permission: true
+        message: message
+        status: status
+    inline_response_200_1:
+      properties:
+        has_roles:
+          type: boolean
+        message:
+          type: string
+        status:
+          type: string
+      example:
+        has_roles: true
         message: message
         status: status
   responses:

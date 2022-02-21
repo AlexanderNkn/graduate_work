@@ -18,7 +18,7 @@ class TestLOGINHISTORYController(BaseTestCase):
         Endoint to get history of user logouts
         """
         response = self.client.open(
-            '/api/v1/auth/login-history/{user_id}'.format(user_id='user_id_example'),
+            '/auth-api/v1/auth/login-history/{user_id}'.format(user_id='user_id_example'),
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

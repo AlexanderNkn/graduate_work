@@ -19,7 +19,7 @@ class TestROLELISTController(BaseTestCase):
         Endpoint to get all roles
         """
         response = self.client.open(
-            '/api/v1/role',
+            '/auth-api/v1/role',
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))

@@ -6,7 +6,7 @@ from swagger_server.models.role import Role  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_role_get():  # noqa: E501
+def auth_api_v1_role_get():  # noqa: E501
     """Endpoint to get all roles
 
     List of all available roles # noqa: E501

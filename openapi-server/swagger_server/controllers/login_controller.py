@@ -6,7 +6,7 @@ from swagger_server.models.response import Response  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_auth_login_post(body=None):  # noqa: E501
+def auth_api_v1_auth_login_post(body=None):  # noqa: E501
     """Endpoint for user login
 
     Get JWT tokens after login # noqa: E501

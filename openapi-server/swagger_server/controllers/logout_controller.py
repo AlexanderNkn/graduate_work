@@ -5,7 +5,7 @@ from swagger_server.models.response import Response  # noqa: E501
 from swagger_server import util
 
 
-def api_v1_auth_logout_post():  # noqa: E501
+def auth_api_v1_auth_logout_post():  # noqa: E501
     """Endpoint to logout user
 
     User logout # noqa: E501
