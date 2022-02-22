@@ -15,23 +15,22 @@ from utils.permissions import permission_required
 blueprint = Blueprint('auth', __name__, url_prefix='/auth-api/v1/auth')
 
 
-@blueprint.route('/login_google')
-def login_google():
-    redirect_uri = url_for('auth.auth_google', _external=True)
-    return oauth.google.authorize_redirect(redirect_uri, access_type='offline')
+def handle_oauth_authorize(remote, token, user_info):
+    if not user_info:
+        return make_response(
+            {
+                "message": "Something wrong",
+                "status": "error"
+            }, HTTPStatus.BAD_REQUEST)
 
+    social_name = remote.name
+    user_email = user_info['email']
 
-@blueprint.route('/auth_google')
-def auth_google():
-    token = oauth.google.authorize_access_token()
-    user = oauth.google.parse_id_token(token)
-    user_email = user['email']
-
-    social_account = SocialAccount.query.filter_by(social_id=user_email, social_name='google').first()
+    social_account = SocialAccount.query.filter_by(social_id=user_email, social_name=social_name).first()
     if social_account is None:
         user_id = uuid.uuid4()
         user = User(id=user_id, username=str(user_id), password=generate_password())
-        social_account = SocialAccount(user=user, social_id=user_email, social_name='google')
+        social_account = SocialAccount(user=user, social_id=user_email, social_name=social_name)
 
         db.session.add(social_account)
         db.session.commit()

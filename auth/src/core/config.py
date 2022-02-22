@@ -37,6 +37,9 @@ JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'client_id')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'client_secret')
 
+YANDEX_CLIENT_ID = os.getenv('YANDEX_CLIENT_ID', 'client_id')
+YANDEX_CLIENT_SECRET = os.getenv('YANDEX_CLIENT_SECRET', 'client_secret')
+
 SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 
 REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 30))
@@ -79,9 +82,11 @@ class JWTSettings(BaseSettings):
     JWT_ERROR_MESSAGE_KEY: str = Field(JWT_ERROR_MESSAGE_KEY)
 
 
-class OAuthGoogleSettings(BaseSettings):
+class OAuthSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = Field(GOOGLE_CLIENT_ID)
     GOOGLE_CLIENT_SECRET: str = Field(GOOGLE_CLIENT_SECRET)
+    YANDEX_CLIENT_ID: str = Field(YANDEX_CLIENT_ID)
+    YANDEX_CLIENT_SECRET: str = Field(YANDEX_CLIENT_SECRET)
     SECRET_KEY: str = Field(SECRET_KEY)
 
 

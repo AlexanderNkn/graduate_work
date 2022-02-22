@@ -30,7 +30,7 @@ def create_app(config=default_config) -> Flask:
     configure_cache(app, config=config.RedisSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_ma(app)
-    configure_oauth(app, config=config.OAuthGoogleSettings())
+    configure_oauth(app, config=config.OAuthSettings())
     configure_swagger(app, config=config.SWAGGER_CONFIG)
     configure_cli(app)
     configure_errors(app, event=sentry_sdk.last_event_id)
@@ -71,16 +71,17 @@ def configure_ma(app) -> None:
 
 def configure_oauth(app, config) -> None:
     app.config.from_object(config)
-
-    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
     oauth.init_app(app)
-    oauth.register(
-        name='google',
-        server_metadata_url=CONF_URL,
-        client_kwargs={
-            'scope': 'openid email profile'
-        }
-    )
+
+    from loginpass import create_flask_blueprint
+    from loginpass import Google, Yandex
+
+    from api.v1.auth import blueprint as auth_blueprint
+    from api.v1.auth import handle_oauth_authorize
+
+    backends = [Google, Yandex]
+    bp = create_flask_blueprint(backends, oauth, handle_oauth_authorize)
+    app.register_blueprint(bp, url_prefix=auth_blueprint.url_prefix)
 
 
 def configure_swagger(app, config) -> None:
@@ -133,9 +134,10 @@ def configure_cli(app):
             role = Role.query.filter_by(code=role_info['code']).first()
             if not role:
                 role = Role(**role_info)
+                role_permissions = []
                 for permission in permissions:
-                    role.permissions.append(Permission.query.filter_by(code=permission).first())
-                role.permissions = [permission for permission in role.permissions if permission]
+                    role_permissions.append(Permission.query.filter_by(code=permission).first())
+                role.permissions = [permission for permission in role_permissions if permission]
                 objects.append(role)
 
         db.session.add_all(objects)
