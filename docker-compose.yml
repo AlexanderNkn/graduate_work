@@ -54,7 +54,7 @@ services:
     ports:
       - 80:80
     depends_on:
-      - movies_api
+      - movies-api
       - auth
   openapi:
     container_name: openapi_server

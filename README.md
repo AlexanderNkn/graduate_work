@@ -15,6 +15,8 @@ https://github.com/AlexanderNkn/Auth_sprint_2
 - переименуйте файл с переменными окружения для тестирования
     ```
     mv auth/envs/.auth.env.sample auth/envs/.auth.env
+    mv .movies_api/envs/.movies_api.env.sample movies_api/envs/.movies_api.env
+    mv envs/.db.env.sample envs/.db.env
     ```
 - соберите образ
     ```

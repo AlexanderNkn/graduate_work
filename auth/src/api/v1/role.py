@@ -1,9 +1,10 @@
+import uuid
 from http import HTTPStatus
 
 from flask import Blueprint, make_response, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from extensions import db
+from extensions import db, cache
 from models import Role, UserRole, Permission
 from schemas import role_schema, user_role_schema, permission_schema
 from utils.permissions import permission_required, has_permission
@@ -516,6 +517,7 @@ def check_roles():
 
 @blueprint.route('/check-permission', methods=('POST',))
 @jwt_required()
+@cache.cached(timeout=30)
 def check_permission():
     """
     Endpoint to check user permissions
@@ -573,10 +575,11 @@ def check_permission():
                   message: permission not found
     """
     permission = request.json.get('permission')
+    token_user_id = uuid.UUID(get_jwt_identity())
 
     return make_response(
         {
             "message": "permissions checked",
             "status": "success",
-            "has_permission": has_permission(None, permission)
+            "has_permission": has_permission(permission=permission, token_user_id=token_user_id)
         }, HTTPStatus.OK)
