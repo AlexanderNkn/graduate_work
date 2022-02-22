@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
 from core.messages import FILM_NOT_FOUND
 from dependencies.authentication import get_token, make_request
@@ -13,12 +13,12 @@ from services.utils import get_params
 router = APIRouter()
 
 
-async def check_film_list_permission(token=get_token()):
-    await make_request(permission='film', token=token)
+async def check_film_list_permission(token=get_token(), x_request_id=Header(None)):
+    await make_request(permission='film', token=token, x_request_id=x_request_id)
 
 
-async def check_film_detail_permission(token=get_token()):
-    await make_request(permission='film', token=token)
+async def check_film_detail_permission(token=get_token(), x_request_id=Header(None)):
+    await make_request(permission='film', token=token, x_request_id=x_request_id)
 
 
 @router.get(

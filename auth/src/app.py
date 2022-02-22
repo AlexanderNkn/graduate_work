@@ -10,7 +10,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
 from core import config as default_config
-from extensions import cache, db, jwt, ma, oauth
+from extensions import alembic, cache, db, jwt, ma, oauth
 
 __all__ = ('create_app',)
 
@@ -26,6 +26,7 @@ def create_app(config=default_config) -> Flask:
 
     configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
+    configure_alembic(app)
     configure_cache(app, config=config.RedisSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_ma(app)
@@ -39,12 +40,16 @@ def create_app(config=default_config) -> Flask:
     return app
 
 
-@backoff.on_exception(backoff.expo, OperationalError, max_time=300)
 def configure_db(app, config) -> None:
     app.config.from_object(config)
     db.init_app(app)
     app.app_context().push()
-    db.create_all()
+
+
+@backoff.on_exception(backoff.expo, OperationalError, max_time=300)
+def configure_alembic(app) -> None:
+    alembic.init_app(app, run_mkdir=False)
+    alembic.upgrade()
 
 
 def configure_cache(app, config) -> None:
@@ -94,7 +99,7 @@ def configure_cli(app):
     @app.cli.command('recreate-database')
     def initdb():
         db.drop_all()
-        db.create_all()
+        alembic.upgrade()
 
     @app.cli.command('create-superuser')
     @click.argument('name')

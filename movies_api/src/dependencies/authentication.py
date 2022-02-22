@@ -15,14 +15,17 @@ def get_token(token: str = Depends(oauth2_scheme)):
 
 # db_breaker is an implementation of Circuit Breaker algorithm
 @db_breaker(__pybreaker_call_async=True)
-async def make_request(permission: str, token: str):
+async def make_request(permission: str, token: str, x_request_id: str):
     if not config.ENABLE_AUTHORIZATION:
         return
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            url=f'http://{config.AUTH_HOST}:{config.AUTH_PORT}{config.AUTH_BASE_URL}/check-permission',
+            url=f'{config.AUTH_HOST}:{config.AUTH_PORT}{config.AUTH_BASE_URL}/check-permission',
             json={'permission': f'{permission}'},
-            headers={'Authorization': f'Bearer {token}'},
+            headers={
+                'Authorization': f'Bearer {token}',
+                'X-Request-Id': x_request_id,
+            },
         ) as response:
             data = await response.json()
             if data['status'] == 'error' or (data['status'] == 'success' and data['has_permission'] is False):
