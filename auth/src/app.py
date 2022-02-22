@@ -33,8 +33,8 @@ def create_app(config=default_config) -> Flask:
     configure_swagger(app, config=config.SWAGGER_CONFIG)
     configure_cli(app)
     configure_errors(app, event=sentry_sdk.last_event_id)
-    # configure_jaeger(app, jaeger_config=config.JAEGER_CONFIG)
-    # configure_before_request(app, config)
+    configure_jaeger(app, jaeger_config=config.JAEGER_CONFIG)
+    configure_before_request(app, config)
 
     return app
 
