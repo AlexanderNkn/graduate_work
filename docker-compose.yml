@@ -66,6 +66,8 @@ services:
     image: jaegertracing/all-in-one:1.31
     ports:
       - '16686:16686'
+    volumes:
+      - jaeger_data:/tmp
   test_auth:
     container_name: test_auth
     image: auth:v2.0
@@ -90,3 +92,4 @@ volumes:
   postgres_data:
   redis_data:
   elastic_data:
+  jaeger_data:
