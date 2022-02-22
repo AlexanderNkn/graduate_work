@@ -16,9 +16,9 @@ REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6389))
 
 POSTGRES_HOST = os.getenv('POSTGRES_HOST', '127.0.0.1')
-POSTGRES_PORT = int(os.getenv('POSTGRES_PORT', 5433))
+POSTGRES_PORT = int(os.getenv('POSTGRES_PORT', 5432))
 POSTGRES_NAME = os.getenv('POSTGRES_NAME', 'auth_database')
-POSTGRES_USER = os.getenv('POSTGRES_USER', 'auth')
+POSTGRES_USER = os.getenv('POSTGRES_USER', 'postgres')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 1234)
 POSTGRES_OPTIONS = os.getenv('POSTGRES_OPTIONS', '-c search_path=users')
 
@@ -36,6 +36,9 @@ JWT_ERROR_MESSAGE_KEY = os.getenv('JWT_ERROR_MESSAGE_KEY', 'message')
 
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'client_id')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'client_secret')
+
+YANDEX_CLIENT_ID = os.getenv('YANDEX_CLIENT_ID', 'client_id')
+YANDEX_CLIENT_SECRET = os.getenv('YANDEX_CLIENT_SECRET', 'client_secret')
 
 SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 
@@ -79,9 +82,11 @@ class JWTSettings(BaseSettings):
     JWT_ERROR_MESSAGE_KEY: str = Field(JWT_ERROR_MESSAGE_KEY)
 
 
-class OAuthGoogleSettings(BaseSettings):
+class OAuthSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = Field(GOOGLE_CLIENT_ID)
     GOOGLE_CLIENT_SECRET: str = Field(GOOGLE_CLIENT_SECRET)
+    YANDEX_CLIENT_ID: str = Field(YANDEX_CLIENT_ID)
+    YANDEX_CLIENT_SECRET: str = Field(YANDEX_CLIENT_SECRET)
     SECRET_KEY: str = Field(SECRET_KEY)
 
 
