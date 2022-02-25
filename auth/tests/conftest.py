@@ -1,8 +1,9 @@
 import json
 from http import HTTPStatus
-from flask.testing import FlaskClient
 
 import pytest
+from flask_migrate import downgrade as downgrade_db
+from flask.testing import FlaskClient
 
 from src.app import create_app, db
 from src.models import User
@@ -34,7 +35,7 @@ def client(app):
 def session():
     yield db.session
     db.session.remove()
-    db.drop_all()
+    downgrade_db()
 
 
 @pytest.fixture
