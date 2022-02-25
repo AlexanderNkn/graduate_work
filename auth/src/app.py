@@ -1,8 +1,12 @@
+import os
+
 import backoff
 import click
 import sentry_sdk
 from flasgger import Swagger
 from flask import Flask
+from flask_migrate import init as init_db, migrate as migrate_db, upgrade as upgrade_db
+from flask_migrate import downgrade as downgrade_db
 from flask_opentracing import FlaskTracer
 from jaeger_client import Config
 from opentracing import global_tracer
@@ -10,7 +14,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy.exc import OperationalError
 
 from core import config as default_config
-from extensions import alembic, cache, db, jwt, ma, oauth
+from extensions import cache, db, jwt, ma, migrate, oauth
 
 __all__ = ('create_app',)
 
@@ -26,7 +30,7 @@ def create_app(config=default_config) -> Flask:
 
     configure_blueprints(app)
     configure_db(app, config=config.PostgresSettings())
-    configure_alembic(app)
+    configure_migrate(app)
     configure_cache(app, config=config.RedisSettings())
     configure_jwt(app, config=config.JWTSettings())
     configure_ma(app)
@@ -47,9 +51,13 @@ def configure_db(app, config) -> None:
 
 
 @backoff.on_exception(backoff.expo, OperationalError, max_time=300)
-def configure_alembic(app) -> None:
-    alembic.init_app(app, run_mkdir=False)
-    alembic.upgrade()
+def configure_migrate(app) -> None:
+    migrations_dir = os.path.join(os.path.dirname(__file__), 'migrations')
+    migrate.init_app(app=app, db=db, directory=migrations_dir)
+    if not os.path.exists(migrations_dir):
+        init_db(directory=migrations_dir)
+        migrate_db(message='Initial migration')
+    upgrade_db()
 
 
 def configure_cache(app, config) -> None:
@@ -99,8 +107,8 @@ def configure_cli(app):
 
     @app.cli.command('recreate-database')
     def initdb():
-        db.drop_all()
-        alembic.upgrade()
+        downgrade_db()
+        upgrade_db()
 
     @app.cli.command('create-superuser')
     @click.argument('name')

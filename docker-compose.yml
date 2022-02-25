@@ -71,7 +71,9 @@ services:
     image: auth:v2.0
     env_file:
       - auth/envs/.auth.env
-    entrypoint: ['pytest', 'auth/tests/functional/src']
+    command: >
+      sh -c "flask db upgrade &&
+             pytest auth/tests/functional/src"
     depends_on:
       - db
       - redis

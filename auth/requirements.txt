@@ -17,5 +17,5 @@ Flask-Caching==1.10.1
 redis==4.1.4
 authlib==0.15.5
 requests==2.27.1
-Flask-Alembic==2.0.1
 loginpass==0.5
+Flask-Migrate==3.1.0

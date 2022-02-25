@@ -26,6 +26,9 @@ JWT_ERROR_MESSAGE_KEY_TEST = os.getenv('JWT_ERROR_MESSAGE_KEY_TEST', 'message')
 
 GOOGLE_CLIENT_ID_TEST = os.getenv('GOOGLE_CLIENT_ID_TEST', 'client_id')
 GOOGLE_CLIENT_SECRET_TEST = os.getenv('GOOGLE_CLIENT_SECRET_TEST', 'client_secret')
+YANDEX_CLIENT_ID_TEST = os.getenv('YANDEX_CLIENT_ID_TEST', 'client_id')
+YANDEX_CLIENT_SECRET_TEST = os.getenv('YANDEX_CLIENT_SECRET_TEST', 'client_secret')
+
 REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE_TEST', 10000))
 SENTRY_DSN = ''
 SWAGGER_CONFIG = {}
@@ -39,9 +42,11 @@ class JWTSettings(BaseSettings):
     JWT_ERROR_MESSAGE_KEY: str = Field(JWT_ERROR_MESSAGE_KEY_TEST)
 
 
-class OAuthGoogleSettings(BaseSettings):
+class OAuthSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = Field(GOOGLE_CLIENT_ID_TEST)
     GOOGLE_CLIENT_SECRET: str = Field(GOOGLE_CLIENT_SECRET_TEST)
+    YANDEX_CLIENT_ID: str = Field(YANDEX_CLIENT_ID_TEST)
+    YANDEX_CLIENT_SECRET: str = Field(YANDEX_CLIENT_SECRET_TEST)
     SECRET_KEY: str = Field(SECRET_KEY_TEST)
 
 
