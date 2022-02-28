@@ -318,7 +318,7 @@
 		{
 			"id": "62d578fe-8ac6-4d2c-9910-0266fd765db0",
 			"key": "base_url",
-			"value": "http://localhost:9200",
+			"value": "http://localhost:9210",
 			"type": "string"
 		}
 	],
