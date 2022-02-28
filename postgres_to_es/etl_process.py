@@ -21,6 +21,7 @@ from elasticsearch.helpers import bulk, BulkIndexError
 
 from sql import get_sql_query
 from es_schema import GENRES_INDEX, MOVIES_INDEX, PERSONS_INDEX
+from utils.backoff import backoff
 from utils.connections import ElasticConnection, PostgresConnection
 from utils.etl_state import JsonFileStorage, State
 from utils.logging_config import LOGGING_CONFIG
@@ -39,6 +40,25 @@ class ExtractData:
     def __init__(self) -> None:
         self.connection = PostgresConnection()
         self.state = State(JsonFileStorage(STATE_PATH))
+    
+    @backoff(
+        exception=(psycopg2.OperationalError, psycopg2.errors.AdminShutdown),
+        initial_backoff=1,
+        max_backoff=60,
+        max_retries=10,
+        msg='Lost connection with Postgres.',
+    )
+    def _fetch_data(self, index: str, updated_at: str):
+        logger.info('Getting connection with Postgres db ...')
+        pg_connection = self.connection.get_connection()
+        logger.info('Connection with Postgres was successfully established')
+        with pg_connection.cursor() as cursor:
+            cursor.execute(*get_sql_query(index, updated_at=updated_at, batch_size=TRANSFER_BATCH_SIZE))
+            data = cursor.fetchall()
+            message = (f'Uploading {index} data from Postgres to Elastic started' if data
+                       else f'No updates available for {index}')
+            logger.info(message)
+            return data
   
     def extract(self, index: str) -> Optional[list[tuple]]:
         """Retrieve data from Postgres.
@@ -47,26 +67,11 @@ class ExtractData:
         """
         logger.info(f'Searching for {index} updates in Postgres db')
         latest_update: str = self.state.get_state(key=f'{index}_latest_update')
-
-        while True:
-            logger.info('Getting connection with Postgres db ...')
-            pg_connection = self.connection.get_connection()
-            logger.info('Connection with Postgres was successfully established')
-            with pg_connection.cursor() as cursor:
-                try:
-                    cursor.execute(*get_sql_query(index, updated_at=latest_update, batch_size=TRANSFER_BATCH_SIZE))
-                except (psycopg2.OperationalError, psycopg2.errors.AdminShutdown):
-                    logger.error('Lost connection with Postgres. Try to reconnect.')
-                    continue
-                except Exception:
-                    logger.error('Postgres db crashed ')
-                    raise
-                else:
-                    data = cursor.fetchall()
-                    message = (f'Uploading {index} data from Postgres to Elastic started' if data
-                               else f'No updates available for {index}')
-                    logger.info(message)
-                    return data
+        try:
+            return self._fetch_data(index, latest_update)
+        except Exception:
+            logger.error('Postgres db crashed ')
+            raise
 
 
 class TransformData:
@@ -164,41 +169,50 @@ class LoadData:
         """Creates an index in Elasticsearch if one isn't already there."""
         client.indices.create(
             index=index,
-            body=self.INDEXES[index],
             ignore=400,
+            **self.INDEXES[index],
         )
+
+    @backoff(
+        exception=elasticsearch.ConnectionError,
+        initial_backoff=1,
+        max_backoff=60,
+        max_retries=10,
+        msg='Lost connection with Elastic.',
+    )
+    def _load_data(self, index: str, data: list[dict[str, Any]]):
+        logger.info('Getting connection with Elastic db ...')
+        client = self.connection.get_client()
+        logger.info('Connection with Elastic was successfully established')
+        self.create_index(client, index)
+        success, _ = bulk(
+            client=client,
+            index=index,
+            actions=data,
+            chunk_size=TRANSFER_BATCH_SIZE,
+            max_retries=100,
+            initial_backoff=1,
+            max_backoff=300,
+        )
+        return success
+
 
     def load(self, data: dict[str, Any], statistics: dict[str, int], index: str) -> None:
         """Load data to Elasticsearch.
         Keeps state of the last call to continue loading data starting from
         the save point.
         """
-        while True:
-            logger.info('Getting connection with Elastic db ...')
-            client = self.connection.get_client()
-            logger.info('Connection with Elastic was successfully established')
-            try:
-                self.create_index(client, index)
-                success, _ = bulk(
-                    client=client,
-                    index=index,
-                    actions=data['prepared_data'],
-                    chunk_size=TRANSFER_BATCH_SIZE,
-                    max_retries=1000,
-                    initial_backoff=1,
-                    max_backoff=300,
-                )
-            except elasticsearch.ConnectionError:
-                logger.error('Lost connection with Elastic. Try to reconnect.')
-                continue
-            else:
-                logger.info(f'Batch {statistics["batch_number"]} was uploaded successfully from Postgres to Elastic')
-                statistics['batch_number'] += 1
-                statistics['total'] += success
-                latest_update = data['latest_update'].strftime('%Y-%m-%d %H:%M:%S.%f')
-                self.state.set_state(key=f'{index}_latest_update', value=latest_update)
-                logger.info('ETL state was updated')
-                break
+        try:
+            success = self._load_data(index, data['prepared_data'])
+        except BulkIndexError as exp:
+            logger.error(f'Elastic db crashed \n{exp.errors[0]}')
+        else:
+            logger.info(f'Batch {statistics["batch_number"]} was uploaded successfully from Postgres to Elastic')
+            statistics['batch_number'] += 1
+            statistics['total'] += success
+            latest_update = data['latest_update'].strftime('%Y-%m-%d %H:%M:%S.%f')
+            self.state.set_state(key=f'{index}_latest_update', value=latest_update)
+            logger.info('ETL state was updated')
 
 
 class Process:
@@ -237,8 +251,6 @@ if __name__ == '__main__':
     while True:
         try:
             etl_process.run()
-        except BulkIndexError as exp:
-            logger.error(f'Elastic db crashed \n{exp.errors[0]}')
         except Exception:
             logger.exception('Main process failed: ')
         sleep(float(os.getenv('UPLOAD_INTERVAL')))  # type: ignore

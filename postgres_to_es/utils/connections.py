@@ -33,6 +33,5 @@ class PostgresConnection:
             'options': os.getenv('PG_OPTIONS'),
         }
 
-    @backoff(exception=psycopg2.OperationalError, initial_backoff=1, max_backoff=60, max_retries=1000)
     def get_connection(self) -> Optional[PGconnection]:
         return psycopg2.connect(**self.dsn)

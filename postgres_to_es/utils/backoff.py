@@ -9,7 +9,7 @@ config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('backoff')
 
 
-def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries=1):
+def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries=1, msg=None):
     """
     This decorator is used to retry function with exponential time if specific
     exception was met.
@@ -24,6 +24,7 @@ def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries
         factor**retry_number``
     :arg max_backoff: maximum number of seconds a retry will wait
     :arg max_retries: maximum number of times a document will be retried
+    :arg msg: default message if exception raised
     """
     def func_wrapper(func):
         @wraps(func)
@@ -34,6 +35,8 @@ def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries
                 try:
                     result = func(*args, **kwargs)
                 except exception:
+                    if msg is not None:
+                        logger.info(msg=msg)
                     delay = initial_backoff * factor ** retry_number
                     max_delay = delay if delay < max_backoff else max_backoff
                     logger.info(f'Try to reconnect after {max_delay} seconds')
