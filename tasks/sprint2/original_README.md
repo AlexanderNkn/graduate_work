@@ -22,7 +22,7 @@
 
 ## Схема сервиса
 
-![all](images/all.png)
+![all](/tasks/sprint2/images/all.png)
 
 ## Требования к проекту
 
