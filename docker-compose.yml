@@ -3,14 +3,14 @@ version: '3.9'
 services:
   db:
     container_name: postgres
-    image: postgres:13.0-alpine
+    image: postgres:13-alpine
     env_file:
-      - ./envs/db.env
+      - ./postgres_elastic_etl/envs/db.env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
   es:
     container_name: elastic
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
       - discovery.type=single-node
     volumes:
@@ -20,11 +20,11 @@ services:
     image: etl:v2.0
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: postgres_elastic_etl/docker/Dockerfile
     env_file:
-      - ./envs/etl.env
+      - ./postgres_elastic_etl/envs/etl.env
     volumes:
-      - etl_state:/usr/src/code/postgres_to_es/data/
+      - etl_state:/usr/src/code/postgres_elastic_etl/data/
 volumes:
   postgres_data:
   elastic_data:

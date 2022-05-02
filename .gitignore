@@ -56,6 +56,3 @@ doc.html
 
 # mypy
 .mypy_cache
-
-# data
-etl_state.json
