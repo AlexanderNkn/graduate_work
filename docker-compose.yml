@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  web:
+    container_name: movies_admin
+    image: movies_admin:v1.5
+    build:
+      context: .
+      dockerfile: movies_admin/docker/Dockerfile
+    env_file:
+      - ./movies_admin/envs/.admin.env
+    volumes:
+      - static_data:/usr/src/code/static/
+    depends_on:
+      - db
+  db:
+    container_name: postgres
+    image: postgres:13-alpine
+    env_file:
+      - ./movies_admin/envs/.db.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.6
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - static_data:/usr/src/code/static/
+    ports:
+      - 80:80
+    depends_on:
+      - web
+volumes:
+  postgres_data:
+  static_data:
