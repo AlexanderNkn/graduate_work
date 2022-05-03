@@ -10,7 +10,7 @@ services:
     env_file:
       - auth/envs/.auth.env
     depends_on:
-      - db
+      - auth_db
       - redis
   movies-api:
     container_name: movies_search
@@ -23,15 +23,18 @@ services:
     depends_on:
       - es
       - redis
-  db:
+  auth_db:
+    container_name: auth_db
     image: postgres:13-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./envs/.db.env
+      - postgres/envs/.auth_db.env
+    ports:
+      - 5434:5432
   es:
     container_name: elastic
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
       - discovery.type=single-node
     restart: always
@@ -75,7 +78,7 @@ services:
       sh -c "flask db upgrade &&
              pytest auth/tests/functional/src"
     depends_on:
-      - db
+      - auth_db
       - redis
   test-movies-api:
     container_name: test_movies_api
