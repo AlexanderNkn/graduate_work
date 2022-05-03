@@ -1,2 +1,5 @@
+-r auth/requirements.txt
 -r movies_admin/requirements.txt
+-r movies_api/requirements.txt
+-r movies_api/tests/requirements.txt
 -r postgres_elastic_etl/requirements.txt
