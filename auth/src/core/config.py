@@ -45,21 +45,21 @@ SENTRY_DSN = os.getenv('SENTRY_DSN', '')
 REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE', 30))
 
 SWAGGER_CONFIG = {
-    "headers": [
+    'headers': [
     ],
-    "openapi": "3.0.2",
-    "specs": [
+    'openapi': '3.0.2',
+    'specs': [
         {
-            "endpoint": 'apispec_1',
-            "route": '/apispec_1.json',
-            "rule_filter": lambda rule: True,
-            "model_filter": lambda tag: True,
+            'endpoint': 'apispec_1',
+            'route': '/apispec_1.json',
+            'rule_filter': lambda rule: True,
+            'model_filter': lambda tag: True,
         }
     ],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/openapi/",
-    "url_prefix": "/auth-api",
+    'static_url_path': '/flasgger_static',
+    'swagger_ui': True,
+    'specs_route': '/openapi/',
+    'url_prefix': '/auth-api',
 }
 
 JAEGER_CONFIG = {
@@ -93,10 +93,10 @@ class OAuthSettings(BaseSettings):
 class PostgresSettings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str = Field(
         f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
-        f'@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_NAME}', description='url for auth service'
+        f'@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_NAME}', description='url for auth service'  # noqa: WPS326
     )
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = True
-    SQLALCHEMY_ENGINE_OPTIONS: dict = {'pool_pre_ping': True, 'pool_recycle': 300, }
+    SQLALCHEMY_ENGINE_OPTIONS: dict = {'pool_pre_ping': True, 'pool_recycle': 300}
 
 
 class RedisSettings(BaseSettings):

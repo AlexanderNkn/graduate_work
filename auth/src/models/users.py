@@ -14,31 +14,36 @@ from models.base import BaseModel
 class UserRole(BaseModel):
     __tablename__ = 'users_roles'
 
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
-    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa: E501
+    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False, default=uuid.uuid4)  # noqa: E501
 
 
 def create_partition_user_sign_in(target, connection, **kw) -> None:
-    """ creating partition by users_sign_in """
+    """Creation partition by users_sign_in."""
     connection.execute(
         """CREATE TABLE IF NOT EXISTS "users_sign_in_h0"
-            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 0)"""
+        PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 0)
+        """
     )
     connection.execute(
         """CREATE TABLE IF NOT EXISTS "users_sign_in_h1"
-            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 1)"""
+        PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 1)
+        """
     )
     connection.execute(
         """CREATE TABLE IF NOT EXISTS "users_sign_in_h2"
-            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 2)"""
+        PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 2)
+        """
     )
     connection.execute(
         """CREATE TABLE IF NOT EXISTS "users_sign_in_h3"
-            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 3)"""
+        PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 3)
+        """
     )
     connection.execute(
         """CREATE TABLE IF NOT EXISTS "users_sign_in_h4"
-            PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 4)"""
+        PARTITION OF users_sign_in FOR VALUES WITH (MODULUS 5, REMAINDER 4)
+        """
     )
 
 
@@ -123,8 +128,9 @@ class UserSignIn(BaseModel):
         }
     )
 
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'),
-                        nullable=False, primary_key=True)
+    user_id = db.Column(
+        UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, primary_key=True
+    )
     logined_by = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_agent = db.Column(db.Text)
 

@@ -10,7 +10,7 @@ class UserDataSchema(ma.SQLAlchemyAutoSchema):
 class UserSignInSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = UserSignIn
-        fields = ("user_id", "logined_by", "user_agent")
+        fields = ('user_id', 'logined_by', 'user_agent')
 
 
 user_data_schema = UserDataSchema()

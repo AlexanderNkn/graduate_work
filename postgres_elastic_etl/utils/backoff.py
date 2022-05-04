@@ -10,9 +10,7 @@ logger = logging.getLogger('backoff')
 
 
 def backoff(exception, initial_backoff=1, factor=2, max_backoff=600, max_retries=1, msg=None):
-    """
-    This decorator is used to retry function with exponential time if specific
-    exception was met.
+    """This decorator is used to retry function with exponential time if specific exception was met.
 
     To do this it will wait by calling time.sleep for ``initial_backoff`` seconds
     and then, every subsequent rejection, for double the time every time

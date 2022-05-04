@@ -9,7 +9,7 @@ from models.film import FilmDetailedDTO
 from models.genre import GenreDetailedDTO
 from models.person import PersonDetailedDTO
 
-T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
+T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]  # noqa: WPS111
 
 
 class RemoteStorage(AbstractRemoteStorage):
@@ -27,9 +27,9 @@ class RemoteStorage(AbstractRemoteStorage):
         return None
 
     async def get_by_params(self, index: str, body: dict, model: T, *args, **kwargs) -> list[T] | None:
-        doc = await self._get_by_params(index, body, *args, **kwargs)
-        if doc is not None:
-            return [model(**_doc['_source']) for _doc in doc['hits']['hits']]
+        docs = await self._get_by_params(index, body, *args, **kwargs)
+        if docs is not None:
+            return [model(**doc['_source']) for doc in docs['hits']['hits']]
         return None
 
 

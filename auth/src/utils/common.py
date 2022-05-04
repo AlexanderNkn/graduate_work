@@ -12,10 +12,10 @@ def check_empty_user_password(username, password):
     if not username or not password:
         return make_response(
             {
-                "message": "username/password is empty",
-                "status": "error"
-            }, HTTPStatus.BAD_REQUEST)
-    return
+                'message': 'username/password is empty',
+                'status': 'error'
+            }, HTTPStatus.BAD_REQUEST
+        )
 
 
 def generate_password():
@@ -23,7 +23,7 @@ def generate_password():
     import secrets
 
     alphabet = string.ascii_letters + string.digits
-    password = ''.join(secrets.choice(alphabet) for i in range(8))
+    password = ''.join(secrets.choice(alphabet) for _ in range(8))
     return password
 
 

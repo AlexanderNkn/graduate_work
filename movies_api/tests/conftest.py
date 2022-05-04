@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import AsyncGenerator, Callable
@@ -51,10 +50,10 @@ def clear_cache(redis_client: Redis):
 
 @pytest_asyncio.fixture
 def send_data_to_elastic(es_client: AsyncElasticsearch, clear_cache: Callable):
-    """Sends test data to Elastic before test, then deletes data and cache after test
+    """Sends test data to Elastic before test, then deletes data and cache after test.
 
     Not to remove cache for testing purposes should set with_clear_cache = False
-    Example data
+    Example data:
         [
             {
                 "index": "test_movies",
@@ -89,8 +88,8 @@ def make_get_request(session):
         url = f'{settings.service_url}{method}'
         async with session.get(url, params=params) as response:
             return HTTPResponse(
-              body=await response.json(),
-              headers=response.headers,
-              status=response.status,
+                body=await response.json(),
+                headers=response.headers,
+                status=response.status,
             )
     return inner

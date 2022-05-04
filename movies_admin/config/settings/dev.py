@@ -2,7 +2,7 @@
 """
 import os
 
-from .base import *  # noqa
+from .base import *  # noqa: F403, WPS347
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -23,17 +23,15 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
-        'OPTIONS': {
-           'options': '-c search_path=public,content'
-        }
+        'OPTIONS': {'options': '-c search_path=public,content'},
     }
 }
 
 if DEBUG and ENABLE_DEBUG_TOOLBAR:
-    INSTALLED_APPS += ['debug_toolbar']  # noqa
-    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']  # noqa
+    INSTALLED_APPS += ['debug_toolbar']  # noqa: F405
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']  # noqa: F405
     # to enable debug_toolbar in nginx.
-    INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
+    INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()  # noqa: WPS111
 
 LOGGING = {
     'version': 1,

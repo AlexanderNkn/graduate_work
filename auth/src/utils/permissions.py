@@ -10,8 +10,9 @@ from utils.jaeger import trace
 
 
 def permission_required(permission):
-    """
-    Checks if user has access to specified endpoint. Any of these grant acces:
+    """Checks if user has access to specified endpoint.
+
+    Any of these grant acces:
      - user is superuser
      - user has special permission
      - user is data owner
@@ -28,12 +29,12 @@ def permission_required(permission):
             uri_user_id = kwargs.get('user_id')
             if has_permission(user_id=uri_user_id, token_user_id=token_user_id, permission=permission):
                 return fn(*args, **kwargs)
-            else:
-                return make_response(
-                    {
-                        "message": "Permission denied",
-                        "status": "error"
-                    }, HTTPStatus.FORBIDDEN)
+            return make_response(
+                {
+                    'message': 'Permission denied',
+                    'status': 'error'
+                }, HTTPStatus.FORBIDDEN
+            )
 
         return decorator
 

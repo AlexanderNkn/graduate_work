@@ -6,4 +6,4 @@ class MoviesConfig(AppConfig):
     name = 'movies'
 
     def ready(self):
-        from . import signals
+        from . import signals  # noqa: F401, WPS433

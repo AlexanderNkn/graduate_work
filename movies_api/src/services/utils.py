@@ -31,8 +31,9 @@ class Body(BaseModel):
     page: Optional[Page]
 
 
-def _validate_query_params(query: str = None, sort: str = None, page: dict = None,
-                           filter: dict = None, should: list = None) -> Body:
+def _validate_query_params(
+    query: str = None, sort: str = None, page: dict = None, filter: dict = None, should: list = None
+) -> Body:
     """
     Args:
         sort: sorting field from url. If starts with '-' then desc order will be applied
@@ -51,8 +52,7 @@ def _validate_query_params(query: str = None, sort: str = None, page: dict = Non
             field, value = tuple(should_item.items())[0]
             should_list.append(Should(field=field, value=value))
         should = should_list
-    body = Body(query=query, sort=sort, filter=filter, page=page, should=should)
-    return body
+    return Body(query=query, sort=sort, filter=filter, page=page, should=should)
 
 
 def get_body(**raw_params) -> dict[str, Any]:
@@ -61,17 +61,16 @@ def get_body(**raw_params) -> dict[str, Any]:
     Returns:
         Example
         {
-          "from": 5,
-          "size": 20,
-          "query": {
-            "match_all": {}
+          'from': 5,
+          'size': 20,
+          'query': {
+            'match_all': {}
           },
-          "sort": {
-            "field": {"order": "desc"}
+          'sort': {
+            'field': {'order': 'desc'}
           },
           ...
         }
-
     """
     query_body: dict[str, Any] = {}
     try:
@@ -107,8 +106,8 @@ def get_body(**raw_params) -> dict[str, Any]:
 
 def _get_search_query(query: str) -> dict:
     return {
-        "query_string": {
-            "query": query
+        'query_string': {
+            'query': query
         }
     }
 
@@ -117,12 +116,12 @@ def _get_filter_query(filter: Filter) -> dict:
     # selected category is filtered based on id:UUID only
     nested_field = f'{filter.field}.id'
     return {
-        "nested": {
-            "path": filter.field,
-            "query": {
-                "bool": {
-                    "must": [
-                        {"match": {nested_field: filter.value}}
+        'nested': {
+            'path': filter.field,
+            'query': {
+                'bool': {
+                    'must': [
+                        {'match': {nested_field: filter.value}}
                     ]
                 }
             }
@@ -133,9 +132,9 @@ def _get_filter_query(filter: Filter) -> dict:
 def _get_should_query(should_list: list[Should]) -> dict:
     # selected items by id in list
     return {
-        "bool": {
-            "should": [
-                {"match": {should.field: should.value}} for should in should_list
+        'bool': {
+            'should': [
+                {'match': {should.field: should.value}} for should in should_list
             ]
         }
     }

@@ -8,7 +8,7 @@ from extensions import cache
 
 
 def check_request_id() -> None:
-    """This is mandatory header for requests tracing"""
+    """This is mandatory header for requests tracing."""
     if not request.headers.get('X-Request-Id'):
         raise RuntimeError('request id is requred')
 
@@ -17,7 +17,7 @@ def check_rate_limit(limit: int) -> None:
     """Restricts number of user requests using Token Bucket algorithm."""
     ip = request.remote_addr
     user_agent = request.user_agent.string
-    user_identity = sha1((str(ip) + user_agent).encode()).hexdigest()
+    user_identity = sha1((str(ip) + user_agent).encode(), usedforsecurity=False).hexdigest()
     now = datetime.datetime.now()
     key = f'{user_identity}:{now.minute}'
 

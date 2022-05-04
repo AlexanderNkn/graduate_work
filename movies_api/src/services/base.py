@@ -6,7 +6,7 @@ from models.genre import GenreDetailedDTO
 from models.person import PersonDetailedDTO
 from services.utils import get_body
 
-T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]
+T = Union[FilmDetailedDTO, GenreDetailedDTO, PersonDetailedDTO]  # noqa: WPS111
 
 # attrs that have to be implemented in BaseService and all child classes
 MANDATORY_ATTRS = ('index', 'model')
@@ -14,11 +14,13 @@ MANDATORY_ATTRS = ('index', 'model')
 
 class BaseServiceAttrs(type):
     """Checks for mandatory attrs in child classes."""
+
     mandatory_attrs = MANDATORY_ATTRS
+
     def __new__(mcls, name, bases, mdct):
         cls = super().__new__(mcls, name, bases, mdct)
         for attr in mcls.mandatory_attrs:
-            if not attr in mdct:
+            if attr not in mdct:
                 raise AttributeError(f'Class attribute `{attr}` is mandatory for class {name}')
         return cls
 

@@ -40,7 +40,7 @@ class ExtractData:
     def __init__(self) -> None:
         self.connection = PostgresConnection()
         self.state = State(JsonFileStorage(STATE_PATH))
-    
+
     @backoff(
         exception=(psycopg2.OperationalError, psycopg2.errors.AdminShutdown),
         initial_backoff=1,
@@ -55,13 +55,16 @@ class ExtractData:
         with pg_connection.cursor() as cursor:
             cursor.execute(*get_sql_query(index, updated_at=updated_at, batch_size=TRANSFER_BATCH_SIZE))
             data = cursor.fetchall()
-            message = (f'Uploading {index} data from Postgres to Elastic started' if data
-                       else f'No updates available for {index}')
+            message = (
+                f'Uploading {index} data from Postgres to Elastic started' if data
+                else f'No updates available for {index}'
+            )
             logger.info(message)
             return data
-  
+
     def extract(self, index: str) -> Optional[list[tuple]]:
         """Retrieve data from Postgres.
+
         Keeps state of the last call to continue retrieving data starting from
         the save point.
         """
@@ -196,9 +199,9 @@ class LoadData:
         )
         return success
 
-
     def load(self, data: dict[str, Any], statistics: dict[str, int], index: str) -> None:
         """Load data to Elasticsearch.
+
         Keeps state of the last call to continue loading data starting from
         the save point.
         """
@@ -217,6 +220,7 @@ class LoadData:
 
 class Process:
     """Extracts data from Postges then load it to ElasticSearch."""
+
     def __init__(self) -> None:
         self.extractdata = ExtractData()
         self.transformdata = TransformData()
@@ -235,8 +239,10 @@ class Process:
                     break
                 prepared_data = self.transformdata.transform(raw_data, index)
                 self.loaddata.load(prepared_data, statistics, index)
-            logger.info(f'Uploading {index} data from Postgres to Elastic completed - '
-                        f'{statistics["total"]} rows were synchronized')
+            logger.info(
+                f'Uploading {index} data from Postgres to Elastic completed - '
+                f'{statistics["total"]} rows were synchronized'
+            )
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ class ElasticStorage:
     def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
-    @backoff.on_exception(backoff.expo,  ConnectionError, max_time=10)
+    @backoff.on_exception(backoff.expo, ConnectionError, max_time=10)
     async def get_by_id(self, index, id, *args, **kwargs):
         try:
             return await self.elastic.get(index=index, id=id, *args, **kwargs)

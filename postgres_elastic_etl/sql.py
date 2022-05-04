@@ -1,11 +1,11 @@
 def get_sql_query(index, **kwargs) -> tuple:
-    """Returns sql query with variables
+    """Returns sql query with variables.
 
     Args:
-        index: index in elasticsearch
+      index: index in elasticsearch
     Kwargs:
-        updated_at: latest update of specified table
-        batch_size: transfer batch size
+      updated_at: latest update of specified table
+      batch_size: transfer batch size
 
     Returns:
         (sql_query, (value1, value2, ...))

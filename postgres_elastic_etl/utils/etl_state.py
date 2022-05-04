@@ -19,6 +19,7 @@ class BaseStorage(ABC):
 
 class JsonFileStorage(BaseStorage):
     """Save and retrieve state to file as JSON."""
+
     def __init__(self, file_path: str | bytes | os.PathLike):
         self.file_path = file_path
 
@@ -38,6 +39,7 @@ class JsonFileStorage(BaseStorage):
 
 class State:
     """Provides methods for keeping and restoring state while retrieving data.
+
     If the process was interrupted it allows to continue retrieving data starting
     from the save point.
     """

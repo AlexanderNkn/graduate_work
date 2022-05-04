@@ -4,8 +4,8 @@ MOVIES_INDEX = {
         "analysis": {
             "filter": {
                 "english_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_english_"
+                    "type": "stop",
+                    "stopwords": "_english_"
                 },
                 "english_stemmer": {
                     "type": "stemmer",
@@ -16,8 +16,8 @@ MOVIES_INDEX = {
                     "language": "possessive_english"
                 },
                 "russian_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_russian_"
+                    "type": "stop",
+                    "stopwords": "_russian_"
                 },
                 "russian_stemmer": {
                     "type": "stemmer",
@@ -66,7 +66,7 @@ MOVIES_INDEX = {
                 "analyzer": "ru_en",
                 "fields": {
                     "raw": {
-                        "type":  "keyword"
+                        "type": "keyword"
                     }
                 }
             },
@@ -136,8 +136,8 @@ PERSONS_INDEX = {
         "analysis": {
             "filter": {
                 "english_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_english_"
+                    "type": "stop",
+                    "stopwords": "_english_"
                 },
                 "english_stemmer": {
                     "type": "stemmer",
@@ -148,8 +148,8 @@ PERSONS_INDEX = {
                     "language": "possessive_english"
                 },
                 "russian_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_russian_"
+                    "type": "stop",
+                    "stopwords": "_russian_"
                 },
                 "russian_stemmer": {
                     "type": "stemmer",
@@ -182,7 +182,7 @@ PERSONS_INDEX = {
                 "analyzer": "ru_en",
                 "fields": {
                     "raw": {
-                        "type":  "keyword"
+                        "type": "keyword"
                     }
                 }
             },
@@ -191,7 +191,7 @@ PERSONS_INDEX = {
                 "analyzer": "ru_en",
                 "fields": {
                     "raw": {
-                        "type":  "keyword"
+                        "type": "keyword"
                     }
                 }
             },
@@ -208,8 +208,8 @@ GENRES_INDEX = {
         "analysis": {
             "filter": {
                 "english_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_english_"
+                    "type": "stop",
+                    "stopwords": "_english_"
                 },
                 "english_stemmer": {
                     "type": "stemmer",
@@ -220,8 +220,8 @@ GENRES_INDEX = {
                     "language": "possessive_english"
                 },
                 "russian_stop": {
-                    "type":       "stop",
-                    "stopwords":  "_russian_"
+                    "type": "stop",
+                    "stopwords": "_russian_"
                 },
                 "russian_stemmer": {
                     "type": "stemmer",
@@ -254,7 +254,7 @@ GENRES_INDEX = {
                 "analyzer": "ru_en",
                 "fields": {
                     "raw": {
-                        "type":  "keyword"
+                        "type": "keyword"
                     }
                 }
             },

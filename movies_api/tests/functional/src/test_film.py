@@ -17,7 +17,7 @@ async def upload_film_data(send_data_to_elastic, film_list):
 async def test_get_film_by_id(upload_film_data, make_get_request, film_by_id_expected):
     response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
 
-    assert response.status == HTTPStatus.OK, 'film doesn\'t available by id'
+    assert response.status == HTTPStatus.OK, "film doesn\'t available by id"
     assert len(response.body) == len(film_by_id_expected), 'check fields count'
     assert response.body == film_by_id_expected, 'check data in document'
 
@@ -39,8 +39,9 @@ async def test_get_cached_film(
         response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
         assert response.body == film_by_id_expected, 'check data in document'
 
-    es_response = await es_client.get(index='movies', id='12345678-1234-1234-1234-123456789101',
-                                      ignore=HTTPStatus.NOT_FOUND)
+    es_response = await es_client.get(
+        index='movies', id='12345678-1234-1234-1234-123456789101', ignore=HTTPStatus.NOT_FOUND
+    )
     assert es_response.get('found') is False, 'data in elastic still exists after deletion'
     response = await make_get_request('/film/12345678-1234-1234-1234-123456789101')
     assert response.status == HTTPStatus.OK, 'cache should be available'
@@ -132,32 +133,32 @@ async def test_film_text_search_by_title(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=star')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
-    assert len(response.body) == 1, 'search by title doesn\'t available'
+    assert len(response.body) == 1, "search by title doesn\'t available"
 
 
 async def test_film_text_search_by_description(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=movie')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
-    assert len(response.body) == 2, 'search by description doesn\'t available'
+    assert len(response.body) == 2, "search by description doesn\'t available"
 
 
 async def test_film_text_search_by_actors(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=Kurtzman')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
-    assert len(response.body) == 2, 'search by actors doesn\'t available'
+    assert len(response.body) == 2, "search by actors doesn\'t available"
 
 
 async def test_film_text_search_by_writers(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=Pine')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
-    assert len(response.body) == 3, 'search by writers doesn\'t available'
+    assert len(response.body) == 3, "search by writers doesn\'t available"
 
 
 async def test_film_text_search_by_directors(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=Tomaszewski')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
-    assert len(response.body) == 2, 'search by directors doesn\'t available'
+    assert len(response.body) == 2, "search by directors doesn\'t available"

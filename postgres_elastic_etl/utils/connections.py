@@ -3,13 +3,14 @@ from typing import Optional
 
 import psycopg2
 from elasticsearch import Elasticsearch, ConnectionError as ES_ConnectionError
-from psycopg2.extensions import connection as PGconnection
+from psycopg2.extensions import connection as PGconnection  # noqa: N812
 
 from .backoff import backoff
 
 
 class ElasticConnection:
     """Provides method for automatic reconnection to Elastic db."""
+
     def __init__(self) -> None:
         self.socket = {'host': os.getenv('ES_HOST'), 'port': os.getenv('ES_PORT')}
         self._client = Elasticsearch([self.socket])
@@ -23,6 +24,7 @@ class ElasticConnection:
 
 class PostgresConnection:
     """Provides method for automatic reconnection to Postgres db."""
+
     def __init__(self) -> None:
         self.dsn = {
             'dbname': os.getenv('PG_DBNAME'),

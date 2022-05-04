@@ -29,7 +29,7 @@ def test_get_role_list(create_role, headers_with_admin_access, client, roles_lis
     response = client.get(
         'auth-api/v1/role',
         headers=headers_with_admin_access,
-        )
+    )
     assert response.status_code == HTTPStatus.OK
     assert response.json.get('roles') == roles_list
 
@@ -47,7 +47,8 @@ def test_create_role_without_admin_permission(client, headers_with_user_access, 
     response = client.post(
         'auth-api/v1/role',
         json={'code': 'test_role', 'description': 'for test'},
-        headers=headers_with_user_access)
+        headers=headers_with_user_access
+    )
     assert response.status_code == HTTPStatus.FORBIDDEN
 
 
@@ -131,12 +132,14 @@ def test_check_roles(client, headers_with_admin_access, session):
     response = client.post(
         'auth-api/v1/check-roles',
         json={
-            "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
-            "role_ids": [
-                "73fdfb99-9465-4736-8661-af9f05d7991e",
-                "d4cb21a9-77e4-42df-b79e-4fb25e4ea046"]
+            'user_id': '8f4233c3-6284-41bd-af5a-737c6a3dc38d',
+            'role_ids': [
+                '73fdfb99-9465-4736-8661-af9f05d7991e',
+                'd4cb21a9-77e4-42df-b79e-4fb25e4ea046',
+            ]
         },
-        headers=headers_with_admin_access)
+        headers=headers_with_admin_access
+    )
     assert response.status_code == HTTPStatus.OK
     assert response.json.get('has_roles') is True
 
@@ -145,10 +148,12 @@ def test_check_roles_without_admin_permission(client, headers_with_user_access, 
     response = client.post(
         'auth-api/v1/check-roles',
         json={
-            "user_id": "8f4233c3-6284-41bd-af5a-737c6a3dc38d",
-            "role_ids": [
-                "73fdfb99-9465-4736-8661-af9f05d7991e",
-                "d4cb21a9-77e4-42df-b79e-4fb25e4ea046"]
+            'user_id': '8f4233c3-6284-41bd-af5a-737c6a3dc38d',
+            'role_ids': [
+                '73fdfb99-9465-4736-8661-af9f05d7991e',
+                'd4cb21a9-77e4-42df-b79e-4fb25e4ea046',
+            ]
         },
-        headers=headers_with_user_access)
+        headers=headers_with_user_access
+    )
     assert response.status_code == HTTPStatus.FORBIDDEN

@@ -1,12 +1,12 @@
 
 PERMISSIONS = [
     {
-        "code": "users"
+        'code': 'users'
     },
     {
-        "code": "personal_data"
+        'code': 'personal_data'
     },
     {
-        "code": "roles"
+        'code': 'roles'
     }
 ]

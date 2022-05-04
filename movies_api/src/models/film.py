@@ -8,6 +8,7 @@ from .person import PersonShortDTO, PersonShortResponse
 
 class FilmShortResponse(BaseModel):
     """Film with title and imdb_rating, without details."""
+
     uuid: uuid.UUID
     imdb_rating: float
     title: str
@@ -15,6 +16,7 @@ class FilmShortResponse(BaseModel):
 
 class FilmDetailedResponse(BaseModel):
     """Film details with title, imdb_rating, description, persons, genres."""
+
     uuid: uuid.UUID
     title: str
     imdb_rating: float
@@ -27,6 +29,7 @@ class FilmDetailedResponse(BaseModel):
 
 class FilmDetailedDTO(BaseModel):
     """Film details received from elasticsearch."""
+
     id: uuid.UUID
     imdb_rating: float
     genre: list[GenreShortDTO]

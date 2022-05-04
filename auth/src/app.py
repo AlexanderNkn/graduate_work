@@ -145,7 +145,7 @@ def configure_cli(app):
                 role_permissions = []
                 for permission in permissions:
                     role_permissions.append(Permission.query.filter_by(code=permission).first())
-                role.permissions = [permission for permission in role_permissions if permission]
+                role.permissions = [role_permission for role_permission in role_permissions if role_permission]
                 objects.append(role)
 
         db.session.add_all(objects)

@@ -143,7 +143,7 @@ def test_refresh_token(client, session, login_user):
 
 def test_refresh_token_incorrect(client, session, login_user):
     _, tokens = login_user('user1', '234')
-    refresh_token = tokens['refresh_token'] + '345345'
+    refresh_token = f"{tokens['refresh_token']}345345"
     body = json.dumps({'username': 'user1', 'password': '234'})
     response = client.post(
         '/auth-api/v1/auth/refresh-token',
