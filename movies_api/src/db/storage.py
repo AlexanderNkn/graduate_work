@@ -21,13 +21,13 @@ class RemoteStorage(AbstractRemoteStorage):
         return await self.engine.get_by_params(index=index, body=body, *args, **kwargs)
 
     async def get_by_id(self, index: str, id: str, model: T, *args, **kwargs) -> T | None:
-        doc = await self._get_by_id(index=index, id=id, *args, **kwargs)
+        doc = await self._get_by_id(index, id, *args, **kwargs)
         if doc is not None:
             return model(**doc['_source'])
         return None
 
     async def get_by_params(self, index: str, body: dict, model: T, *args, **kwargs) -> list[T] | None:
-        doc = await self._get_by_params(index=index, body=body, *args, **kwargs)
+        doc = await self._get_by_params(index, body, *args, **kwargs)
         if doc is not None:
             return [model(**_doc['_source']) for _doc in doc['hits']['hits']]
         return None

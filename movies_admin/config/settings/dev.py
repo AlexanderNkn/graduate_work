@@ -9,11 +9,11 @@ from .base import *  # noqa
 SECRET_KEY = os.getenv('DJANGO_APPLICATION_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv('DJANGO_DEBUG')))
+DEBUG = bool(int(os.getenv('DJANGO_DEBUG') or 0))
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = (os.getenv('DJANGO_ALLOWED_HOSTS') or '').split(' ')
 
-ENABLE_DEBUG_TOOLBAR = bool(int(os.getenv('ENABLE_DEBUG_TOOLBAR')))
+ENABLE_DEBUG_TOOLBAR = bool(int(os.getenv('ENABLE_DEBUG_TOOLBAR') or 0))
 
 DATABASES = {
     'default': {

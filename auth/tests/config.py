@@ -31,8 +31,8 @@ YANDEX_CLIENT_SECRET_TEST = os.getenv('YANDEX_CLIENT_SECRET_TEST', 'client_secre
 
 REQUEST_LIMIT_PER_MINUTE = int(os.getenv('REQUEST_LIMIT_PER_MINUTE_TEST', 10000))
 SENTRY_DSN = ''
-SWAGGER_CONFIG = {}
-JAEGER_CONFIG = {}
+SWAGGER_CONFIG: dict = {}
+JAEGER_CONFIG: dict = {}
 
 
 class JWTSettings(BaseSettings):

@@ -60,7 +60,7 @@ class User(BaseModel):
     def password(self):
         return self.pwd_hash
 
-    @password.setter
+    @password.setter  # type: ignore
     def password(self, value):
         """Store the password as a hash for security."""
         self.pwd_hash = generate_password_hash(value)
