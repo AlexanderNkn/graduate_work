@@ -115,7 +115,13 @@ def _get_search_query(query: str) -> dict:
 
 def _get_filter_query(filter: Filter) -> dict:
     # selected category is filtered based on id:UUID only
-    nested_field = f'{filter.field}.id'
+    if '.' in filter.field:
+        field = filter.field.split('.', maxsplit=1)[0]
+        nested_field = filter.field
+    else:
+        field = filter.field
+        nested_field = f'{filter.field}.id'
+
     return {
         "nested": {
             "path": filter.field,
