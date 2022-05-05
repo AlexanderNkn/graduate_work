@@ -29,8 +29,7 @@ jobs:
         uses: wemake-services/wemake-python-styleguide@0.16.1
 
       - name: Lint with mypy for python ${{ matrix.python-version }} version
-        # mypy was temporary disabled until all services were merged
-        # run: mypy assistant
+        run: mypy auth movies_admin movies_api postgres_elastic_etl
 
   notification:
     runs-on: ubuntu-latest
