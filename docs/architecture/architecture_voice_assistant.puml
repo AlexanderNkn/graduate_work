@@ -1,0 +1,72 @@
+"@startuml Voice Assistant architecture"
+skinparam componentStyle uml1
+
+actor Менеджер as Manager
+actor Клиент as Client
+
+package WebBrowser {
+    component SpeechRecognition as speech1
+    component SpeechSynthesis as speech2
+}
+
+package ProxyServer as proxy1 {
+    rectangle nginx as nginx1 {
+        component router as router1
+    }
+}
+
+package ProxyServer as proxy2 {
+    rectangle nginx as nginx2 {
+        component router as router2
+    }
+}
+
+package AdminPanel {
+    component DjangoWebBackend as django
+    database Postgres as postgres1
+}
+
+package FullTextSearch {
+    cloud {
+        component ETLprocess as etl
+    }
+    database ElasticSearch
+}
+
+package VoiceAssistant {
+    component FastapiWebBackend as fastapi2
+}
+
+package MovieSearch {
+    component FastapiWebBackend as fastapi
+    database Redis as redis1
+}
+
+package Authorization {
+    component Auth
+    database Redis as redis2
+    database Postgres as postgres2
+}
+
+speech1 -[hidden]-> speech2
+Authorization -[hidden]-> MovieSearch
+FullTextSearch -[hidden]-> MovieSearch
+Manager -r-> router1: Добавление/редактирование\n информации о фильме
+Client -r-> speech1: вопрос\nголосом
+speech2 -l-> Client: ответ\nголосом
+speech1 -r-> router2
+speech2 <-l- router2
+fastapi2 -u-> router2: html с js скриптом\nдля распознавания речи
+router2 -d-> fastapi2: текстовый запрос\nиз речи
+fastapi2 -d-> fastapi: поиск по фильмам/\nактерам/жанрам
+router1 -d-> django
+django -l-> postgres1
+postgres1 -r-> etl
+etl --> ElasticSearch: денормализованные\nданные
+fastapi --> redis1: кэширование\nзапросов
+fastapi --> ElasticSearch: запрос данных по\nфильмам/актерам/жанрам
+Auth --> postgres2
+Auth --> redis2: кэширование\nзапросов
+fastapi2 --> Auth: Проверка разрешений\n пользователя
+
+@enduml 

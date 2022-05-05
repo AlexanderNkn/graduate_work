@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  movies_admin_db:
+    ports:
+      - 5433:5432
+  es:
+    ports:
+      - 9201:9200
+  auth_db:
+    ports:
+      - 5434:5432
