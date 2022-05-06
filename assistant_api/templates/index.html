@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>Данные формы</title>
+ </head>
+ <style>
+span.a {
+  display: inline; /* the default for span */
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  border: 1px solid blue;  
+  background-color: yellow; 
+}
+
+span.b {
+  display: inline-block;
+  vertical-align: top;
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  margin: 5px;
+  border: 1px solid blue;    
+}
+
+span.c {
+  display: block;
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  border: 1px solid blue;    
+  background-color: yellow; 
+}
+</style>
+ <body>
+  <form action="search">
+   <p><input placeholder="Вопрос" name="query" {% if query %} value="{{ query }}" {% endif %}></p>
+   <p><input type="submit"></p>
+  </form>
+  {% if films %}
+	<h3>Фильмы</h3>
+	
+	<div>
+	{% for film in films %}
+		<span class="b"><a href="http://127.0.0.1:8000/movies-api/v1/film/{{ film.uuid }}"> {{ film.title }}</a> </span>
+	{% endfor %}
+	</div>
+  {% endif %}
+  
+  {% if genres %}
+	<h3>Жанры</h3>
+	
+	<div>
+	{% for genre in genres %}
+		<span  class="b"><a href="http://127.0.0.1:8000/movies-api/v1/genre/{{ genre.uuid }}"> {{ genre.name }}</a> </span>
+	{% endfor %}
+	</div>
+  {% endif %}
+  
+  {% if persons %}
+	<h3>Персоны</h3>
+	
+	<div>
+	{% for person in persons %}
+		<span class="b"><a href="http://127.0.0.1:8000/movies-api/v1/person/{{ person.uuid }}"> {{ person.full_name }}</a> </span>
+	{% endfor %}
+	</div>
+  {% endif %}
+ </body>
+</html>
