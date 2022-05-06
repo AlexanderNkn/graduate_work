@@ -32,7 +32,12 @@ class Body(BaseModel):
 
 
 def _validate_query_params(
-    query: str = None, sort: str = None, page: dict = None, filter: dict = None, should: list = None
+    query: str = None,
+    sort: str = None,
+    page: dict = None,
+    filter: dict = None,
+    should: list = None,
+    all: bool = None,
 ) -> Body:
     """
     Args:
