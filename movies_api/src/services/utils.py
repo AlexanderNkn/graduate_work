@@ -89,14 +89,20 @@ def get_body(**raw_params) -> dict[str, Any]:
         query_body['size'] = params.page.size
 
     # searching
+    query_body['query'] = {'match_all': {}}
+    filters = []
     if params.query is not None:
-        query_body.setdefault('query', {}).update(_get_search_query(params.query))
+        filters.append(_get_search_query(params.query))
     if params.filter is not None:
-        query_body.setdefault('query', {}).update(_get_filter_query(params.filter))
+        filters.append(_get_filter_query(params.filter))
     if params.should is not None:
-        query_body.setdefault('query', {}).update(_get_should_query(params.should))
-    if 'query' not in query_body:
-        query_body['query'] = {'match_all': {}}
+        filters.append(_get_should_query(params.should))
+    if filters:
+        query_body['query'] = {
+            'bool': {
+                'must': filters
+            }
+        }
 
     # sorting
     if params.sort is not None:

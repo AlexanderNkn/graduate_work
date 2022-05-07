@@ -202,6 +202,14 @@ async def test_film_text_search_by_actors(upload_film_data, make_get_request):
     assert len(response.body) == 2, "search by actors doesn\'t available"
 
 
+async def test_film_text_search_with_filter(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query[description]=movie&filter[actors.name]=Chris Weitz')
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+
+    response = await make_get_request('/film/search?query[description]=movie&filter[actors.name]=testuser1234')
+    assert response.status == HTTPStatus.NOT_FOUND, 'data for incorrect filter should not be available'
+
+
 async def test_film_text_search_by_writers(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=Pine')
 
