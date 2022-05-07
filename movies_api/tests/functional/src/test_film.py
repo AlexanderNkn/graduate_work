@@ -75,31 +75,59 @@ async def test_film_sort(upload_film_data, make_get_request, film_list_expected)
         'check data in document'
 
 
-async def test_film_filter_by_genre(upload_film_data, make_get_request):
-    response = await make_get_request('/film?filter[genre]=5373d043-3f41-4ea8-9947-4b746c601bbd')
+async def test_film_filter_by_genre_id(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[genre.id]=5373d043-3f41-4ea8-9947-4b746c601bbd')
 
-    assert response.status == HTTPStatus.OK, 'filter by genre should be available'
+    assert response.status == HTTPStatus.OK, 'filter by genre id should be available'
     assert len(response.body) == 2, 'check film count'
 
 
-async def test_film_filter_by_actor(upload_film_data, make_get_request):
-    response = await make_get_request('/film?filter[actors]=22345678-1234-1234-1234-123456789104')
+async def test_film_filter_by_genre_name(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[genre.name]=Comedy')
 
-    assert response.status == HTTPStatus.OK, 'filter by actor should be available'
+    assert response.status == HTTPStatus.OK, 'filter by genre name should be available'
     assert len(response.body) == 2, 'check film count'
 
 
-async def test_film_filter_by_writer(upload_film_data, make_get_request):
-    response = await make_get_request('/film?filter[writers]=22345678-1234-1234-1234-123456789105')
+async def test_film_filter_by_actor_id(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[actors.id]=22345678-1234-1234-1234-123456789104')
 
-    assert response.status == HTTPStatus.OK, 'filter by writer should be available'
+    assert response.status == HTTPStatus.OK, 'filter by actor id should be available'
+    assert len(response.body) == 2, 'check film count'
+
+
+async def test_film_filter_by_actor_name(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[actors.name]=Alex Kurtzman')
+
+    assert response.status == HTTPStatus.OK, 'filter by actor name should be available'
+    assert len(response.body) == 2, 'check film count'
+
+
+async def test_film_filter_by_writer_id(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[writers.id]=22345678-1234-1234-1234-123456789105')
+
+    assert response.status == HTTPStatus.OK, 'filter by writer id should be available'
     assert len(response.body) == 3, 'check film count'
 
 
-async def test_film_filter_by_director(upload_film_data, make_get_request):
-    response = await make_get_request('/film?filter[directors]=22345678-1234-1234-1234-123456789102')
+async def test_film_filter_by_writer_name(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[writers.name]=Chris Pine')
 
-    assert response.status == HTTPStatus.OK, 'filter by director should be available'
+    assert response.status == HTTPStatus.OK, 'filter by writer name should be available'
+    assert len(response.body) == 3, 'check film count'
+
+
+async def test_film_filter_by_director_id(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[directors.id]=22345678-1234-1234-1234-123456789102')
+
+    assert response.status == HTTPStatus.OK, 'filter by director id should be available'
+    assert len(response.body) == 2, 'check film count'
+
+
+async def test_film_filter_by_director_name(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[directors.name]=David Tomaszewski')
+
+    assert response.status == HTTPStatus.OK, 'filter by director name should be available'
     assert len(response.body) == 2, 'check film count'
 
 
@@ -140,11 +168,31 @@ async def test_film_text_search_by_title(upload_film_data, make_get_request):
     assert len(response.body) == 1, "search by title doesn\'t available"
 
 
+async def test_film_text_filter_by_title(upload_film_data, make_get_request):
+    response = await make_get_request('/film?filter[title]=Video Killed the Radio Star')
+
+    assert response.status == HTTPStatus.OK, 'root field filter should be available'
+    assert len(response.body) == 1, "filter by title doesn\'t available"
+
+
 async def test_film_text_search_by_description(upload_film_data, make_get_request):
     response = await make_get_request('/film/search?query=movie')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
     assert len(response.body) == 2, "search by description doesn\'t available"
+
+
+async def test_film_text_search_by_description_correct_field(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query[description]=movie')
+
+    assert response.status == HTTPStatus.OK, 'text search should be available'
+    assert len(response.body) == 2, "search by description doesn\'t available"
+
+
+async def test_film_text_search_by_description_incorrect_field(upload_film_data, make_get_request):
+    response = await make_get_request('/film/search?query[title]=movie')
+
+    assert response.status == HTTPStatus.NOT_FOUND, 'text search in other field should not be available'
 
 
 async def test_film_text_search_by_actors(upload_film_data, make_get_request):

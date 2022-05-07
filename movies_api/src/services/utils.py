@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import Request
 from fastapi.exceptions import HTTPException
@@ -24,11 +24,11 @@ class Should(BaseModel):
 
 
 class Body(BaseModel):
-    query: Optional[str]
-    sort: Optional[str]
-    filter: Optional[Filter]
-    should: Optional[list[Should]]
-    page: Optional[Page]
+    query: str | dict[str, str] | None
+    sort: str | None
+    filter: Filter | None
+    should: list[Should] | None
+    page: Page | None
 
 
 def _validate_query_params(
@@ -109,27 +109,65 @@ def get_body(**raw_params) -> dict[str, Any]:
     return query_body
 
 
-def _get_search_query(query: str) -> dict:
+def _get_search_query(query: str | dict[str, str]) -> dict:
+    """Prepares query depends on params.
+
+    The search query can by run against specified fields otherwise all fields will be used.
+    Example:
+        /movies-api/v1/film/search?query[title,description]=Edge of tomorrow
+        checks query string in title and description only.
+
+        This phrase will be searched in all fields
+        /movies-api/v1/film/search?query=Edge of tomorrow
+    """
+    fields = []
+    if isinstance(query, dict):
+        fields_string, query = next(iter(query.items()))
+        fields = fields_string.split(',')
     return {
         'query_string': {
-            'query': query
+            'query': query,
+            'fields': fields,
         }
     }
 
 
 def _get_filter_query(filter: Filter) -> dict:
-    # selected category is filtered based on id:UUID only
-    nested_field = f'{filter.field}.id'
-    return {
-        'nested': {
-            'path': filter.field,
-            'query': {
+    """Prepares filters depends on Elastic index schema.
+
+    Nested fields should be passed as filter params using dot notation.
+    Example:
+        schema:
+            "actors_names": [
+                "Emily Blunt",
+                "Tom Cruise"
+            ],
+            "directors": [
+                {
+                    "id": "e155043e-c6aa-4135-87db-2b30e6208250",
+                    "name": "Doug Liman"
+                }
+            ],
+            ...
+        related filter queries:
+            /movies-api/v1/film/search?filter[actors_names]=Emily Blunt
+            /movies-api/v1/film/search?filter[directors.id]=e155043e-c6aa-4135-87db-2b30e6208250
+            /movies-api/v1/film/search?filter[directors.name]=Doug Liman
+    """
+    query = {
                 'bool': {
                     'must': [
-                        {'match': {nested_field: filter.value}}
+                        {'match': {filter.field: filter.value}}
                     ]
                 }
             }
+    if len(path := filter.field.split('.')[0]) == len(filter.field):
+        return query
+
+    return {
+        'nested': {
+            'path': path,
+            'query': query
         }
     }
 
