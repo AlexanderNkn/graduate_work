@@ -1,4 +1,5 @@
 -r auth/requirements.txt
+-r assistant_api/requirements.txt
 -r movies_admin/requirements.txt
 -r movies_api/requirements.txt
 -r movies_api/tests/requirements.txt
