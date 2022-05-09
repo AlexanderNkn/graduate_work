@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from core import config
-from services.utils import make_request
+from services.utils import make_post_request
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='', auto_error=config.ENABLE_AUTHORIZATION)
 
@@ -15,11 +15,11 @@ async def make_auth_request(permission: str, token: str, x_request_id: str):
     headers = {'X-Request-Id': x_request_id}
     if not config.ENABLE_AUTHORIZATION:
         return headers
-    
+
     headers.update({'Authorization': f'Bearer {token}'})
     url = f'{config.AUTH_HOST}:{config.AUTH_PORT}{config.AUTH_BASE_URL}/check-permission'
     payload = {'permission': f'{permission}'}
-    data = await make_request(url, payload, headers)
+    data = await make_post_request(url, payload, headers)
     if data['status'] == 'error' or (data['status'] == 'success' and data['has_permission'] is False):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=data)
     return headers
