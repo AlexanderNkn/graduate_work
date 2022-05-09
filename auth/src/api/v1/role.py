@@ -577,9 +577,14 @@ def check_permission():
     permission = request.json.get('permission')
     token_user_id = uuid.UUID(get_jwt_identity())
 
+    if is_permission := has_permission(permission=permission, token_user_id=token_user_id):
+        http_status = HTTPStatus.OK
+    else:
+        http_status = HTTPStatus.UNAUTHORIZED
+
     return make_response(
         {
             "message": "permissions checked",
             "status": "success",
-            "has_permission": has_permission(permission=permission, token_user_id=token_user_id)
-        }, HTTPStatus.OK)
+            "has_permission": is_permission
+        }, http_status)
