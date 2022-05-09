@@ -3,7 +3,7 @@ from fastapi.responses import ORJSONResponse
 
 from dependencies.authentication import get_token, make_auth_request
 from services.handlers import get_handler
-from services.intent import get_intent
+from services.intent import get_intent, ParsedQuery
 
 router = APIRouter()
 
@@ -23,8 +23,8 @@ async def voice_query(
     query: str | None = None,
     authorized_headers: dict = Depends(check_voice_permission),
 ) -> dict:
-    parsed_query: dict = get_intent(query)
-    handler = get_handler(parsed_query['intent'])
-    answer = await handler(headers=authorized_headers, params=parsed_query['params'])
+    parsed_query: ParsedQuery = get_intent(query)
+    handler = get_handler(parsed_query.intent)
+    answer = await handler(headers=authorized_headers, params=parsed_query.params)
     # TODO json response for testing purposes. It should be replaced with html
     return {'answer': answer}

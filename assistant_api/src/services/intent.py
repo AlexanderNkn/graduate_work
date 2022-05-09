@@ -1,4 +1,13 @@
-def get_intent(query: str) -> dict[str, str | dict]:  # type: ignore
+from dataclasses import dataclass
+
+
+@dataclass
+class ParsedQuery:
+    intent: str
+    params: dict
+
+
+def get_intent(query: str) -> ParsedQuery:
     """Returns intent with params from given query.
 
     Example:
@@ -11,9 +20,9 @@ def get_intent(query: str) -> dict[str, str | dict]:  # type: ignore
         }
     """
     # respons for testing purposes only
-    return {
-        'intent': 'director_search',
-        'params': {
+    return ParsedQuery(
+        intent='director_search',
+        params={
             'title': 'грань будущего',
         }
-    }
+    )
