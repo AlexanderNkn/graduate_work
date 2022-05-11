@@ -7,7 +7,7 @@ logging_config.dictConfig(LOGGING)
 
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'voice_assistant')
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ASSISTANTAPI_HOST = os.getenv('ASSISTANTAPI_HOST', 'http://127.0.0.1')
 ASSISTANTAPI_PORT = int(os.getenv('ASSISTANTAPI_PORT', 80))

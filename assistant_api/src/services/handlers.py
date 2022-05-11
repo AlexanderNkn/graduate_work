@@ -21,4 +21,4 @@ async def get_director(headers, params):
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
     directors = ' '.join(data[0]['directors_names'])
-    return f'Режиссер фильма {directors}'
+    return {'text_to_speech': f'Режиссер фильма {directors}'}

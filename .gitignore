@@ -62,3 +62,6 @@ swagger-codegen-cli.jar
 
 # for authentication via google account
 client_secret.json
+
+# dublicate static
+movies_admin/movies/static
