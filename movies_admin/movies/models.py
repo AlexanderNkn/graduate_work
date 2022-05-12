@@ -16,7 +16,7 @@ class TimeStampedModel(models.Model):
 class Genre(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_('title'), max_length=255)
-    description = models.TextField(_('description'), blank=True, null=True)
+    description = models.TextField(_('description'), blank=True)
 
     class Meta:
         verbose_name = _('genre')
@@ -59,13 +59,18 @@ class FilmworkType(models.TextChoices):
 class Filmwork(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(_('title'), max_length=255)
-    description = models.TextField(_('description'), blank=True, null=True)
-    creation_year = models.CharField(_('creation year'), max_length=20, blank=True, null=True)
+    description = models.TextField(_('description'), blank=True)
+    creation_year = models.CharField(_('creation year'), max_length=20, blank=True)
     creation_date = models.DateField(_('creation date'), blank=True, null=True)
-    certificate = models.TextField(_('certificate'), blank=True, null=True)
-    kinopoisk_id = models.CharField(_('kinopoisk_id'), max_length=20, blank=True, null=True)
+    certificate = models.TextField(_('certificate'), blank=True)
+    kinopoisk_id = models.CharField(_('kinopoisk_id'), max_length=20, blank=True)
     file_path = models.FileField(_('file'), upload_to='film_works/', blank=True, null=True)
-    rating = models.FloatField(_('rating'), validators=[MinValueValidator(0), MaxValueValidator(10)], blank=True, null=True)
+    rating = models.FloatField(
+        _('rating'),
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        blank=True,
+        null=True
+    )
     duration = models.IntegerField(_('duration'), default=0, blank=True)
     type = models.CharField(_('type'), max_length=20, choices=FilmworkType.choices)
     genres = models.ManyToManyField(Genre, through=FilmworkGenre)
@@ -95,7 +100,6 @@ class Person(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(_('full name'), max_length=255)
     birth_date = models.DateField(_('birth date'), blank=True, null=True)
-    kinopoisk_id = models.TextField(_('kinopoisk_id'), blank=True, null=True)
 
     class Meta:
         verbose_name = _('person')
@@ -105,12 +109,6 @@ class Person(TimeStampedModel):
         indexes = [
             models.Index(fields=('updated_at',), name='person_updated_at_idx'),
             models.Index(fields=('birth_date',), name='person_birth_date_idx'),
-        ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=['kinopoisk_id'],
-                name='person_kinopoisk_id_uniq'
-            ),
         ]
 
     def __str__(self) -> str:
