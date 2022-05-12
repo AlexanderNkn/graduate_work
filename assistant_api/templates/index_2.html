@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Voice Search</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" type="image" href="/static/img/voice_icon.ico">
+</head>
+<body>
+
+  <form id="voiceAssistant">
+    <div class="speech">
+      <input type="text" name="query" id="transcript" placeholder="Say Something"/>
+      <img class="microphone__image" src="/static/img/microphone.gif"/>
+    </div>
+  </form>
+
+  </form>
+    {% if text_to_speech %}
+      <div>
+        {{ text_to_speech }}
+      </div>
+    {% endif %}
+  </form>
+
+  <script src="/static/js/speechRecognition.js"></script>
+</body>
+</html>

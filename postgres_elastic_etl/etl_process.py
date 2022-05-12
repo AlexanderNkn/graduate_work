@@ -93,7 +93,7 @@ class TransformData:
 
     def prepare_movies_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
         prepared_data = []
-        for id, rating, title, description, persons, genres, latest_update in data:
+        for id, rating, title, description, duration, persons, genres, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
             actors_names, actors, writers_names, writers, directors_names, directors = [], [], [], [], [], []
             unique_persons = ({person['id']: person for person in persons}.values())
@@ -118,6 +118,7 @@ class TransformData:
                 'genre': genres,
                 'title': title,
                 'description': description or None,
+                'duration': duration or None,
                 'directors_names': directors_names or None,
                 'actors_names': actors_names or None,
                 'writers_names': writers_names or None,

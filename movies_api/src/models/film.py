@@ -21,6 +21,7 @@ class FilmDetailedResponse(BaseModel):
     title: str
     imdb_rating: float
     description: Optional[str]
+    duration: Optional[int]
     genre: list[GenreShortResponse]
     actors: list[PersonShortResponse]
     writers: list[PersonShortResponse]
@@ -35,6 +36,7 @@ class FilmDetailedDTO(BaseModel):
     genre: list[GenreShortDTO]
     title: str
     description: Optional[str]
+    duration: Optional[int]
     actors_names: Optional[list[str]]
     writers_names: Optional[list[str]]
     directors_names: Optional[list[str]]

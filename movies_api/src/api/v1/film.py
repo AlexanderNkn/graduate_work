@@ -76,6 +76,7 @@ async def film_details(
         title=film.title,
         imdb_rating=film.imdb_rating,
         description=film.description,
+        duration=film.duration,
         genre=[GenreShortResponse(uuid=genre.id, name=genre.name) for genre in film.genre],
         actors=[PersonShortResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors],
         writers=[PersonShortResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers],

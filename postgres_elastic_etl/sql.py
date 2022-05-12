@@ -31,7 +31,7 @@ def get_sql_query(index, **kwargs) -> tuple:
 # contained persons and genres as well, are selected in one query
 UPDATE_FILMWORK_INDEX = """
     SELECT
-        fw.id, fw.rating, fw.title, fw.description,
+        fw.id, fw.rating, fw.title, fw.description, fw.duration,
         jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'role', pfw.role)) AS persons,
         jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name)) AS genres,
         GREATEST(fw.updated_at, MAX(p.updated_at), MAX(g.updated_at)) AS latest_update

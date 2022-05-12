@@ -29,5 +29,5 @@ async def voice_query(
         parsed_query: ParsedQuery = get_intent(query)
         handler = get_handler(parsed_query.intent)
         data = await handler(headers=authorized_headers, params=parsed_query.params)
-    html_content = get_site(data, 'index.html')
+    html_content = get_site(data, 'index_2.html')
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
