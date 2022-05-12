@@ -53,16 +53,25 @@ class FilmworkGenre(models.Model):
 class FilmworkType(models.TextChoices):
     MOVIE = 'movie', _('movie')
     TV_SHOW = 'tv_show', _('TV Show')
+    UNKNOWN = 'unknown', _('unknown')
 
 
 class Filmwork(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(_('title'), max_length=255)
     description = models.TextField(_('description'), blank=True)
-    creation_date = models.DateField(_('creation date'), blank=True)
+    creation_year = models.CharField(_('creation year'), max_length=20, blank=True)
+    creation_date = models.DateField(_('creation date'), blank=True, null=True)
     certificate = models.TextField(_('certificate'), blank=True)
-    file_path = models.FileField(_('file'), upload_to='film_works/', blank=True)
-    rating = models.FloatField(_('rating'), validators=[MinValueValidator(0), MaxValueValidator(10)], blank=True)
+    kinopoisk_id = models.CharField(_('kinopoisk_id'), max_length=20, blank=True)
+    file_path = models.FileField(_('file'), upload_to='film_works/', blank=True, null=True)
+    rating = models.FloatField(
+        _('rating'),
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        blank=True,
+        null=True
+    )
+    duration = models.IntegerField(_('duration'), default=0, blank=True)
     type = models.CharField(_('type'), max_length=20, choices=FilmworkType.choices)
     genres = models.ManyToManyField(Genre, through=FilmworkGenre)
     persons = models.ManyToManyField('Person', through='FilmworkPerson')
@@ -76,6 +85,12 @@ class Filmwork(TimeStampedModel):
             models.Index(fields=('updated_at',), name='film_work_updated_at_idx'),
             models.Index(fields=('creation_date',), name='film_work_creation_date_idx'),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['kinopoisk_id'],
+                name='film_work_kinopoisk_id_uniq'
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.title
@@ -84,7 +99,7 @@ class Filmwork(TimeStampedModel):
 class Person(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(_('full name'), max_length=255)
-    birth_date = models.DateField(_('birth date'), blank=True)
+    birth_date = models.DateField(_('birth date'), blank=True, null=True)
 
     class Meta:
         verbose_name = _('person')
@@ -104,6 +119,15 @@ class RoleType(models.TextChoices):
     ACTOR = 'actor', _('actor')
     DIRECTOR = 'director', _('director')
     WRITER = 'writer', _('writer')
+    OPERATOR = 'operator', _('operator')
+    EDITOR = 'editor', _('editor')
+    COMPOSER = 'composer', _('composer')
+    PRODUCER_USSR = 'producer_ussr', _('producer_ussr')
+    TRANSLATOR = 'translator', _('translator')
+    DESIGN = 'design', _('design')
+    PRODUCER = 'producer', _('producer')
+    VOICE_DIRECTOR = 'voice_director', _('voice_director')
+    UNKNOWN = 'unknown', _('unknown')
 
 
 class FilmworkPerson(models.Model):
