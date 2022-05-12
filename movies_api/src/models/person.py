@@ -1,31 +1,35 @@
-import uuid as uuid
+from uuid import UUID
 
 from .base import BaseModel
 
 
 class PersonShortResponse(BaseModel):
     """Person with name, without details."""
-    uuid: uuid.UUID
+
+    uuid: UUID
     full_name: str
 
 
 class PersonDetailedResponse(BaseModel):
     """Genre details with full_name, role and film_ids."""
-    uuid: uuid.UUID
+
+    uuid: UUID
     full_name: str
     role: list[str]
-    film_ids: list[uuid.UUID]
+    film_ids: list[UUID]
 
 
 class PersonShortDTO(BaseModel):
     """Person id and name received from elasticsearch."""
-    id: uuid.UUID
+
+    id: UUID
     name: str
 
 
 class PersonDetailedDTO(BaseModel):
     """Person details received from elasticsearch."""
-    id: uuid.UUID
+
+    id: UUID
     full_name: str
     role: list[str]
-    film_ids: list[uuid.UUID]
+    film_ids: list[UUID]

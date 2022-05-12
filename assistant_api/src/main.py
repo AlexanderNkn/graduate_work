@@ -1,10 +1,10 @@
 import logging
+import os
 
-# import aioredis
 import uvicorn
-# from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.v1 import voice_assistant
 from core import config
@@ -17,22 +17,17 @@ app = FastAPI(
     docs_url='/assistant-api/openapi',
     redoc_url='/assistant-api/redoc',
     openapi_url='/assistant-api/openapi.json',
-    default_response_class=ORJSONResponse,
-    description='Information about assistant, genres and persons involved in movie making',
+    default_response_class=HTMLResponse,
+    description='Voice information about movies, genres and persons involved in movie making',
     version='1.0.0'
 )
 
+# static files
+static_dir = os.path.join(config.BASE_DIR, 'static')
+app.mount('/static', StaticFiles(directory=static_dir), name='static')
 
-@app.on_event('startup')
-async def startup():
-    pass
 
-
-@app.on_event('shutdown')
-async def shutdown():
-    pass
-
-app.include_router(voice_assistant.router, prefix='/assistant-api/v1', tags=['film'])
+app.include_router(voice_assistant.router, prefix='/assistant-api/v1/voice', tags=['voice_search'])
 
 
 if __name__ == '__main__':

@@ -1,0 +1,20 @@
+.speech {
+  border: 1px solid #ddd;
+  width: 600px;
+  padding: 0;
+  margin: 0;
+}
+
+.speech input {
+  border: 0;
+  width: 92%;
+  display: inline-block;
+  height: 40px;
+  font-size: 14px;
+}
+
+.speech img {
+  float: right;
+  width: 7%;
+  height: 42px;
+}
