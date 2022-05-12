@@ -8,7 +8,7 @@ URL = f'{config.MOVIESAPI_HOST}:{config.MOVIESAPI_PORT}{config.MOVIESAPI_BASE_UR
 
 
 def get_handler(intent: str):
-    """Mapps intent with its method."""
+    """Maps intent with its method."""
     return {
         'director_search': get_director,
         # TODO add methods for other intents
