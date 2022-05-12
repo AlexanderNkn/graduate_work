@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Header, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import HTMLResponse
 
+from core.messages import REQUEST_NOT_UNDERSTAND
 from dependencies.authentication import get_token, make_auth_request
 from services.handlers import get_handler
 from services.intent import get_intent, ParsedQuery
@@ -27,7 +28,10 @@ async def voice_query(
     data = {}
     if query is not None:
         parsed_query: ParsedQuery = get_intent(query)
-        handler = get_handler(parsed_query.intent)
-        data = await handler(headers=authorized_headers, params=parsed_query.params)
+        if parsed_query is None:
+            data = {'text_to_speech': REQUEST_NOT_UNDERSTAND}
+        else:
+            handler = get_handler(parsed_query.intent)
+            data = await handler(headers=authorized_headers, params=parsed_query.params)
     html_content = get_site(data, 'index.html')
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)

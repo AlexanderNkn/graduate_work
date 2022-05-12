@@ -10,21 +10,22 @@
 </head>
 <body>
 
-  <form id="voiceAssistant">
+  <form id="voiceRecognition">
     <div class="speech">
       <input type="text" name="query" id="transcript" placeholder="Say Something"/>
       <img class="microphone__image" src="/static/img/microphone.gif"/>
     </div>
   </form>
 
+  {% if text_to_speech %}
+  <form id="voiceSynthesis">
+    <div class="speech">
+      <span id="toSpeech">{{ text_to_speech }}</span>
+    </div>
   </form>
-    {% if text_to_speech %}
-      <div>
-        {{ text_to_speech }}
-      </div>
-    {% endif %}
-  </form>
+  {% endif %}
 
   <script src="/static/js/speechRecognition.js"></script>
+  <script src="/static/js/speechSynthesis.js"></script>
 </body>
 </html>

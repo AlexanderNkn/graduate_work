@@ -12,7 +12,7 @@ function startDictation() {
       recognition.onresult = function (e) {
         document.getElementById('transcript').value = e.results[0][0].transcript;
         recognition.stop();
-        document.getElementById('voiceAssistant').submit();
+        document.getElementById('voiceRecognition').submit();
       };
       recognition.onerror = function (e) {
         recognition.stop();

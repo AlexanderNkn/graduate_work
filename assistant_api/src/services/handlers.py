@@ -1,5 +1,5 @@
 """Module contains methods for fetching data from movies_api with further processing."""
-from core import config
+from core import config, messages
 
 from .utils import make_get_request
 
@@ -20,5 +20,7 @@ async def get_director(headers, params):
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
+    if isinstance(data, dict) and data.get('directors_names') is None:
+        return {'text_to_speech': messages.NOT_FOUND}
     directors = ' '.join(data[0]['directors_names'])
     return {'text_to_speech': f'Режиссер фильма {directors}'}
