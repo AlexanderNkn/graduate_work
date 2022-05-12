@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, status
 from fastapi.responses import HTMLResponse
 
 from core.messages import REQUEST_NOT_UNDERSTAND

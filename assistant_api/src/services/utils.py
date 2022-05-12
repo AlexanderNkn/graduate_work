@@ -26,7 +26,6 @@ async def make_get_request(url: str, headers: dict):
             if response.status == status.HTTP_200_OK or response.status == status.HTTP_404_NOT_FOUND:
                 return await response.json()
             raise HTTPException(status_code=response.status)
-            
 
 
 def get_site(data: dict, template_path: str) -> str:

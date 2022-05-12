@@ -5,6 +5,7 @@ INTENTS = {
     ('кто', 'режиссёр'): 'director_search',
 }
 
+
 @dataclass
 class ParsedQuery:
     intent: str
@@ -33,5 +34,5 @@ def get_intent(query: str) -> ParsedQuery | None:
                     'title': ' '.join(word for word in words if word not in combination),
                 }
             )
-    
+
     return None
