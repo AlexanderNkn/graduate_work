@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Voice Search</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <link rel="icon" type="image" href="/static/img/voice_icon.ico">
+  <link rel="stylesheet" href="/static/assistant/css/style.css">
+  <link rel="icon" type="image" href="/static/assistant/img/voice_icon.ico">
 </head>
 <body>
 
   <form id="voiceRecognition">
     <div class="speech">
-      <input type="text" name="query" id="transcript" placeholder="Say Something"/>
-      <img class="microphone__image" src="/static/img/microphone.gif"/>
+      <input type="text" name="query" id="transcript" placeholder="Нажмите на микрофон и скажите что-нибудь"/>
+      <img class="microphone__image" src="/static/assistant/img/microphone.gif"/>
     </div>
   </form>
 
@@ -29,13 +29,13 @@
 	<h3>Персоны</h3>
   {% for person in persons %}
 	<div>
-    <img src="/static/{{ person.photo_path }}" alt="No photo" width="150" height="210"/>
+    <img src="/media/{{ person.photo_path }}" width="150" height="210"/>
 	</div>
   <p class="personName">{{ person.name }}</p>
   {% endfor %}
   {% endif %}
 
-  <script src="/static/js/speechRecognition.js"></script>
-  <script src="/static/js/speechSynthesis.js"></script>
+  <script src="/static/assistant/js/speechRecognition.js"></script>
+  <script src="/static/assistant/js/speechSynthesis.js"></script>
 </body>
 </html>
