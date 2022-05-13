@@ -60,8 +60,9 @@ def get_intent(query: str) -> ParsedQuery:
     stemmed_query = ' '.join(words)
     person_phrases = {
         'кто режиссер': 'director_search',
-        'кто сняться': 'actor_search',
+        'кто сниматься': 'actor_search',
         'кто снять': 'director_search',
+        'кто снимать': 'director_search',
         'кто актер': 'actor_search',
         'кто написать сценарий': 'writer_search',
         'кто создать сценарий': 'writer_search',
@@ -151,12 +152,7 @@ def get_intent(query: str) -> ParsedQuery:
     # }
 
     # response for testing purposes only
-    return ParsedQuery(
-        intent='director_search',
-        params={
-            'title': 'грань будущего',
-        }
-    )
+    return None
 
 
 def check_text_by_template(text, template):

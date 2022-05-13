@@ -51,4 +51,4 @@ async def get_film_by_person(headers, params):
     url = f'{URL}/film/search?query[{fields}]={values}'
     data = await make_get_request(url, headers)
     titles = ' '.join(film_data['title'] for film_data in data)
-    return {'text_to_speech': f'Фильма {titles}'}
+    return {'text_to_speech': f'Фильмы {titles}'}
