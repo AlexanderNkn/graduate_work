@@ -19,7 +19,7 @@ class FilmworkAdmin(admin.ModelAdmin):
     list_filter = ('type',)
     search_fields = ('title', 'description')
     fields = (
-        'title', 'type', 'description', 'creation_date', 'certificate', 'file_path', 'rating',
+        'title', 'type', 'description', 'creation_date', 'certificate', 'file_path', 'rating', 'image',
     )
     inlines = (FilmworkGenreInline, FilmworkPersonInline)
 
@@ -35,4 +35,4 @@ class GenreAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'birth_date', 'updated_at')
     search_fields = ('full_name',)
-    fields = ('full_name', 'birth_date')
+    fields = ('full_name', 'birth_date', 'image',)

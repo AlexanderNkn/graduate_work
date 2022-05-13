@@ -75,6 +75,7 @@ class Filmwork(TimeStampedModel):
     type = models.CharField(_('type'), max_length=20, choices=FilmworkType.choices)
     genres = models.ManyToManyField(Genre, through=FilmworkGenre)
     persons = models.ManyToManyField('Person', through='FilmworkPerson')
+    image = models.ImageField(upload_to='movie_images/', blank=True, null=True, verbose_name=(_('screenshots')))
 
     class Meta:
         verbose_name = _('filmwork')
@@ -100,6 +101,7 @@ class Person(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(_('full name'), max_length=255)
     birth_date = models.DateField(_('birth date'), blank=True, null=True)
+    image = models.ImageField(upload_to='person_images/', blank=True, null=True, verbose_name=(_('photos')))
 
     class Meta:
         verbose_name = _('person')
