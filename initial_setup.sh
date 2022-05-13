@@ -10,6 +10,9 @@ cp postgres_elastic_etl/envs/.etl.env.sample postgres_elastic_etl/envs/.etl.env
 cp auth/envs/.auth.env.sample auth/envs/.auth.env
 cp movies_api/envs/.movies_api.env.sample movies_api/envs/.movies_api.env
 
+# copy static
+cp -r assistant_api/static movies_admin/movies/static
+
 # build images
 docker-compose build
 docker-compose -f docker-compose.yml -f docker-compose.initial.yml up -d movies_admin_db es auth
