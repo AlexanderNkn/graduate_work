@@ -20,7 +20,11 @@ async def get_director(headers, params):
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
-    if isinstance(data, dict) and data.get('directors_names') is None:
+    if isinstance(data, dict) and data.get('directors') is None:
         return {'text_to_speech': messages.NOT_FOUND}
-    directors = ' '.join(data[0]['directors_names'])
-    return {'text_to_speech': f'Режиссер фильма {directors}'}
+    directors_names = ' '.join(data[0]['directors_names'])
+    directors = data[0]['directors']
+    return {
+        'text_to_speech': f'Режиссер фильма {directors_names}',
+        'persons': directors,
+        }

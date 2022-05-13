@@ -25,6 +25,16 @@
   </form>
   {% endif %}
 
+  {% if persons %}
+	<h3>Персоны</h3>
+  {% for person in persons %}
+	<div>
+    <img src="/static/{{ person.photo_path }}" alt="No photo" width="150" height="210"/>
+	</div>
+  <p class="personName">{{ person.name }}</p>
+  {% endfor %}
+  {% endif %}
+
   <script src="/static/js/speechRecognition.js"></script>
   <script src="/static/js/speechSynthesis.js"></script>
 </body>

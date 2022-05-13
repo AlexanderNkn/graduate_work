@@ -41,3 +41,4 @@ class FilmDetailedDTO(BaseModel):
     actors: list[PersonShortDTO]
     writers: list[PersonShortDTO]
     directors: list[PersonShortDTO]
+    screenshot_path: Optional[str]
