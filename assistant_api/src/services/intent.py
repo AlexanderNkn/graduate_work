@@ -9,6 +9,25 @@ class ParsedQuery:
     params: dict
 
 
+def get_word(lemma):
+    if 'analysis' in lemma:
+        return lemma['analysis'][0]['lex']
+    else:
+        return lemma['text']
+
+
+def is_preposition(lemma):
+    if 'analysis' in lemma:
+        grammem = lemma['analysis'][0]['gr'].split('=')[0]
+        return grammem == 'PR'
+    else:
+        return False
+
+
+def is_movie_word(lemma):
+    return get_word(lemma) == 'фильм'
+
+
 def get_intent(query: str) -> ParsedQuery:
     """Returns intent with params from given query.
 
@@ -26,6 +45,62 @@ def get_intent(query: str) -> ParsedQuery:
     # отсеем знаки препинания и лишние символы
     lemmas = text_normalizer.analyze(query)
     lemmas = [lemma for lemma in lemmas if 'analysis' in lemma or lemma['text'].isdigit()]
+    words = [get_word(lemma) for lemma in lemmas]
+
+    intro_words = ['сказать', 'показывать', 'называть']
+    word_num = 0
+    while word_num < len(words):
+        if words[word_num] in intro_words:
+            word_num += 1
+        else:
+            break
+    words = words[word_num:]
+    lemmas = lemmas[word_num:]
+
+    stemmed_query = ' '.join(words)
+    person_phrases = {
+        'кто режиссер': 'director_search',
+        'кто сняться': 'actor_search',
+        'кто снять': 'director_search',
+        'кто актер': 'actor_search',
+        'кто написать сценарий': 'writer_search',
+        'кто создать сценарий': 'writer_search',
+        'кто сценарист': 'writer_search',
+        'кто автор сценарий': 'writer_search',
+    }
+
+    for phrase in person_phrases:
+        if stemmed_query.startswith(phrase):
+            intent = person_phrases[phrase]
+            phrase_words = len(phrase.split())
+            film_lemmas = lemmas[phrase_words:]
+            # уберем вводные "в фильме", "для фильма" "фильма"
+            if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
+                film_lemmas = film_lemmas[1:]
+            elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
+                film_lemmas = film_lemmas[2:]
+            film_title = ' '.join(get_word(lemma) for lemma in film_lemmas)
+            params = {
+                'title': film_title,
+            }
+
+            return ParsedQuery(
+                intent=intent,
+                params={'title': film_title, }
+            )
+
+    film_phrases = {
+        'что снял ': '',
+        'где снялся': '',
+        'в каких фильмах снялся': '',
+        '': '',
+        '': '',
+        '': '',
+        '': '',
+        '': '',
+        '': '',
+        '': '',
+    }
 
     # for lemma in lemmas:
     #     lemma['lemma_type'] = 'word'
@@ -38,7 +113,7 @@ def get_intent(query: str) -> ParsedQuery:
     #         lemma['lemma_type'] = 'intro'
     #     else:
     #         break
-    #
+
     # # уберем соединительные глаголы: кто был режиссером - кто режиссер
     # stop_words = ['быть', 'являться']
     # # words = [word for word in words if word not in stop_words]
@@ -47,9 +122,7 @@ def get_intent(query: str) -> ParsedQuery:
     #     if word in stop_words and lemma['lemma_type'] == 'word':
     #         lemma['lemma_type'] = 'stop_words'
     #
-    # words = [lemma['analysis'][0]['lex'] for lemma in lemmas]
     #
-    # stemmed_query = (' '.join(words))
     #
     # # заменим фразы на токены-профессии
     # key_words = {
