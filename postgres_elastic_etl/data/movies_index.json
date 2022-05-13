@@ -96,6 +96,9 @@
                     "name": {
                         "type": "text",
                         "analyzer": "ru_en"
+                    },
+                    "photo_path": {
+                        "type": "text"
                     }
                 }
             },
@@ -109,6 +112,9 @@
                     "name": {
                         "type": "text",
                         "analyzer": "ru_en"
+                    },
+                    "photo_path": {
+                        "type": "text"
                     }
                 }
             },
@@ -122,8 +128,14 @@
                     "name": {
                         "type": "text",
                         "analyzer": "ru_en"
+                    },
+                    "photo_path": {
+                        "type": "text"
                     }
                 }
+            },
+            "screenshot_path": {
+                "type": "text"
             }
         }
     }

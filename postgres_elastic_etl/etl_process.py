@@ -93,14 +93,14 @@ class TransformData:
 
     def prepare_movies_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
         prepared_data = []
-        for id, rating, title, description, persons, genres, latest_update in data:
+        for id, rating, title, description, persons, genres, screenshot_path, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
             actors_names, actors, writers_names, writers, directors_names, directors = [], [], [], [], [], []
             unique_persons = ({person['id']: person for person in persons}.values())
             for person in unique_persons:
                 if not person.get('role'):
                     continue
-                person_info = {'id': person['id'], 'name': person['full_name']}
+                person_info = {'id': person['id'], 'name': person['full_name'], 'photo_path': person['photo_path']}
                 if person['role'] == 'actor':
                     actors_names.append(person['full_name'])
                     actors.append(person_info)
@@ -124,6 +124,7 @@ class TransformData:
                 'directors': directors,
                 'actors': actors,
                 'writers': writers,
+                'screenshot_path': screenshot_path,
             }
             prepared_data.append(doc)
 
@@ -144,13 +145,14 @@ class TransformData:
 
     def prepare_persons_data(self, data: list[tuple]) -> tuple[list[dict[str, Any]], datetime]:
         prepared_data = []
-        for id, full_name, role, film_ids, latest_update in data:
+        for id, full_name, role, film_ids, photo_path, latest_update in data:
             doc = {
                 '_id': id,
                 'id': id,
                 'full_name': full_name,
                 'role': role,
                 'film_ids': film_ids,
+                'photo_path': photo_path,
             }
             prepared_data.append(doc)
 
