@@ -77,7 +77,11 @@ def get_intent(query: str) -> ParsedQuery:
             continue
 
         for phrase in person_phrases:
-            search_phrase = start_phrase + ' ' + phrase
+            if start_phrase:
+                search_phrase = start_phrase + ' ' + phrase
+            else:
+                search_phrase = phrase
+
             if stemmed_query.startswith(search_phrase):
                 person_type = person_phrases[phrase]
 
@@ -115,12 +119,32 @@ def get_intent(query: str) -> ParsedQuery:
                     params={person_type + 's_names': person_name, }
                 )
 
-    duration_phrases = {
-        'сколько длиться': 'duration',
-        'какая длительность': 'duration',
-        'какая длина': 'duration',
-        'сколько времени': 'duration',
-    }
+    start_phrases = [
+        'сколько длиться',
+        'какой длительность',
+        'какой продолжительность',
+        'какой длина',
+        'сколько время',
+    ]
+    for start_phrase in start_phrases:
+        search_phrase = start_phrase
+
+        if stemmed_query.startswith(search_phrase):
+            intent = 'duration_search'
+
+            phrase_words = len(search_phrase.split())
+            film_lemmas = lemmas[phrase_words:]
+            # уберем вводные "в фильме", "для фильма" "фильма"
+            if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
+                film_lemmas = film_lemmas[1:]
+            elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
+                film_lemmas = film_lemmas[2:]
+            film_title = ' '.join(get_word(lemma) for lemma in film_lemmas)
+
+            return ParsedQuery(
+                intent=intent,
+                params={'title': film_title, }
+            )
 
     # response for testing purposes only
     return None

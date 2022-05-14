@@ -15,6 +15,7 @@ def get_handler(intent: str):
         'director_search': get_director,
         'actor_search': get_actor,
         'writer_search': get_writer,
+        'duration_search': get_duration,
         'film_by_person': get_film_by_person,
         # TODO add methods for other intents
     }.get(intent)
@@ -57,6 +58,18 @@ async def get_writer(headers, params):
         return {'text_to_speech': f'Сценарист фильма {writers}'}
     else:
         return {'text_to_speech': f'Нет данных о сценаристе'}
+
+
+async def get_duration(headers, params):
+    fields = ','.join(params.keys())
+    values = ' '.join(params.values())
+    url = f'{URL}/film/search?query[{fields}]={values}&all=true'
+    data = await make_get_request(url, headers)
+    duration = data[0]['duration']
+    if duration:
+        return {'text_to_speech': f'Длительность фильма {duration} минут'}
+    else:
+        return {'text_to_speech': f'Нет данных о длительности фильма'}
 
 
 async def get_film_by_person(headers, params):
