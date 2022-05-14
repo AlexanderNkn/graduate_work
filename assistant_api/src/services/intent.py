@@ -29,7 +29,7 @@ def is_movie_word(lemma):
     return get_word(lemma) == 'фильм'
 
 
-def get_intent(query: str) -> ParsedQuery:
+def get_intent(query: str) -> ParsedQuery | None:
     """Returns intent with params from given query.
 
     Example:
@@ -42,13 +42,10 @@ def get_intent(query: str) -> ParsedQuery:
         }
     """
 
-    # сделаем лемматизацию
-    # отсеем знаки препинания и лишние символы
     lemmas = text_normalizer.analyze(query)
     lemmas = [lemma for lemma in lemmas if 'analysis' in lemma or lemma['text'].isdigit()]
     words = [get_word(lemma) for lemma in lemmas]
 
-    # уберем вводные слова
     intro_words = ['сказать', 'показывать', 'называть']
     word_num = 0
     while word_num < len(words):
@@ -88,7 +85,6 @@ def get_intent(query: str) -> ParsedQuery:
 
                 phrase_words = len(search_phrase.split())
                 film_lemmas = lemmas[phrase_words:]
-                # уберем вводные "в фильме", "для фильма" "фильма"
                 if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
                     film_lemmas = film_lemmas[1:]
                 elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
@@ -135,7 +131,6 @@ def get_intent(query: str) -> ParsedQuery:
 
             phrase_words = len(search_phrase.split())
             film_lemmas = lemmas[phrase_words:]
-            # уберем вводные "в фильме", "для фильма" "фильма"
             if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
                 film_lemmas = film_lemmas[1:]
             elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
@@ -147,7 +142,6 @@ def get_intent(query: str) -> ParsedQuery:
                 params={'title': film_title, }
             )
 
-    # response for testing purposes only
     return None
 
 

@@ -28,10 +28,10 @@ async def voice_query(
     data = {}
     if query is not None:
         parsed_query: ParsedQuery = get_intent(query)
-        if parsed_query:
+        if parsed_query is not None:
             handler = get_handler(parsed_query.intent)
             data = await handler(headers=authorized_headers, params=parsed_query.params)
         else:
             data = {'text_to_speech': REQUEST_NOT_UNDERSTAND}
-    html_content = get_site(data, 'index_2.html')
+    html_content = get_site(data, 'index.html')
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)

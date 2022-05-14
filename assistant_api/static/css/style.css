@@ -18,3 +18,10 @@
   width: 7%;
   height: 42px;
 }
+
+.personName {
+  font-size: 24px;
+  font-weight: 500;
+  width: 150px;
+  text-align: center;
+}

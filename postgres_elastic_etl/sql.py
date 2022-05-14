@@ -32,8 +32,9 @@ def get_sql_query(index, **kwargs) -> tuple:
 UPDATE_FILMWORK_INDEX = """
     SELECT
         fw.id, fw.rating, fw.title, fw.description, fw.duration,
-        jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'role', pfw.role)) AS persons,
+        jsonb_agg(jsonb_build_object('id', p.id, 'full_name', p.full_name, 'photo_path', p.image, 'role', pfw.role)) AS persons,
         jsonb_agg(jsonb_build_object('id', g.id, 'name', g.name)) AS genres,
+        fw.image as screenshot_path,
         GREATEST(fw.updated_at, MAX(p.updated_at), MAX(g.updated_at)) AS latest_update
     FROM content.film_work fw
     LEFT OUTER JOIN content.person_film_work pfw ON fw.id = pfw.film_work_id
@@ -52,6 +53,7 @@ UPDATE_PERSONS_INDEX = """
         p.full_name,
         jsonb_agg(DISTINCT(pfw.role)) as role,
         jsonb_agg(pfw.film_work_id) as film_ids,
+        p.image as photo_path,
         p.updated_at
     FROM content.person p
     INNER JOIN person_film_work pfw
