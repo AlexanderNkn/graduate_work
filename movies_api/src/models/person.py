@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from .base import BaseModel
@@ -24,6 +25,7 @@ class PersonShortDTO(BaseModel):
 
     id: UUID
     name: str
+    photo_path: Optional[str]
 
 
 class PersonDetailedDTO(BaseModel):

@@ -114,8 +114,10 @@ async def test_person_text_search_by_name(upload_person_data, make_get_request):
     assert len(response.body) == 2, "search by name doesn\'t available"
 
 
-async def test_person_text_search_by_role(upload_person_data, make_get_request):
+async def test_person_text_search_by_role(upload_person_data, make_get_request, person_list_expected):
     response = await make_get_request('/person/search?query=actor')
 
     assert response.status == HTTPStatus.OK, 'text search should be available'
+    # due to we use common db for testing we have to delete non-testing data before assert
+    response.body = [person for person in response.body if person in person_list_expected]
     assert len(response.body) == 4, "search by role doesn\'t available"

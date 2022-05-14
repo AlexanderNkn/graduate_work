@@ -65,7 +65,10 @@
             },
             "film_ids": {
                 "type": "keyword"
-            }
+            },
+            "photo_path": {
+                "type": "text"
+            }  
         }
     }
 }

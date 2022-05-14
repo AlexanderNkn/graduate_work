@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+
   web:
     container_name: movies_admin
     image: movies_admin:v1.5
@@ -10,9 +11,11 @@ services:
     env_file:
       - ./movies_admin/envs/.admin.env
     volumes:
-      - static_data:/usr/src/code/static/
+      - admin_static_data:/usr/src/code/static/
+      - admin_media_data:/usr/src/code/media/
     depends_on:
       - movies_admin_db
+
   movies_admin_db:
     container_name: movies_admin_db
     image: postgres:13-alpine
@@ -20,6 +23,7 @@ services:
       - ./postgres/envs/.movies_admin_db.env
     volumes:
       - movies_admin_db_data:/var/lib/postgresql/data/
+
   es:
     container_name: elastic
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
@@ -27,6 +31,7 @@ services:
       - discovery.type=single-node
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
+
   postgres_elastic_etl:
     container_name: postgres_elastic_etl
     image: etl:v2.0
@@ -40,6 +45,7 @@ services:
     depends_on:
       - movies_admin_db
       - es
+
   auth:
     container_name: auth
     image: auth:v2.0
@@ -51,6 +57,7 @@ services:
     depends_on:
       - auth_db
       - redis
+
   auth_db:
     container_name: auth_db
     image: postgres:13-alpine
@@ -58,6 +65,7 @@ services:
       - auth_db_data:/var/lib/postgresql/data/
     env_file:
       - postgres/envs/.auth_db.env
+
   movies-api:
     container_name: movies_search
     image: movies_search:v3.0
@@ -69,19 +77,36 @@ services:
     depends_on:
       - es
       - redis
+
+  assistant-api:
+    container_name: voice_assistant
+    image: voice_assistant:v1.0
+    build:
+      context: .
+      dockerfile: assistant_api/docker/Dockerfile
+    env_file:
+      - assistant_api/envs/.assistant_api.env
+    depends_on:
+      - movies-api
+    volumes:
+      - assistant_static_data:/usr/src/code/static/
+
   redis:
     container_name: redis
     image: redis:6.2.6-alpine
     restart: always
     volumes:
       - redis_data:/data
+
   nginx:
     container_name: nginx
     image: nginx:1.21.6
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/configs:/etc/nginx/conf.d:ro
-      - static_data:/usr/src/code/static/
+      - admin_static_data:/usr/src/code/static/
+      - assistant_static_data:/usr/src/code/static/assistant
+      - admin_media_data:/usr/src/code/media/  
     ports:
       - 80:80
     depends_on:
@@ -129,4 +154,6 @@ volumes:
   jaeger_data:
   elastic_data:
   etl_state:
-  static_data:
+  admin_static_data:
+  assistant_static_data:
+  admin_media_data:

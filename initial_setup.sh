@@ -20,7 +20,7 @@ ping -c 1 127.0.0.1 5433 &> /dev/null
 echo "Movies db started"
 
 export PGPASSWORD=1234
-psql -U postgres -h localhost -p 5433 -f /home/max_ubuntu/learning/middle/sprint1/Admin_panel_sprint_1/schema_design/db_schema.sql -d movies_database
+psql -U postgres -h localhost -p 5433 -f movies_admin/data/demo.sql -d movies_database
 
 # add user to auth db
 echo "Waiting for auth db..."

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
 from core.messages import FILM_NOT_FOUND
 from dependencies.authentication import get_token, make_request
-from models.film import FilmDetailedResponse, FilmShortResponse
+from models.film import FilmDetailedDTO, FilmDetailedResponse, FilmShortResponse
 from models.genre import GenreShortResponse
 from models.person import PersonShortResponse
 from services.film import FilmService, get_film_service
@@ -23,7 +23,7 @@ async def check_film_detail_permission(token=get_token(), x_request_id=Header(No
 
 @router.get(
     '/search',
-    response_model=list[FilmShortResponse],
+    response_model=list[FilmDetailedDTO | FilmShortResponse],
     summary='List of suitable films',
     description='List of films with title and imdb_rating, with sort, filter and pagination and text search',
     response_description='List of films with id, title and rating',
@@ -39,11 +39,14 @@ async def films_list(
     request: Request,
     film_service: FilmService = Depends(get_film_service),
     allowed: bool = Depends(check_film_list_permission),
-) -> list[FilmShortResponse]:
+    all: bool = False,
+) -> list[FilmDetailedDTO | FilmShortResponse]:
     params = get_params(request)
     film_list = await film_service.get_by_params(**params)
     if not film_list:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=FILM_NOT_FOUND)
+    if all:
+        return film_list
     return [
         FilmShortResponse(
             uuid=film.id,
@@ -73,6 +76,7 @@ async def film_details(
         title=film.title,
         imdb_rating=film.imdb_rating,
         description=film.description,
+        duration=film.duration,
         genre=[GenreShortResponse(uuid=genre.id, name=genre.name) for genre in film.genre],
         actors=[PersonShortResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors],
         writers=[PersonShortResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers],

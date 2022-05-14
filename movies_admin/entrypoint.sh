@@ -11,7 +11,6 @@ then
     echo "PostgreSQL started"
 fi
 
-python manage.py migrate movies 0001 --fake --noinput
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
