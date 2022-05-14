@@ -3,6 +3,7 @@ from pymystem3 import Mystem
 
 text_normalizer = Mystem()
 
+
 @dataclass
 class ParsedQuery:
     intent: str
