@@ -41,7 +41,7 @@ https://github.com/AlexanderNkn/graduate_work
 
 ## Тестирование
 ### В контейнере
-- тесты запускаются автоматически при старте контейнеров. Для перезапуска выполните
+- тесты запускаются автоматически в CI/CD. Для перезапуска выполните
     ```
     docker-compose start test_auth
     docker-compose start test-movies-api
@@ -53,5 +53,7 @@ https://github.com/AlexanderNkn/graduate_work
     docker-compose exec web bash
     python manage.py createsuperuser
     ```
-- перейдите по адресу http://localhost/admin/ и заполните соответствующие формы с филмами, персонами и жанрами. 
-- ETL процесс каждые 5 мин переносит новые фильмы, персоны и жанры в поисковую базу ElasticSearch. После этого данные будут доступны в сервисе movies_api.
+- перейдите по адресу http://localhost/admin/ и заполните соответствующие формы с фильмами, персонами и жанрами. 
+- ETL процесс каждые 5 мин (значение можно изменить в переменных окружения) переносит новые фильмы, персоны и жанры в базу ElasticSearch. После этого данные будут доступны в поисковом сервисе movies_api.
+- Перейдите по адресу http://localhost/assistant-api/v1/voice/search, нажмите на иконку с микрофоном и произнесите вопрос. Должны услышать ответ и увидеть данные на экране
+![поиск режиссера](docs/screenshots/director_search.png)
