@@ -23,8 +23,12 @@ async def get_director(headers, params):
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
-    directors = ' '.join(data[0]['directors_names'])
-    return {'text_to_speech': f'Режиссер фильма {directors}'}
+    directors_names = data[0]['directors_names']
+    if directors_names:
+        directors = ' '.join(directors_names)
+        return {'text_to_speech': f'Режиссер фильма {directors}'}
+    else:
+        return {'text_to_speech': f'Нет данных о режиссере'}
 
 
 async def get_actor(headers, params):
@@ -32,8 +36,12 @@ async def get_actor(headers, params):
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
-    actors = ' '.join(data[0]['actors_names'])
-    return {'text_to_speech': f'Актеры фильма {actors}'}
+    actors_names = data[0]['actors_names']
+    if actors_names:
+        actors = ' '.join(actors_names)
+        return {'text_to_speech': f'Актеры фильма {actors}'}
+    else:
+        return {'text_to_speech': f'Нет данных об актерах'}
 
 
 async def get_writer(headers, params):
@@ -41,8 +49,12 @@ async def get_writer(headers, params):
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     data = await make_get_request(url, headers)
-    writers = ' '.join(data[0]['writers_names'])
-    return {'text_to_speech': f'Сценарист фильма {writers}'}
+    writers_names = data[0]['writers_names']
+    if writers_names:
+        writers = ' '.join(writers_names)
+        return {'text_to_speech': f'Сценарист фильма {writers}'}
+    else:
+        return {'text_to_speech': f'Нет данных о сценаристе'}
 
 
 async def get_film_by_person(headers, params):

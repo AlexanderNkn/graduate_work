@@ -47,6 +47,7 @@ def get_intent(query: str) -> ParsedQuery:
     lemmas = [lemma for lemma in lemmas if 'analysis' in lemma or lemma['text'].isdigit()]
     words = [get_word(lemma) for lemma in lemmas]
 
+    # уберем вводные слова
     intro_words = ['сказать', 'показывать', 'называть']
     word_num = 0
     while word_num < len(words):
@@ -59,50 +60,69 @@ def get_intent(query: str) -> ParsedQuery:
 
     stemmed_query = ' '.join(words)
     person_phrases = {
-        'кто режиссер': 'director_search',
-        'кто сниматься': 'actor_search',
-        'кто снять': 'director_search',
-        'кто снимать': 'director_search',
-        'кто актер': 'actor_search',
-        'кто написать сценарий': 'writer_search',
-        'кто создать сценарий': 'writer_search',
-        'кто сценарист': 'writer_search',
-        'кто автор сценарий': 'writer_search',
+        'режиссер': 'director',
+        'сниматься': 'actor',
+        'снять': 'director',
+        'снимать': 'director',
+        'актер': 'actor',
+        'написать сценарий': 'writer',
+        'создать сценарий': 'writer',
+        'сценарист': 'writer',
+        'автор сценарий': 'writer',
     }
 
-    for phrase in person_phrases:
-        if stemmed_query.startswith(phrase):
-            intent = person_phrases[phrase]
-            phrase_words = len(phrase.split())
-            film_lemmas = lemmas[phrase_words:]
-            # уберем вводные "в фильме", "для фильма" "фильма"
-            if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
-                film_lemmas = film_lemmas[1:]
-            elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
-                film_lemmas = film_lemmas[2:]
-            film_title = ' '.join(get_word(lemma) for lemma in film_lemmas)
-            params = {
-                'title': film_title,
-            }
+    start_phrases = ['кто быть', 'кто являться', 'кто', '']
+    for start_phrase in start_phrases:
+        if not stemmed_query.startswith(start_phrase):
+            continue
 
-            return ParsedQuery(
-                intent=intent,
-                params={'title': film_title, }
-            )
+        for phrase in person_phrases:
+            search_phrase = start_phrase + ' ' + phrase
+            if stemmed_query.startswith(search_phrase):
+                person_type = person_phrases[phrase]
 
-    film_phrases = {
-        'что снял ': '',
-        'где снялся': '',
-        'в каких фильмах снялся': '',
-        '': '',
-        '': '',
-        '': '',
-        '': '',
-        '': '',
-        '': '',
-        '': '',
+                phrase_words = len(search_phrase.split())
+                film_lemmas = lemmas[phrase_words:]
+                # уберем вводные "в фильме", "для фильма" "фильма"
+                if len(film_lemmas) > 0 and is_movie_word(film_lemmas[0]):
+                    film_lemmas = film_lemmas[1:]
+                elif len(film_lemmas) > 1 and is_preposition(film_lemmas[0]) and is_movie_word(film_lemmas[1]):
+                    film_lemmas = film_lemmas[2:]
+                film_title = ' '.join(get_word(lemma) for lemma in film_lemmas)
+
+                return ParsedQuery(
+                    intent=person_type + '_search',
+                    params={'title': film_title, }
+                )
+
+    start_phrases = ['что', 'где', 'какой фильм', 'в какой фильм', 'для какой фильм']
+    for start_phrase in start_phrases:
+        if not stemmed_query.startswith(start_phrase):
+            continue
+
+        for phrase in person_phrases:
+            search_phrase = start_phrase + ' ' + phrase
+            if stemmed_query.startswith(search_phrase):
+                person_type = person_phrases[phrase]
+                intent = 'film_by_person'
+
+                phrase_words = len(search_phrase.split())
+                person_lemmas = lemmas[phrase_words:]
+                person_name = ' '.join(get_word(lemma) for lemma in person_lemmas)
+
+                return ParsedQuery(
+                    intent=intent,
+                    params={person_type + 's_names': person_name, }
+                )
+
+    duration_phrases = {
+        'сколько длиться': 'duration',
+        'какая длительность': 'duration',
+        'какая длина': 'duration',
+        'сколько времени': 'duration',
     }
 
+    
     # for lemma in lemmas:
     #     lemma['lemma_type'] = 'word'
     #
