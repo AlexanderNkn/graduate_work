@@ -18,7 +18,7 @@ class FilmworkAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'creation_date', 'rating', 'updated_at')
     list_filter = ('type',)
     search_fields = ('title', 'description')
-    fields = (
+    fields = (  # noqa: WPS317
         'title', 'description', 'creation_year', 'creation_date', 'certificate', 'kinopoisk_id',
         'file_path', 'rating', 'duration', 'type', 'image',
     )
@@ -36,4 +36,4 @@ class GenreAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'birth_date', 'updated_at')
     search_fields = ('full_name',)
-    fields = ('full_name', 'birth_date', 'image',)
+    fields = ('full_name', 'birth_date', 'image')

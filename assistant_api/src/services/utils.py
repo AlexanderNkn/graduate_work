@@ -23,7 +23,7 @@ async def make_post_request(url: str, payload: dict, headers: dict):
 async def make_get_request(url: str, headers: dict):
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url, headers=headers) as response:
-            if response.status == status.HTTP_200_OK or response.status == status.HTTP_404_NOT_FOUND:
+            if response.status in {status.HTTP_200_OK or response.status, status.HTTP_404_NOT_FOUND}:
                 return await response.json()
             raise HTTPException(status_code=response.status)
 

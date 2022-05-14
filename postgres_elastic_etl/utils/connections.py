@@ -31,7 +31,7 @@ class PostgresConnection:
             'user': os.getenv('PG_USER'),
             'password': os.getenv('PG_PASSWORD'),
             'host': os.getenv('PG_HOST'),
-            'port': int(os.getenv('PG_PORT')),
+            'port': os.getenv('PG_PORT'),
             'options': os.getenv('PG_OPTIONS'),
         }
 

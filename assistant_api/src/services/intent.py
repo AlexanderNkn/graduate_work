@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from pymystem3 import Mystem
 
 text_normalizer = Mystem()
@@ -13,16 +14,14 @@ class ParsedQuery:
 def get_word(lemma):
     if 'analysis' in lemma:
         return lemma['analysis'][0]['lex']
-    else:
-        return lemma['text']
+    return lemma['text']
 
 
 def is_preposition(lemma):
     if 'analysis' in lemma:
         grammem = lemma['analysis'][0]['gr'].split('=')[0]
         return grammem == 'PR'
-    else:
-        return False
+    return False
 
 
 def is_movie_word(lemma):
@@ -41,7 +40,6 @@ def get_intent(query: str) -> ParsedQuery | None:
             }
         }
     """
-
     lemmas = text_normalizer.analyze(query)
     lemmas = [lemma for lemma in lemmas if 'analysis' in lemma or lemma['text'].isdigit()]
     words = [get_word(lemma) for lemma in lemmas]
@@ -76,7 +74,7 @@ def get_intent(query: str) -> ParsedQuery | None:
 
         for phrase in person_phrases:
             if start_phrase:
-                search_phrase = start_phrase + ' ' + phrase
+                search_phrase = f'{start_phrase} {phrase}'
             else:
                 search_phrase = phrase
 
@@ -92,8 +90,8 @@ def get_intent(query: str) -> ParsedQuery | None:
                 film_title = ' '.join(get_word(lemma) for lemma in film_lemmas)
 
                 return ParsedQuery(
-                    intent=person_type + '_search',
-                    params={'title': film_title, }
+                    intent=f'{person_type}_search',
+                    params={'title': film_title}
                 )
 
     start_phrases = ['что', 'где', 'какой фильм', 'в какой фильм', 'для какой фильм']
@@ -102,7 +100,7 @@ def get_intent(query: str) -> ParsedQuery | None:
             continue
 
         for phrase in person_phrases:
-            search_phrase = start_phrase + ' ' + phrase
+            search_phrase = f'{start_phrase} {phrase}'
             if stemmed_query.startswith(search_phrase):
                 person_type = person_phrases[phrase]
                 intent = 'film_by_person'
@@ -113,7 +111,7 @@ def get_intent(query: str) -> ParsedQuery | None:
 
                 return ParsedQuery(
                     intent=intent,
-                    params={person_type + 's_names': person_name, }
+                    params={f'{person_type}s_names': person_name}
                 )
 
     start_phrases = [
@@ -139,7 +137,7 @@ def get_intent(query: str) -> ParsedQuery | None:
 
             return ParsedQuery(
                 intent=intent,
-                params={'title': film_title, }
+                params={'title': film_title}
             )
 
     return None

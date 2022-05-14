@@ -33,7 +33,7 @@ async def get_director(headers, params):
     return {
         'text_to_speech': f'Режиссер фильма {directors_names}',
         'persons': directors,
-        }
+    }
 
 
 async def get_actor(headers, params):
@@ -45,8 +45,7 @@ async def get_actor(headers, params):
     if actors_names:
         actors = ' '.join(actors_names)
         return {'text_to_speech': f'Актеры фильма {actors}'}
-    else:
-        return {'text_to_speech': 'Нет данных об актерах'}
+    return {'text_to_speech': 'Нет данных об актерах'}
 
 
 async def get_writer(headers, params):
@@ -58,8 +57,7 @@ async def get_writer(headers, params):
     if writers_names:
         writers = ' '.join(writers_names)
         return {'text_to_speech': f'Сценарист фильма {writers}'}
-    else:
-        return {'text_to_speech': 'Нет данных о сценаристе'}
+    return {'text_to_speech': 'Нет данных о сценаристе'}
 
 
 async def get_duration(headers, params):
@@ -70,8 +68,7 @@ async def get_duration(headers, params):
     duration = data[0]['duration']
     if duration:
         return {'text_to_speech': f'Длительность фильма {duration} минут'}
-    else:
-        return {'text_to_speech': 'Нет данных о длительности фильма'}
+    return {'text_to_speech': 'Нет данных о длительности фильма'}
 
 
 async def get_film_by_person(headers, params):
@@ -86,5 +83,4 @@ async def get_film_by_person(headers, params):
     titles = ' '.join(film_data['title'] for film_data in data)
     if titles:
         return {'text_to_speech': f'Фильмы {titles}'}
-    else:
-        return {'text_to_speech': 'Нет данных о фильмах'}
+    return {'text_to_speech': 'Нет данных о фильмах'}
