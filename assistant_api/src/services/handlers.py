@@ -1,4 +1,6 @@
 """Module contains methods for fetching data from movies_api with further processing."""
+from fastapi import HTTPException
+
 from core import config
 
 from .utils import make_get_request
@@ -61,6 +63,13 @@ async def get_film_by_person(headers, params):
     fields = ','.join(params.keys())
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}'
-    data = await make_get_request(url, headers)
+    try:
+        data = await make_get_request(url, headers)
+    except HTTPException:
+        data = []
+
     titles = ' '.join(film_data['title'] for film_data in data)
-    return {'text_to_speech': f'Фильмы {titles}'}
+    if titles:
+        return {'text_to_speech': f'Фильмы {titles}'}
+    else:
+        return {'text_to_speech': f'Нет данных о фильмах'}
