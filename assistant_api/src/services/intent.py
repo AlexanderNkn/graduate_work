@@ -30,7 +30,13 @@ def is_movie_word(lemma):
 
 def intro_word_count(words):
     intro_words = ['сказать', 'показывать', 'называть']
-    return len([word for word in words if word in intro_words])
+    word_num = 0
+    while word_num < len(words):
+        if words[word_num] in intro_words:
+            word_num += 1
+        else:
+            break
+    return word_num
 
 
 def clear_movie_word(film_lemmas):
