@@ -1,23 +1,44 @@
 import os
 from logging import config as logging_config
 
+from pydantic import BaseSettings
+
 from core.logger import LOGGING
 
 logging_config.dictConfig(LOGGING)
 
-PROJECT_NAME = os.getenv('PROJECT_NAME', 'voice_assistant')
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+class Settings(BaseSettings):
+    project_name: str = 'voice_assistant'
+    base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-ASSISTANTAPI_HOST = os.getenv('ASSISTANTAPI_HOST', 'http://127.0.0.1')
-ASSISTANTAPI_PORT = int(os.getenv('ASSISTANTAPI_PORT', 80))
-ASSISTANTAPI_BASE_URL = os.getenv('ASSISTANTAPI_BASE_URL', '/assistant-api/v1')
+    assistant_host: str = 'http://127.0.0.1'
+    assistant_port: int = 80
+    assistant_base_url: str = '/assistant-api/v1'
 
-MOVIESAPI_HOST = os.getenv('MOVIESAPI_HOST', 'http://127.0.0.1')
-MOVIESAPI_PORT = int(os.getenv('MOVIESAPI_PORT', 80))
-MOVIESAPI_BASE_URL = os.getenv('MOVIESAPI_BASE_URL', '/movies-api/v1')
+    movies_host: str = 'http://127.0.0.1'
+    movies_port: int = 80
+    movies_base_url: str = '/movies-api/v1'
 
-AUTH_HOST = os.getenv('AUTH_HOST', 'http://127.0.0.1')
-AUTH_PORT = int(os.getenv('AUTH_PORT', 80))
-AUTH_BASE_URL = os.getenv('AUTH_BASE_URL', '/auth-api/v1')
-ENABLE_AUTHORIZATION = int(os.getenv('ENABLE_AUTHORIZATION', 1))
+    auth_host: str = 'http://127.0.0.1'
+    auth_port: int = 80
+    auth_base_url: str = '/auth-api/v1'
+    enable_authorization: int = 1
+
+    class Config:
+        fields = {
+            'project_name': {'env': 'PROJECT_NAME'},
+            'assistant_host': {'env': 'ASSISTANTAPI_HOST'},
+            'assistant_port': {'env': 'ASSISTANTAPI_PORT'},
+            'assistant_base_url': {'env': 'ASSISTANTAPI_BASE_URL'},
+            'movies_host': {'env': 'MOVIESAPI_HOST'},
+            'movies_port': {'env': 'MOVIESAPI_PORT'},
+            'movies_base_url': {'env': 'MOVIESAPI_BASE_URL'},
+            'auth_host': {'env': 'AUTH_HOST'},
+            'auth_port': {'env': 'AUTH_PORT'},
+            'auth_base_url': {'env': 'AUTH_BASE_URL'},
+            'enable_authorization': {'env': 'ENABLE_AUTHORIZATION'},
+        }
+
+
+settings = Settings()
