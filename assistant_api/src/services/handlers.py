@@ -1,6 +1,4 @@
 """Module contains methods for fetching data from movies_api with further processing."""
-from fastapi import HTTPException
-
 from core import config, messages
 
 from .utils import make_get_request
