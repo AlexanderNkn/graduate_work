@@ -36,6 +36,19 @@ services:
     depends_on:
       - es
       - redis
+  assistant-api:
+    container_name: voice_assistant
+    image: voice_assistant:v1.0
+    build:
+      context: .
+      dockerfile: assistant_api/docker/Dockerfile
+    env_file:
+      - assistant_api/envs/.assistant_api.env
+    depends_on:
+      - movies-api
+    volumes:
+      - assistant_static_data:/usr/src/code/static/
 volumes:
   redis_data:
   elastic_data:
+  assistant_static_data:

@@ -45,6 +45,7 @@ https://github.com/AlexanderNkn/graduate_work
     ```
     docker-compose start test_auth
     docker-compose start test-movies-api
+    docker-compose exec assistant-api pytest
     ```
 
 ## Использование
