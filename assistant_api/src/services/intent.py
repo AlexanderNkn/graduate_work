@@ -103,6 +103,7 @@ def get_intent(query: str) -> ParsedQuery | None:
         'автор сценарий': 'writer',
     }
 
+    # найдем персону по фильму
     start_phrases = ['кто быть', 'кто являться', 'кто', '']
     person_type, phrase_words = query_start_with_phrase(stemmed_query, start_phrases, person_phrases)
     if person_type:
@@ -115,6 +116,7 @@ def get_intent(query: str) -> ParsedQuery | None:
             params={'title': film_title}
         )
 
+    # найдем фильмы по персоне
     start_phrases = ['что', 'где', 'какой фильм', 'в какой фильм', 'для какой фильм']
     person_type, phrase_words = query_start_with_phrase(stemmed_query, start_phrases, person_phrases)
     if person_type:
@@ -128,6 +130,7 @@ def get_intent(query: str) -> ParsedQuery | None:
             params={f'{person_type}s_names': person_name}
         )
 
+    # найдем длительность фильма
     duration_phrases = {
         'сколько длиться': 'duration',
         'какой длительность': 'duration',
