@@ -5,7 +5,7 @@ import pybreaker
 from fastapi import HTTPException, status
 from jinja2 import Environment, FileSystemLoader
 
-from core import config
+from core.config import settings
 
 # db_breaker is an implementation of Circuit Breaker algorithm
 db_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60)
@@ -30,7 +30,7 @@ async def make_get_request(url: str, headers: dict):
 
 def get_site(data: dict, template_path: str) -> str:
     """Returns rendered html."""
-    template_dir = os.path.join(config.BASE_DIR, 'templates')
+    template_dir = os.path.join(settings.base_dir, 'templates')
     template_loader = FileSystemLoader(template_dir)
     env = Environment(loader=template_loader, autoescape=True)
 
