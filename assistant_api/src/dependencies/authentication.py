@@ -12,7 +12,7 @@ def get_token(token: str = Depends(oauth2_scheme)):
 
 
 async def make_auth_request(permission: str, token: str, x_request_id: str):
-    headers = {'X-Request-Id': x_request_id}
+    headers = {'X-Request-Id': x_request_id if x_request_id else ''}
     if not config.ENABLE_AUTHORIZATION:
         return headers
 

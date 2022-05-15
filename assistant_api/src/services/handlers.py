@@ -17,70 +17,105 @@ def get_handler(intent: str):
         'writer_search': get_writer,
         'duration_search': get_duration,
         'film_by_person': get_film_by_person,
-        # TODO add methods for other intents
     }.get(intent)
 
 
-async def get_director(headers, params):
+async def _search(params, headers):
     fields = ','.join(params.keys())
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
-    data = await make_get_request(url, headers)
-    if isinstance(data, dict) and data.get('directors') is None:
-        return {'text_to_speech': messages.NOT_FOUND}
-    directors_names = ' '.join(data[0]['directors_names'])
-    directors = data[0]['directors']
+    return await make_get_request(url, headers)
+
+
+async def get_director(headers, params):
+    data = await _search(params, headers)
+    if not data:
+        return {
+            'text_to_speech': messages.NOT_FOUND
+        }
+
+    directors_names = data[0]['directors_names']
+    if directors_names:
+        directors = ' '.join(directors_names)
+        persons = data[0]['directors']
+        return {
+            'text_to_speech': f'Режиссер фильма {directors}',
+            'persons': persons,
+        }
     return {
-        'text_to_speech': f'Режиссер фильма {directors_names}',
-        'persons': directors,
+        'text_to_speech': messages.NOT_FOUND
     }
 
 
 async def get_actor(headers, params):
-    fields = ','.join(params.keys())
-    values = ' '.join(params.values())
-    url = f'{URL}/film/search?query[{fields}]={values}&all=true'
-    data = await make_get_request(url, headers)
+    data = await _search(params, headers)
+    if not data:
+        return {
+            'text_to_speech': messages.NOT_FOUND
+        }
+
     actors_names = data[0]['actors_names']
     if actors_names:
         actors = ' '.join(actors_names)
-        return {'text_to_speech': f'Актеры фильма {actors}'}
-    return {'text_to_speech': 'Нет данных об актерах'}
+        persons = data[0]['actors']
+        return {
+            'text_to_speech': f'Актеры фильма {actors}',
+            'persons': persons,
+        }
+    return {
+        'text_to_speech': messages.NOT_FOUND
+    }
 
 
 async def get_writer(headers, params):
-    fields = ','.join(params.keys())
-    values = ' '.join(params.values())
-    url = f'{URL}/film/search?query[{fields}]={values}&all=true'
-    data = await make_get_request(url, headers)
+    data = await _search(params, headers)
+    if not data:
+        return {
+            'text_to_speech': messages.NOT_FOUND
+        }
+
     writers_names = data[0]['writers_names']
     if writers_names:
         writers = ' '.join(writers_names)
-        return {'text_to_speech': f'Сценарист фильма {writers}'}
-    return {'text_to_speech': 'Нет данных о сценаристе'}
+        persons = data[0]['writers']
+        return {
+            'text_to_speech': f'Сценарист фильма {writers}',
+            'persons': persons,
+        }
+    return {
+        'text_to_speech': messages.NOT_FOUND
+    }
 
 
 async def get_duration(headers, params):
-    fields = ','.join(params.keys())
-    values = ' '.join(params.values())
-    url = f'{URL}/film/search?query[{fields}]={values}&all=true'
-    data = await make_get_request(url, headers)
+    data = await _search(params, headers)
+    if not data:
+        return {
+            'text_to_speech': messages.NOT_FOUND
+        }
+
     duration = data[0]['duration']
     if duration:
-        return {'text_to_speech': f'Длительность фильма {duration} минут'}
-    return {'text_to_speech': 'Нет данных о длительности фильма'}
+        return {
+            'text_to_speech': f'Длительность фильма {duration} минут'
+        }
+
+    return {
+        'text_to_speech': messages.NOT_FOUND
+    }
 
 
 async def get_film_by_person(headers, params):
-    fields = ','.join(params.keys())
-    values = ' '.join(params.values())
-    url = f'{URL}/film/search?query[{fields}]={values}'
-    try:
-        data = await make_get_request(url, headers)
-    except HTTPException:
-        data = []
+    data = await _search(params, headers)
+    if not data:
+        return {
+            'text_to_speech': messages.NOT_FOUND
+        }
 
     titles = ' '.join(film_data['title'] for film_data in data)
     if titles:
         return {'text_to_speech': f'Фильмы {titles}'}
-    return {'text_to_speech': 'Нет данных о фильмах'}
+
+    return {
+        'text_to_speech': messages.NOT_FOUND
+    }
