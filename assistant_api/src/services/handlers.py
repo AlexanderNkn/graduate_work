@@ -1,4 +1,6 @@
 """Module contains methods for fetching data from movies_api with further processing."""
+from collections.abc import Callable, Coroutine
+
 from core import config, messages
 
 from .utils import make_get_request
@@ -7,7 +9,7 @@ from .utils import make_get_request
 URL = f'{config.MOVIESAPI_HOST}:{config.MOVIESAPI_PORT}{config.MOVIESAPI_BASE_URL}'
 
 
-def get_handler(intent: str):
+def get_handler(intent: str) -> Callable[..., Coroutine[None, None, dict]]:
     """Maps intent with its method."""
     return {
         'director_search': get_director,
@@ -15,7 +17,7 @@ def get_handler(intent: str):
         'writer_search': get_writer,
         'duration_search': get_duration,
         'film_by_person': get_film_by_person,
-    }.get(intent)
+    }[intent]
 
 
 async def _search(params, headers):
@@ -25,95 +27,51 @@ async def _search(params, headers):
     return await make_get_request(url, headers)
 
 
-async def get_director(headers, params):
+async def get_director(headers, params) -> dict:
     data = await _search(params, headers)
-    if not data:
-        return {
-            'text_to_speech': messages.NOT_FOUND
-        }
-
-    directors_names = data[0]['directors_names']
-    if directors_names:
-        directors = ' '.join(directors_names)
-        persons = data[0]['directors']
-        return {
-            'text_to_speech': f'Режиссер фильма {directors}',
-            'persons': persons,
-        }
+    directors_names = data and data[0].get('directors_names')
+    if directors_names is None:
+        return {'text_to_speech': messages.NOT_FOUND}
     return {
-        'text_to_speech': messages.NOT_FOUND
+        'text_to_speech': f'Режиссер фильма {", ".join(directors_names)}',
+        'persons': data[0]['directors'],
     }
 
 
-async def get_actor(headers, params):
+async def get_actor(headers, params) -> dict:
     data = await _search(params, headers)
-    if not data:
-        return {
-            'text_to_speech': messages.NOT_FOUND
-        }
-
-    actors_names = data[0]['actors_names']
-    if actors_names:
-        actors = ' '.join(actors_names)
-        persons = data[0]['actors']
-        return {
-            'text_to_speech': f'Актеры фильма {actors}',
-            'persons': persons,
-        }
+    actors_names = data and data[0].get('actors_names')
+    if actors_names is None:
+        return {'text_to_speech': messages.NOT_FOUND}
     return {
-        'text_to_speech': messages.NOT_FOUND
+        'text_to_speech': f'Актеры фильма {", ".join(actors_names)}',
+        'persons': data[0]['actors'],
     }
 
 
-async def get_writer(headers, params):
+async def get_writer(headers, params) -> dict:
     data = await _search(params, headers)
-    if not data:
-        return {
-            'text_to_speech': messages.NOT_FOUND
-        }
-
-    writers_names = data[0]['writers_names']
-    if writers_names:
-        writers = ' '.join(writers_names)
-        persons = data[0]['writers']
-        return {
-            'text_to_speech': f'Сценарист фильма {writers}',
-            'persons': persons,
-        }
+    writers_names = data and data[0].get('writers_names')
+    if writers_names is None:
+        return {'text_to_speech': messages.NOT_FOUND}
     return {
-        'text_to_speech': messages.NOT_FOUND
+        'text_to_speech': f'Сценарист фильма {", ".join(writers_names)}',
+        'persons': data[0]['writers'],
     }
 
 
-async def get_duration(headers, params):
+async def get_duration(headers, params) -> dict:
     data = await _search(params, headers)
-    if not data:
-        return {
-            'text_to_speech': messages.NOT_FOUND
-        }
-
-    duration = data[0]['duration']
-    if duration:
-        return {
-            'text_to_speech': f'Длительность фильма {duration} минут'
-        }
-
-    return {
-        'text_to_speech': messages.NOT_FOUND
-    }
+    duration = data and data[0].get('duration')
+    if data is None:
+        return {'text_to_speech': messages.NOT_FOUND}
+    return {'text_to_speech': f'Длительность фильма {duration} минут'}
 
 
-async def get_film_by_person(headers, params):
+async def get_film_by_person(headers, params) -> dict:
     data = await _search(params, headers)
-    if not data:
-        return {
-            'text_to_speech': messages.NOT_FOUND
-        }
+    if data is None:
+        return {'text_to_speech': messages.NOT_FOUND}
 
-    titles = ' '.join(film_data['title'] for film_data in data)
-    if titles:
-        return {'text_to_speech': f'Фильмы {titles}'}
-
-    return {
-        'text_to_speech': messages.NOT_FOUND
-    }
+    titles = ', '.join(film_data['title'] for film_data in data)
+    return {'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}'}

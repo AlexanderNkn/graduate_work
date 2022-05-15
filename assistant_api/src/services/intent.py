@@ -30,13 +30,7 @@ def is_movie_word(lemma):
 
 def intro_word_count(words):
     intro_words = ['сказать', 'показывать', 'называть']
-    word_num = 0
-    while word_num < len(words):
-        if words[word_num] in intro_words:
-            word_num += 1
-        else:
-            break
-    return word_num
+    return len([word for word in words if word in intro_words])
 
 
 def clear_movie_word(film_lemmas):
@@ -87,7 +81,6 @@ def get_intent(query: str) -> ParsedQuery | None:
     words = [get_word(lemma) for lemma in lemmas]
 
     word_num = intro_word_count(words)
-    # words = words[word_num:]
     lemmas = lemmas[word_num:]
 
     stemmed_query = lemmas_to_sentence(lemmas)
@@ -103,7 +96,7 @@ def get_intent(query: str) -> ParsedQuery | None:
         'автор сценарий': 'writer',
     }
 
-    # найдем персону по фильму
+    # find persons in movie
     start_phrases = ['кто быть', 'кто являться', 'кто', '']
     person_type, phrase_words = query_start_with_phrase(stemmed_query, start_phrases, person_phrases)
     if person_type:
@@ -116,7 +109,7 @@ def get_intent(query: str) -> ParsedQuery | None:
             params={'title': film_title}
         )
 
-    # найдем фильмы по персоне
+    # find movie by person
     start_phrases = ['что', 'где', 'какой фильм', 'в какой фильм', 'для какой фильм']
     person_type, phrase_words = query_start_with_phrase(stemmed_query, start_phrases, person_phrases)
     if person_type:
@@ -130,7 +123,7 @@ def get_intent(query: str) -> ParsedQuery | None:
             params={f'{person_type}s_names': person_name}
         )
 
-    # найдем длительность фильма
+    # find movie duration
     duration_phrases = {
         'сколько длиться': 'duration',
         'какой длительность': 'duration',
