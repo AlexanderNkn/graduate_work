@@ -41,6 +41,10 @@ jobs:
         run: |
           echo "${{ secrets.MOVIES_API_ENV }}" > movies_api/envs/.movies_api.env
 
+      - name: 'Create assistant_api env file'
+        run: |
+          echo "${{ secrets.ASSISTANT_API_ENV }}" > assistant_api/envs/.assistant_api.env
+
       - name: Build the stack
         run: docker-compose -f docker-compose.ci.yml up -d --build movies-api es redis
 
