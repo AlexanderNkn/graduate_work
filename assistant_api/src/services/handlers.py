@@ -1,12 +1,13 @@
 """Module contains methods for fetching data from movies_api with further processing."""
 from collections.abc import Callable, Coroutine
 
-from core import config, messages
+from core import messages
+from core.config import settings
 
 from .utils import make_get_request
 
 # The common url for all requests to movies api
-URL = f'{config.MOVIESAPI_HOST}:{config.MOVIESAPI_PORT}{config.MOVIESAPI_BASE_URL}'
+URL = f'{settings.movies_host}:{settings.movies_port}{settings.movies_base_url}'
 
 
 def get_handler(intent: str) -> Callable[..., Coroutine[None, None, dict]]:
