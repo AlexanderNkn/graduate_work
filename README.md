@@ -43,9 +43,9 @@ https://github.com/AlexanderNkn/graduate_work
 ### В контейнере
 - тесты запускаются автоматически в CI/CD. Для перезапуска выполните
     ```
-    docker-compose start test_auth
-    docker-compose start test-movies-api
-    docker-compose exec assistant-api pytest
+    docker-compose restart test_auth
+    docker-compose restart test-movies-api
+    docker-compose restart test_assistant_api
     ```
 
 ## Использование

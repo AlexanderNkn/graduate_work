@@ -8,6 +8,7 @@ services:
       - discovery.type=single-node
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
+
   movies-api:
     container_name: movies_search
     image: movies_search:v3.0
@@ -19,12 +20,14 @@ services:
     depends_on:
       - es
       - redis
+
   redis:
     container_name: redis
     image: redis:6.2.6-alpine
     restart: always
     volumes:
       - redis_data:/data
+
   test-movies-api:
     container_name: test_movies_api
     image: test_movies_api:v1.0
@@ -36,6 +39,7 @@ services:
     depends_on:
       - es
       - redis
+
   assistant-api:
     container_name: voice_assistant
     image: voice_assistant:v1.0
@@ -48,6 +52,17 @@ services:
       - movies-api
     volumes:
       - assistant_static_data:/usr/src/code/static/
+
+  test_assistant_api:
+    container_name: test_assistant_api
+    image: voice_assistant:v1.0
+    env_file:
+      - assistant_api/envs/.assistant_api.env
+    command: >
+      sh -c "pytest assistant_api/tests/unit"
+    depends_on:
+      - movies-api
+
 volumes:
   redis_data:
   elastic_data:
