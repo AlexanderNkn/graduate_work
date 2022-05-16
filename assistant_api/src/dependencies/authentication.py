@@ -1,4 +1,6 @@
-from fastapi import Depends
+from hashlib import sha1
+
+from fastapi import Depends, Header, Request
 from fastapi.security import OAuth2PasswordBearer
 
 from core.config import settings
@@ -9,6 +11,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='', auto_error=settings.enable_aut
 
 def get_token(token: str = Depends(oauth2_scheme)):
     return token
+
+
+def get_user_identity(request: Request, user_agent: str | None = Header(default=None)) -> str:
+    ip = request.client.host
+    return sha1((ip + user_agent).encode(), usedforsecurity=False).hexdigest()
 
 
 async def make_auth_request(permission: str, token: str, x_request_id: str):

@@ -8,7 +8,8 @@ text_normalizer = Mystem()
 @dataclass
 class ParsedQuery:
     intent: str
-    params: dict
+    params: dict | None = None
+    check_cache: bool = False
 
 
 def get_word(lemma):
@@ -90,6 +91,15 @@ def get_intent(query: str) -> ParsedQuery | None:
     lemmas = lemmas[word_num:]
 
     stemmed_query = lemmas_to_sentence(lemmas)
+
+    # TODO implement method to search query in cache
+    # this block for testing only
+    if stemmed_query == 'а кто там сниматься':
+        return ParsedQuery(
+            intent='actor_search',
+            check_cache=True
+        )
+
     person_phrases = {
         'режиссер': 'director',
         'сниматься': 'actor',

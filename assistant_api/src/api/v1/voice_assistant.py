@@ -25,14 +25,14 @@ async def check_voice_permission(token=get_token(), x_request_id=Header(None)):
 async def voice_query(
     query: str | None = None,
     authorized_headers: dict = Depends(check_voice_permission),
-    cache = Depends(get_redis),
+    cache=Depends(get_redis),
 ) -> HTMLResponse:
     data = {}
     if query is not None:
         parsed_query: ParsedQuery = get_intent(query)
         if parsed_query is not None:
             handler = get_handler(parsed_query.intent)
-            data = await handler(headers=authorized_headers, params=parsed_query.params, cache=cache)
+            data = await handler(authorized_headers, parsed_query, cache)
         else:
             data = {'text_to_speech': REQUEST_NOT_UNDERSTAND}
     html_content = get_site(data, 'index.html')
