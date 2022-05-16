@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     assistant_host: str = 'http://127.0.0.1'
-    assistant_port: int = 80
+    assistant_port: int = 8000
     assistant_base_url: str = '/assistant-api/v1'
 
     movies_host: str = 'http://127.0.0.1'
@@ -23,7 +23,11 @@ class Settings(BaseSettings):
     auth_host: str = 'http://127.0.0.1'
     auth_port: int = 80
     auth_base_url: str = '/auth-api/v1'
-    enable_authorization: int = 1
+    enable_authorization: int = 0
+
+    redis_host: str = '127.0.0.1'
+    redis_port: int = 6389
+    cache_expire: int = 300
 
     class Config:
         fields = {
@@ -38,6 +42,9 @@ class Settings(BaseSettings):
             'auth_port': {'env': 'AUTH_PORT'},
             'auth_base_url': {'env': 'AUTH_BASE_URL'},
             'enable_authorization': {'env': 'ENABLE_AUTHORIZATION'},
+            'redis_host': {'env': 'REDIS_HOST'},
+            'redis_port': {'env': 'REDIS_PORT'},
+            'cache_expire': {'env': 'CACHE_EXPIRE_IN_SECONDS'},
         }
 
 

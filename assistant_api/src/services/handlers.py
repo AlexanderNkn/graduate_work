@@ -3,6 +3,7 @@ from collections.abc import Callable, Coroutine
 
 from core import messages
 from core.config import settings
+from db.redis_db import Redis
 
 from .utils import make_get_request
 
@@ -21,15 +22,15 @@ def get_handler(intent: str) -> Callable[..., Coroutine[None, None, dict]]:
     }[intent]
 
 
-async def _search(params, headers):
+async def _search(params, headers, cache):
     fields = ','.join(params.keys())
     values = ' '.join(params.values())
     url = f'{URL}/film/search?query[{fields}]={values}&all=true'
     return await make_get_request(url, headers)
 
 
-async def get_director(headers, params) -> dict:
-    data = await _search(params, headers)
+async def get_director(headers, params, cache) -> dict:
+    data = await _search(params, headers, cache)
     directors_names = data and data[0].get('directors_names')
     if directors_names is None:
         return {'text_to_speech': messages.NOT_FOUND}
@@ -39,8 +40,8 @@ async def get_director(headers, params) -> dict:
     }
 
 
-async def get_actor(headers, params) -> dict:
-    data = await _search(params, headers)
+async def get_actor(headers, params, cache) -> dict:
+    data = await _search(params, headers, cache)
     actors_names = data and data[0].get('actors_names')
     if actors_names is None:
         return {'text_to_speech': messages.NOT_FOUND}
@@ -50,8 +51,8 @@ async def get_actor(headers, params) -> dict:
     }
 
 
-async def get_writer(headers, params) -> dict:
-    data = await _search(params, headers)
+async def get_writer(headers, params, cache) -> dict:
+    data = await _search(params, headers, cache)
     writers_names = data and data[0].get('writers_names')
     if writers_names is None:
         return {'text_to_speech': messages.NOT_FOUND}
@@ -61,16 +62,16 @@ async def get_writer(headers, params) -> dict:
     }
 
 
-async def get_duration(headers, params) -> dict:
-    data = await _search(params, headers)
+async def get_duration(headers, params, cache) -> dict:
+    data = await _search(params, headers, cache)
     duration = data and data[0].get('duration')
     if data is None:
         return {'text_to_speech': messages.NOT_FOUND}
     return {'text_to_speech': f'Длительность фильма {duration} минут'}
 
 
-async def get_film_by_person(headers, params) -> dict:
-    data = await _search(params, headers)
+async def get_film_by_person(headers, params, cache) -> dict:
+    data = await _search(params, headers, cache)
     if data is None:
         return {'text_to_speech': messages.NOT_FOUND}
 

@@ -1,6 +1,7 @@
 import logging
 import os
 
+import aioredis
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -9,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from api.v1 import voice_assistant
 from core.config import settings
 from core.logger import LOGGING
+from db import redis_db
 
 logging.getLogger('backoff').addHandler(logging.StreamHandler())
 
@@ -25,6 +27,17 @@ app = FastAPI(
 # static files
 static_dir = os.path.join(settings.base_dir, 'static')
 app.mount('/static', StaticFiles(directory=static_dir), name='static')
+
+
+@app.on_event('startup')
+async def startup():
+    redis_db.redis = await aioredis.create_redis(address=f'redis://{settings.redis_host}:{settings.redis_port}')
+
+
+@app.on_event('shutdown')
+async def shutdown():
+    redis_db.redis.close()
+    await redis_db.redis.wait_closed()
 
 
 app.include_router(voice_assistant.router, prefix='/assistant-api/v1/voice', tags=['voice_search'])
