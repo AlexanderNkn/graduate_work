@@ -147,6 +147,17 @@ services:
     depends_on:
       - es
       - redis
+
+  test_assistant_api:
+    container_name: test_assistant_api
+    image: voice_assistant:v1.0
+    env_file:
+      - assistant_api/envs/.assistant_api.env
+    command: >
+      sh -c "pytest assistant_api/tests/unit"
+    depends_on:
+      - movies-api
+
 volumes:
   movies_admin_db_data:
   auth_db_data:
