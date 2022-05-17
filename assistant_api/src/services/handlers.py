@@ -22,6 +22,7 @@ def get_handler(intent: str) -> Callable[..., Coroutine[None, None, dict]]:
         'writer_search': get_writer,
         'duration_search': get_duration,
         'film_by_person': get_film_by_person,
+        'other_films': get_another_film,
     }[intent]
 
 
@@ -39,7 +40,7 @@ async def _search(headers, query: ParsedQuery, cache: RedisStorage):
     return response
 
 
-async def get_director(headers, query, cache) -> dict:
+async def get_director(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
     data = await _search(headers, query, cache)
     directors_names = data and data[0].get('directors_names')
     if directors_names is None:
@@ -50,7 +51,7 @@ async def get_director(headers, query, cache) -> dict:
     }
 
 
-async def get_actor(headers, query, cache) -> dict:
+async def get_actor(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
     data = await _search(headers, query, cache)
     actors_names = data and data[0].get('actors_names')
     if actors_names is None:
@@ -61,7 +62,7 @@ async def get_actor(headers, query, cache) -> dict:
     }
 
 
-async def get_writer(headers, query, cache) -> dict:
+async def get_writer(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
     data = await _search(headers, query, cache)
     writers_names = data and data[0].get('writers_names')
     if writers_names is None:
@@ -72,7 +73,7 @@ async def get_writer(headers, query, cache) -> dict:
     }
 
 
-async def get_duration(headers, query, cache) -> dict:
+async def get_duration(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
     data = await _search(headers, query, cache)
     duration = data and data[0].get('duration')
     if data is None:
@@ -80,7 +81,21 @@ async def get_duration(headers, query, cache) -> dict:
     return {'text_to_speech': f'Длительность фильма {duration} минут'}
 
 
-async def get_film_by_person(headers, query, cache) -> dict:
+async def get_film_by_person(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
+    data = await _search(headers, query, cache)
+    if data is None:
+        return {'text_to_speech': messages.NOT_FOUND}
+
+    titles = ', '.join(film_data['title'] for film_data in data)
+    return {'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}'}
+
+
+async def get_another_film(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
+    cached_data = await cache.get()
+    directors_names = cached_data and orjson.loads(cached_data)[0].get('directors_names')
+    query.params = {
+        'directors_names': ' '.join(directors_names),
+    }
     data = await _search(headers, query, cache)
     if data is None:
         return {'text_to_speech': messages.NOT_FOUND}

@@ -71,7 +71,7 @@ def lemmas_to_sentence(lemmas):
     return ' '.join(get_word(lemma) for lemma in lemmas)
 
 
-def get_intent(query: str) -> ParsedQuery | None:
+def get_intent(query: str) -> ParsedQuery | None:  # noqa: WPS212
     """Returns intent with params from given query.
 
     Example:
@@ -98,6 +98,11 @@ def get_intent(query: str) -> ParsedQuery | None:
         return ParsedQuery(
             intent='actor_search',
             check_cache=True
+        )
+
+    if stemmed_query == 'а что еще он снимать':
+        return ParsedQuery(
+            intent='other_films',
         )
 
     person_phrases = {
