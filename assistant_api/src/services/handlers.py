@@ -92,13 +92,15 @@ async def get_film_by_person(headers, query: ParsedQuery, cache: RedisStorage) -
 
 async def get_another_film(headers, query: ParsedQuery, cache: RedisStorage) -> dict:
     cached_data = await cache.get()
-    directors_names = cached_data and orjson.loads(cached_data)[0].get('directors_names')
-    query.params = {
-        'directors_names': ' '.join(directors_names),
-    }
-    data = await _search(headers, query, cache)
-    if data is None:
-        return {'text_to_speech': messages.NOT_FOUND}
+    if cached_data is not None:
+        directors_names = orjson.loads(cached_data)[0].get('directors_names')
+        query.params = {
+            'directors_names': ' '.join(directors_names),
+        }
+        data = await _search(headers, query, cache)
 
-    titles = ', '.join(film_data['title'] for film_data in data)
-    return {'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}'}
+    if data is not None:
+        titles = ', '.join(film_data['title'] for film_data in data)
+        return {'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}'}
+
+    return {'text_to_speech': messages.NOT_FOUND}
