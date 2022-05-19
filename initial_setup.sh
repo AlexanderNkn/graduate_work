@@ -10,6 +10,9 @@ cp postgres_elastic_etl/envs/.etl.env.sample postgres_elastic_etl/envs/.etl.env
 cp auth/envs/.auth.env.sample auth/envs/.auth.env
 cp movies_api/envs/.movies_api.env.sample movies_api/envs/.movies_api.env
 
+# prepare state file for etl
+cp postgres_elastic_etl/data/etl_state_sample.json postgres_elastic_etl/data/etl_state.json
+
 # build images
 docker-compose build
 docker-compose -f docker-compose.yml -f docker-compose.initial.yml up -d movies_admin_db es auth
