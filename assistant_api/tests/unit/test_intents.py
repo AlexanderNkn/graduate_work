@@ -113,3 +113,27 @@ def test_film_by_writer():
 )
 def test_film_by_actor(query, expected):
     assert get_intent(query) == expected, 'film by person intent should be available'
+
+
+@pytest.mark.parametrize(
+    'query,expected', [
+        (
+            'Назови режиссера зеленой мили',
+            ParsedQuery(intent='director_search', params={'title': 'зеленый миля'})
+        ),
+        (
+            'Скажи кто режиссер зеленой мили',
+            ParsedQuery(intent='director_search', params={'title': 'зеленый миля'})
+        ),
+        (
+            'Покажи режиссера зеленой мили',
+            ParsedQuery(intent='director_search', params={'title': 'зеленый миля'})
+        ),
+        (
+            'Покажи режиссера фильма покажи мне отца',
+            ParsedQuery(intent='director_search', params={'title': 'показывать я отец'})
+        ),
+    ],
+)
+def test_intro_word_reduce(query, expected):
+    assert get_intent(query) == expected, 'director intent should be available in sentence with intro word'
