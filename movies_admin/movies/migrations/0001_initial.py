@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('title', models.CharField(max_length=255, verbose_name='title')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
-                ('creation_year', models.CharField(blank=True, max_length=20, verbose_name='creation year')),
+                ('description', models.TextField(blank=True, null=True, verbose_name='description')),
+                ('creation_year', models.CharField(blank=True, max_length=20, null=True, verbose_name='creation year')),
                 ('creation_date', models.DateField(blank=True, null=True, verbose_name='creation date')),
                 ('certificate', models.TextField(blank=True, verbose_name='certificate')),
                 ('kinopoisk_id', models.CharField(blank=True, max_length=20, verbose_name='kinopoisk_id')),
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='filmworkperson',
-            constraint=models.UniqueConstraint(fields=('film_work', 'person'), name='person_film_work_film_work_id_person_id_uniq'),
+            constraint=models.UniqueConstraint(fields=('film_work', 'person', 'role'), name='person_film_work_film_work_id_person_id_uniq'),
         ),
         migrations.AddConstraint(
             model_name='filmworkgenre',

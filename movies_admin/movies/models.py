@@ -59,8 +59,8 @@ class FilmworkType(models.TextChoices):
 class Filmwork(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(_('title'), max_length=255)
-    description = models.TextField(_('description'), blank=True)
-    creation_year = models.CharField(_('creation year'), max_length=20, blank=True)
+    description = models.TextField(_('description'), blank=True, null=True)
+    creation_year = models.CharField(_('creation year'), max_length=20, blank=True, null=True)
     creation_date = models.DateField(_('creation date'), blank=True, null=True)
     certificate = models.TextField(_('certificate'), blank=True)
     kinopoisk_id = models.CharField(_('kinopoisk_id'), max_length=20, blank=True)
@@ -143,7 +143,7 @@ class FilmworkPerson(models.Model):
         db_table = "content\".\"person_film_work"
         constraints = [
             models.UniqueConstraint(
-                fields=['film_work', 'person'],
+                fields=['film_work', 'person', 'role'],
                 name='person_film_work_film_work_id_person_id_uniq'
             ),
         ]
