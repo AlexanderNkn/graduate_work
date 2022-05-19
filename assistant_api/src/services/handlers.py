@@ -75,4 +75,7 @@ async def get_film_by_person(headers, params) -> dict:
         return {'text_to_speech': messages.NOT_FOUND}
 
     titles = ', '.join(film_data['title'] for film_data in data)
-    return {'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}'}
+    return {
+        'text_to_speech': f'Всего фильмов {len(data)}. Это - {titles}',
+        'films': data,
+    }

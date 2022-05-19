@@ -97,7 +97,7 @@ def get_intent(query: str) -> ParsedQuery | None:
         'снимать': 'director',
         'актер': 'actor',
         'написать сценарий': 'writer',
-        'создать сценарий': 'writer',
+        'создавать сценарий': 'writer',
         'сценарист': 'writer',
         'автор сценарий': 'writer',
     }
