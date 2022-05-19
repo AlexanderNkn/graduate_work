@@ -89,7 +89,7 @@ services:
     depends_on:
       - movies-api
     volumes:
-      - assistant_static_data:/usr/src/code/static/
+      - assistant_static_data:/usr/src/code/assistant_api/static/
 
   redis:
     container_name: redis
