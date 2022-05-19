@@ -5,13 +5,17 @@ import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor  # type: ignore
 
 from api.v1 import film, genre, person
 from core import config
 from core.logger import LOGGING
 from db import elastic_db, redis_db
+from dependencies.tracer import configure_tracer
 
 logging.getLogger('backoff').addHandler(logging.StreamHandler())
+
+configure_tracer()
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -39,6 +43,8 @@ async def shutdown():
 app.include_router(film.router, prefix='/movies-api/v1/film', tags=['film'])
 app.include_router(genre.router, prefix='/movies-api/v1/genre', tags=['genre'])
 app.include_router(person.router, prefix='/movies-api/v1/person', tags=['person'])
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 if __name__ == '__main__':

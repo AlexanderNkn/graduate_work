@@ -25,3 +25,6 @@ AUTH_HOST = os.getenv('AUTH_HOST', 'http://127.0.0.1')
 AUTH_PORT = int(os.getenv('AUTH_PORT', 80))
 AUTH_BASE_URL = os.getenv('AUTH_BASE_URL', '/auth-api/v1')
 ENABLE_AUTHORIZATION = int(os.getenv('ENABLE_AUTHORIZATION', 1))
+
+JAEGER_REPORTING_HOST = os.getenv('JAEGER_REPORTING_HOST', '127.0.0.1')
+JAEGER_REPORTING_PORT = int(os.getenv('JAEGER_REPORTING_PORT', 6831))
