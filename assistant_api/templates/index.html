@@ -27,12 +27,26 @@
 
   {% if persons %}
 	<h3>Персоны</h3>
-  {% for person in persons %}
 	<div>
-    <img src="/media/{{ person.photo_path }}" width="150" height="210"/>
-	</div>
-  <p class="personName">{{ person.name }}</p>
+  {% for person in persons %}
+      <span class="search_result">
+          <img src="/media/{{ person.photo_path }}" width="150" height="210"/>
+          <p class="personName">{{ person.name }}</p>
+      </span>
   {% endfor %}
+	</div>
+  {% endif %}
+
+  {% if films %}
+	<h3>Фильмы</h3>
+	<div>
+  {% for film in films %}
+      <span class="search_result">
+          <img src="/media/{{ film.screenshot_path }}" width="150" height="210"/>
+          <p class="personName">{{ film.title }}</p>
+      </span>
+  {% endfor %}
+	</div>
   {% endif %}
 
   <script src="/static/assistant/js/speechRecognition.js"></script>

@@ -32,7 +32,7 @@ class FilmDetailedDTO(BaseModel):
     """Film details received from elasticsearch."""
 
     id: uuid.UUID
-    imdb_rating: float
+    imdb_rating: Optional[float]
     genre: list[GenreShortDTO]
     title: str
     description: Optional[str]
