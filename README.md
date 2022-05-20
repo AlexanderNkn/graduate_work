@@ -58,6 +58,8 @@ https://github.com/AlexanderNkn/graduate_work
 - ETL процесс каждые 5 мин (значение можно изменить в переменных окружения) переносит новые фильмы, персоны и жанры в базу ElasticSearch. После этого данные будут доступны в поисковом сервисе movies_api.
 - Перейдите по адресу http://localhost/assistant-api/v1/voice/search, нажмите на иконку с микрофоном и произнесите вопрос. Должны услышать ответ и увидеть данные на экране
 ![поиск фильмов](docs/screenshots/movie_search.png)
+- Список примерных вопросов доступен по адресу http://localhost/assistant-api/v1/voice/demo
+![вопросы](docs/screenshots/questions.png)
 
 ## Распределенная трассировка
 - Распределенная трассировка реализована с помощью jaeger-client и opentelemetry.
