@@ -96,10 +96,11 @@ class TransformData:
         for id, rating, title, description, duration, persons, genres, screenshot_path, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
             actors_names, actors, writers_names, writers, directors_names, directors = [], [], [], [], [], []
-            unique_persons = ({person['id']: person for person in persons}.values())
+            unique_persons = ({(person['id'], person['role']): person for person in persons}.values())
             for person in unique_persons:
                 if not person.get('role'):
                     continue
+
                 person_info = {'id': person['id'], 'name': person['full_name'], 'photo_path': person['photo_path']}
                 if person['role'] == 'actor':
                     actors_names.append(person['full_name'])
