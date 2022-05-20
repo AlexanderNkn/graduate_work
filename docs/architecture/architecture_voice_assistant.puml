@@ -35,6 +35,7 @@ package FullTextSearch {
 
 package VoiceAssistant {
     component FastapiWebBackend as fastapi2
+    database Redis as redis3
 }
 
 package MovieSearch {
@@ -68,5 +69,7 @@ fastapi --> ElasticSearch: запрос данных по\nфильмам/акт
 Auth --> postgres2
 Auth --> redis2: кэширование\nзапросов
 fastapi2 --> Auth: Проверка разрешений\n пользователя
+fastapi --> Auth
+fastapi2 -r-> redis3: удержание\nконтекста
 
-@enduml 
+@enduml

@@ -100,6 +100,7 @@ class TransformData:
             for person in unique_persons:
                 if not person.get('role'):
                     continue
+
                 person_info = {'id': person['id'], 'name': person['full_name'], 'photo_path': person['photo_path']}
                 if person['role'] == 'actor':
                     actors_names.append(person['full_name'])

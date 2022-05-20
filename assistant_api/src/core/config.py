@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     auth_base_url: str = '/auth-api/v1'
     enable_authorization: int = 0
 
+    redis_host: str = '127.0.0.1'
+    redis_port: int = 6389
+    cache_expire: int = 300
+
     jaeger_repoting_host: str = 'http://127.0.0.1'
     jaeger_repoting_port: int = 6831
 
@@ -41,6 +45,9 @@ class Settings(BaseSettings):
             'auth_port': {'env': 'AUTH_PORT'},
             'auth_base_url': {'env': 'AUTH_BASE_URL'},
             'enable_authorization': {'env': 'ENABLE_AUTHORIZATION'},
+            'redis_host': {'env': 'REDIS_HOST'},
+            'redis_port': {'env': 'REDIS_PORT'},
+            'cache_expire': {'env': 'CACHE_EXPIRE_IN_SECONDS'},
             'jaeger_repoting_host': {'env': 'JAEGER_REPORTING_HOST'},
             'jaeger_repoting_port': {'env': 'JAEGER_REPORTING_PORT'},
         }
