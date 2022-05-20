@@ -30,7 +30,7 @@ def is_movie_word(lemma):
 
 
 def intro_word_count(words):
-    intro_words = ['сказать', 'показывать', 'называть']
+    intro_words = ['сказать', 'показывать', 'называть', 'а', 'и', 'еще']
     word_num = 0
     while word_num < len(words):
         if words[word_num] in intro_words:
@@ -92,19 +92,6 @@ def get_intent(query: str) -> ParsedQuery | None:  # noqa: WPS212
 
     stemmed_query = lemmas_to_sentence(lemmas)
 
-    # TODO implement method to search query in cache
-    # this block for testing only
-    if stemmed_query == 'а кто там сниматься':
-        return ParsedQuery(
-            intent='actor_search',
-            check_cache=True
-        )
-
-    if stemmed_query == 'а что еще он снимать':
-        return ParsedQuery(
-            intent='other_films',
-        )
-
     person_phrases = {
         'режиссер': 'director',
         'сниматься': 'actor',
@@ -112,7 +99,7 @@ def get_intent(query: str) -> ParsedQuery | None:  # noqa: WPS212
         'снимать': 'director',
         'актер': 'actor',
         'написать сценарий': 'writer',
-        'создать сценарий': 'writer',
+        'создавать сценарий': 'writer',
         'сценарист': 'writer',
         'автор сценарий': 'writer',
     }
@@ -163,6 +150,73 @@ def get_intent(query: str) -> ParsedQuery | None:  # noqa: WPS212
         return ParsedQuery(
             intent=intent,
             params={'title': film_title}
+        )
+
+    parsed_query = get_context_intent(stemmed_query, lemmas)
+    if parsed_query:
+        return parsed_query
+
+    return None
+
+
+def query_start_with_context_phrase(stemmed_query: str, start_phrases: list, goal_phrases: dict[str, str]):
+    for start_phrase in start_phrases:
+        if not stemmed_query.startswith(start_phrase):
+            continue
+
+        # for phrase, phrases_type in goal_phrases.items():
+        #     if start_phrase:
+        #         search_phrase = f'{start_phrase} {phrase}'
+        #     else:
+        #         search_phrase = phrase
+        #
+        #     if stemmed_query.startswith(search_phrase):
+        #         phrase_words = len(search_phrase.split())
+        #
+        #         return phrases_type, phrase_words
+
+    return None, 0
+
+
+def get_context_intent(stemmed_query, lemmas):
+
+    # Кто еще там снимался
+    # А кто там режиссер
+    # А что еще он снял
+    # А где еще он снимался
+    # В каких фильмах он снимался
+    # для каких фильмов еще писал сценарий
+
+    # find movie by person
+    start_phrases = ['что', 'где', 'какой фильм', 'в какой фильм', 'для какой фильм']
+
+    # find person by movie
+    start_phrases = ['кто там', 'кто в он', 'кто он']
+
+    person_phrases = {
+        'режиссер': 'director',
+        'сниматься': 'actor',
+        'снять': 'director',
+        'снимать': 'director',
+        'актер': 'actor',
+        'написать сценарий': 'writer',
+        'создавать сценарий': 'writer',
+        'сценарист': 'writer',
+        'автор сценарий': 'writer',
+    }
+
+    # TODO implement method to search query in cache
+
+    # this block for testing only
+    if stemmed_query == 'кто там сниматься':
+        return ParsedQuery(
+            intent='actor_search',
+            check_cache=True
+        )
+
+    if stemmed_query == 'что еще он снимать':
+        return ParsedQuery(
+            intent='other_films',
         )
 
     return None
