@@ -78,7 +78,10 @@ async def get_duration(headers, query: ParsedQuery, cache: RedisStorage) -> dict
     duration = data and data[0].get('duration')
     if data is None:
         return {'text_to_speech': messages.NOT_FOUND}
-    return {'text_to_speech': f'Длительность фильма {duration} минут'}
+    return {
+        'text_to_speech': f'Длительность фильма {duration} минут',
+        'films': [data[0]],
+    }
 
 
 async def get_film_by_person(headers, query: ParsedQuery, cache: RedisStorage) -> dict:

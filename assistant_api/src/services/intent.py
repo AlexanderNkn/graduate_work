@@ -14,7 +14,7 @@ class ParsedQuery:
 
 
 def get_word(lemma):
-    if 'analysis' in lemma:
+    if 'analysis' in lemma and lemma['analysis']:
         return lemma['analysis'][0]['lex']
     return lemma['text']
 
@@ -179,7 +179,7 @@ def query_start_with_context_phrase(lemmas: list, start_phrases: list, goal_phra
         query_lemmas = lemmas[phrase_words:]
         query_lemmas = clear_binding_word(query_lemmas, 'еще')
 
-        if get_word(query_lemmas[0]) in ['он', 'она', 'оно', 'они']:
+        if get_word(query_lemmas[0]) in {'он', 'она', 'оно', 'они'}:
             query_lemmas = query_lemmas[1:]
             query_lemmas = clear_binding_word(query_lemmas, 'еще')
 
