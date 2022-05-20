@@ -226,7 +226,6 @@ def get_context_intent(lemmas):
 
         return ParsedQuery(
             intent=intent,
-            # params={f'{person_type}s_names': person_name},
             check_cache=False,
             context_role=f'{person_type}s_names'
         )
