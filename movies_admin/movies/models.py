@@ -143,7 +143,7 @@ class FilmworkPerson(models.Model):
         db_table = "content\".\"person_film_work"
         constraints = [
             models.UniqueConstraint(
-                fields=['film_work', 'person'],
+                fields=['film_work', 'person', 'role'],
                 name='person_film_work_film_work_id_person_id_uniq'
             ),
         ]

@@ -37,3 +37,16 @@ async def voice_query(
             data = {'text_to_speech': REQUEST_NOT_UNDERSTAND}
     html_content = get_site(data, 'index.html')
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+
+
+@router.get(
+    '/demo',
+    response_class=HTMLResponse,
+    summary='List of questions for demo',
+    description='List of questions for demo',
+    response_description='List of questions for demo',
+)
+async def get_demo(
+) -> HTMLResponse:
+    html_content = get_site({}, 'questions_list.html')
+    return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)

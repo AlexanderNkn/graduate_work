@@ -6,7 +6,7 @@ import pybreaker
 from core import config
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='', auto_error=config.ENABLE_AUTHORIZATION)
-db_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60)
+db_breaker = pybreaker.CircuitBreaker(fail_max=50, reset_timeout=60)
 
 
 def get_token(token: str = Depends(oauth2_scheme)):

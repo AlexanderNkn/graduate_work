@@ -28,10 +28,24 @@
   {% if persons %}
 	<h3>Персоны</h3>
   {% for person in persons %}
-	<div>
-    <img src="/media/{{ person.photo_path }}" width="150" height="210"/>
-	</div>
-  <p class="personName">{{ person.name }}</p>
+	<div class="card">
+      <span class="search_result">
+          <img src="/media/{{ person.photo_path }}" width="150" height="210"/>
+          <p class="card-text">{{ person.name }}</p>
+      </span>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if films %}
+	<h3>Фильмы</h3>
+  {% for film in films %}
+	<div class="card">
+      <span class="search_result">
+          <img src="/media/{{ film.screenshot_path }}" width="150" height="210"/>
+          <p class="card-text">{{ film.title }}</p>
+      </span>
+  </div>
   {% endfor %}
   {% endif %}
 

@@ -62,3 +62,9 @@ swagger-codegen-cli.jar
 
 # for authentication via google account
 client_secret.json
+
+# etl state
+etl_state.json
+
+# movies and persons images
+media
