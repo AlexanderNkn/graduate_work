@@ -12,7 +12,7 @@ services:
       - ./movies_admin/envs/.admin.env
     volumes:
       - admin_static_data:/usr/src/code/static/
-      - admin_media_data:/usr/src/code/media/
+      - ./media:/usr/src/code/media/
     depends_on:
       - movies_admin_db
 
@@ -106,7 +106,7 @@ services:
       - ./nginx/configs:/etc/nginx/conf.d:ro
       - admin_static_data:/usr/src/code/static/
       - assistant_static_data:/usr/src/code/static/assistant
-      - admin_media_data:/usr/src/code/media/  
+      - ./media:/usr/src/code/media/  
     ports:
       - 80:80
     depends_on:
@@ -167,4 +167,3 @@ volumes:
   etl_state:
   admin_static_data:
   assistant_static_data:
-  admin_media_data:

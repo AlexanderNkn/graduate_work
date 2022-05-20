@@ -30,7 +30,7 @@ config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('main')
 
 # number of rows that are fetch from Postgres then upload to Elastic in one iteration
-TRANSFER_BATCH_SIZE = 500
+TRANSFER_BATCH_SIZE = 15000
 # path for ETL latest state
 STATE_PATH = join(dirname(__file__), 'data/etl_state.json')
 
@@ -96,7 +96,7 @@ class TransformData:
         for id, rating, title, description, duration, persons, genres, screenshot_path, latest_update in data:
             genres = list({genre['id']: genre for genre in genres}.values())
             actors_names, actors, writers_names, writers, directors_names, directors = [], [], [], [], [], []
-            unique_persons = ({person['id']: person for person in persons}.values())
+            unique_persons = ({(person['id'], person['role']): person for person in persons}.values())
             for person in unique_persons:
                 if not person.get('role'):
                     continue

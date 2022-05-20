@@ -65,3 +65,6 @@ client_secret.json
 
 # etl state
 etl_state.json
+
+# movies and persons images
+media
