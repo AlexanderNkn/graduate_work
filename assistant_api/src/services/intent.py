@@ -108,6 +108,7 @@ def get_intent(query: str) -> ParsedQuery | None:  # noqa: WPS212
         'снимать': 'director',
         'актер': 'actor',
         'написать сценарий': 'writer',
+        'писать сценарий': 'writer',
         'создавать сценарий': 'writer',
         'сценарист': 'writer',
         'автор сценарий': 'writer',
