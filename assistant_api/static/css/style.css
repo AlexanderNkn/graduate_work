@@ -1,8 +1,16 @@
+body {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+h3 {
+  font-size: 24px;
+}
+
 .speech {
   border: 1px solid #ddd;
   width: 600px;
   padding: 0;
-  margin: 0;
+  margin: 0 0 10px;
 }
 
 .speech input {
@@ -24,13 +32,6 @@ span.search_result {
   vertical-align: top;
 }
 
-.personName {
-  font-size: 24px;
-  font-weight: 500;
-  width: 150px;
-  text-align: center;
-}
-
 table, th, td {
   border: 1px solid black;
   border-collapse: collapse;
@@ -43,4 +44,22 @@ table, th, td {
 .question_table th, td {
   width: 50%;
   height: 30px;
+}
+
+.card {
+  width: 150px;
+  height: 250px;
+  margin-bottom: 60px;
+  margin-left: 20px;
+  padding: 10px;
+  display: inline-block;
+  box-shadow: 4px 4px 5px #c6dff2;
+}
+
+.card-text {
+  font-size: 18px;
+  font-weight: 500;
+  width: 150px;
+  text-align: center;
+  margin: 2px;
 }
